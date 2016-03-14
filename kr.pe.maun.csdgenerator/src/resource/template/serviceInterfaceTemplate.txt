@@ -1,0 +1,9 @@
+package [packagePath];
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+public interface [upperPrefix]Service {
+
+}

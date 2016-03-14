@@ -1,0 +1,28 @@
+package [packagePath];
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.ModelAndView;
+
+import [serviceFullPath];
+
+@Controller
+public class [upperPrefix]Controller {
+
+	private static final Logger logger = LogManager.getLogger([upperPrefix]Controller.class);
+
+	@Autowired
+	private [upperPrefix]Service [prefix]Service;
+
+	@RequestMapping(value="/[prefix]", method=RequestMethod.GET)
+	public ModelAndView [prefix]() {
+		ModelAndView modelAndView = new ModelAndView("[prefix]/[prefix]");
+
+		return modelAndView;
+	}
+}

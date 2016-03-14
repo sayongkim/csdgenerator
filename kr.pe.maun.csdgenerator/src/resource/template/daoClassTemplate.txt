@@ -1,0 +1,19 @@
+package [packagePath];
+
+import javax.annotation.Resource;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import org.mybatis.spring.SqlSessionTemplate;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class [upperPrefix]Dao {
+
+	private static final Logger logger = LogManager.getLogger([upperPrefix]Dao.class);
+
+	@Resource()
+	private SqlSessionTemplate sqlSession;
+
+}

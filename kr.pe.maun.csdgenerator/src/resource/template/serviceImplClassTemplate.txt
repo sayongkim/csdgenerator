@@ -1,0 +1,21 @@
+package [packagePath];
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import [serviceFullPath];
+import [daoFullPath];
+
+@Service
+public class [upperPrefix]ServiceImpl implements [upperPrefix]Service {
+
+	private static final Logger logger = LogManager.getLogger([upperPrefix]ServiceImpl.class);
+
+	@Resource
+	private [upperPrefix]Dao [prefix]Dao;
+
+}

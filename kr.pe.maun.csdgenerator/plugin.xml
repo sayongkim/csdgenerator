@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            adaptable="true"
+            id="kr.pe.maun.csdgenerator.popupMenu"
+            objectClass="org.eclipse.core.resources.IFolder">
+         <action
+               class="kr.pe.maun.csdgenerator.actions.CSDGeneratorAction"
+               enablesFor="+"
+               id="kr.pe.maun.csdgenerator.CSDGeneratorAction"
+               label="CSD Generator"
+               menubarPath="kr.pe.maun.csdgenerator.popupMenu">
+         </action>
+      </objectContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="kr.pe.maun.csdgenerator.preferences.CSDGeneratorPreferencePage"
+            id="kr.pe.maun.csdgenerator.preferences.CSDGeneratorPreferencePage"
+            name="CSD Generator">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="kr.pe.maun.csdgenerator.preferences.PreferenceInitializer">
+      </initializer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.propertyPages">
+      <page
+            class="kr.pe.maun.csdgenerator.properties.CSDGeneratorResourcePerpertyPage"
+            id="kr.pe.maun.csdgenerator.resourcePropertyPage"
+            name="CSD Generator"
+            objectClass="org.eclipse.jdt.core.IJavaProject">
+      </page>
+   </extension>
+
+</plugin>

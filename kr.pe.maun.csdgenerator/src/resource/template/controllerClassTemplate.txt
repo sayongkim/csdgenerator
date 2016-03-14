@@ -12,16 +12,16 @@ import org.springframework.web.servlet.ModelAndView;
 import [serviceFullPath];
 
 @Controller
-public class [upperPrefix]Controller {
+public class [capitalizePrefix]Controller {
 
-	private static final Logger logger = LogManager.getLogger([upperPrefix]Controller.class);
+	private static final Logger logger = LogManager.getLogger([capitalizePrefix]Controller.class);
 
 	@Autowired
-	private [upperPrefix]Service [prefix]Service;
+	private [capitalizePrefix]Service [lowerPrefix]Service;
 
-	@RequestMapping(value="/[prefix]", method=RequestMethod.GET)
+	@RequestMapping(value="/[lowerPrefix]", method=RequestMethod.GET)
 	public ModelAndView [prefix]() {
-		ModelAndView modelAndView = new ModelAndView("[prefix]/[prefix]");
+		ModelAndView modelAndView = new ModelAndView("[lowerPrefix]/[lowerPrefix]");
 
 		return modelAndView;
 	}

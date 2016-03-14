@@ -10,11 +10,11 @@ import org.springframework.stereotype.Service;
 import [daoFullPath];
 
 @Service
-public class [upperPrefix]Service {
+public class [capitalizePrefix]Service {
 
-	private static final Logger logger = LogManager.getLogger([upperPrefix]Service.class);
+	private static final Logger logger = LogManager.getLogger([capitalizePrefix]Service.class);
 
 	@Resource
-	private [upperPrefix]Dao [prefix]Dao;
+	private [capitalizePrefix]Dao [lowerPrefix]Dao;
 
 }

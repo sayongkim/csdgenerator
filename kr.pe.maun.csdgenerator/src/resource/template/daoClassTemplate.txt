@@ -9,9 +9,9 @@ import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class [upperPrefix]Dao {
+public class [capitalizePrefix]Dao {
 
-	private static final Logger logger = LogManager.getLogger([upperPrefix]Dao.class);
+	private static final Logger logger = LogManager.getLogger([capitalizePrefix]Dao.class);
 
 	@Resource()
 	private SqlSessionTemplate sqlSession;

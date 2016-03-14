@@ -11,11 +11,11 @@ import [serviceFullPath];
 import [daoFullPath];
 
 @Service
-public class [upperPrefix]ServiceImpl implements [upperPrefix]Service {
+public class [capitalizePrefix]ServiceImpl implements [capitalizePrefix]Service {
 
-	private static final Logger logger = LogManager.getLogger([upperPrefix]ServiceImpl.class);
+	private static final Logger logger = LogManager.getLogger([capitalizePrefix]ServiceImpl.class);
 
 	@Resource
-	private [upperPrefix]Dao [prefix]Dao;
+	private [capitalizePrefix]Dao [lowerPrefix]Dao;
 
 }

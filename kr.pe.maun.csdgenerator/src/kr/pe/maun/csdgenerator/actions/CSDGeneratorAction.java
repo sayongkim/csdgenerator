@@ -66,11 +66,11 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 		if(folder != null && prefix != null) {
 
-			IFolder newFolder = folder.getFolder(new Path(prefix.toString()));
+			IFolder newFolder = folder.getFolder(new Path(prefix));
 
-			String controllerPath = prefix.toString() + "Controller";	
-			String servicePath = prefix.toString() + "Service";
-			String daoPath = prefix.toString() + "Dao";
+			String controllerPath = prefix + "Controller";
+			String servicePath = prefix + "Service";
+			String daoPath = prefix + "Dao";
 
 			try {
 
@@ -134,9 +134,10 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 				folder = (IFolder) folder.getParent().getAdapter(IFolder.class);
 			}
 
-			IFolder newFolder = folder.getFolder(new Path(prefix.toString()));
+			IFolder newFolder = folder.getFolder(new Path(prefix));
 
-			String upperPrefix = prefix.substring(0, 1).toUpperCase() + prefix.substring(1, prefix.length());
+			String capitalizePrefix = prefix.substring(0, 1).toUpperCase() + prefix.substring(1, prefix.length());
+			String lowerPrefix = prefix.toLowerCase();
 
 			try {
 
@@ -156,7 +157,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 				if(isCreateControllerFolder) {
 
-					if(isAddPrefixControllerFolder) controllerFolderName += upperPrefix;
+					if(isAddPrefixControllerFolder) controllerFolderName += capitalizePrefix;
 
 					controllerFolderName += "Controller";
 					controllerPackage = controllerPackage + "." + controllerFolderName;
@@ -177,7 +178,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 				if(isCreateServiceFolder) {
 
-					if(isAddPrefixServiceFolder) serviceFolderName += upperPrefix;
+					if(isAddPrefixServiceFolder) serviceFolderName += capitalizePrefix;
 
 					serviceFolderName += "Service";
 					servicePackage = servicePackage + "." + serviceFolderName;
@@ -218,7 +219,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 				if(isCreateDaoFolder) {
 
-					if(isAddPrefixDaoFolder) daoFolderName += upperPrefix;
+					if(isAddPrefixDaoFolder) daoFolderName += capitalizePrefix;
 
 					daoFolderName += "Dao";
 					daoPackage = daoPackage + "." + daoFolderName;
@@ -261,13 +262,14 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 				/* Contoller 파일내용을 가져온다.. */
 				String controllerContent = getSource(controllerTemplateFile);
 				controllerContent = controllerContent.replaceAll("\\[packagePath\\]", controllerPackage);
-				controllerContent = controllerContent.replaceAll("\\[serviceFullPath\\]", servicePackage + "." + upperPrefix + "Service");
+				controllerContent = controllerContent.replaceAll("\\[serviceFullPath\\]", servicePackage + "." + capitalizePrefix + "Service");
 				controllerContent = controllerContent.replaceAll("\\[prefix\\]", prefix);
-				controllerContent = controllerContent.replaceAll("\\[upperPrefix\\]", upperPrefix);
+				controllerContent = controllerContent.replaceAll("\\[lowerPrefix\\]", lowerPrefix);
+				controllerContent = controllerContent.replaceAll("\\[capitalizePrefix\\]", capitalizePrefix);
 				/* S: Contoller 파일을 생성한다. */
 				ByteArrayInputStream controllerFileStream = new ByteArrayInputStream(controllerContent.getBytes());
 
-				IFile controllerFile = controllerFolder.getFile(new Path(upperPrefix + "Controller.java"));
+				IFile controllerFile = controllerFolder.getFile(new Path(capitalizePrefix + "Controller.java"));
 				if(!controllerFile.exists()) controllerFile.create(controllerFileStream ,true,new NullProgressMonitor());
 				/* E: Contoller 파일을 생성한다. */
 /* E : Contoller 생성 */
@@ -285,13 +287,14 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 				/* Service 파일내용을 가져온다.. */
 				String serviceContent = getSource(serviceTemplateFile);
 				serviceContent = serviceContent.replaceAll("\\[packagePath\\]", servicePackage);
-				serviceContent = serviceContent.replaceAll("\\[daoFullPath\\]", daoPackage + "." + upperPrefix + "Dao");
+				serviceContent = serviceContent.replaceAll("\\[daoFullPath\\]", daoPackage + "." + capitalizePrefix + "Dao");
 				serviceContent = serviceContent.replaceAll("\\[prefix\\]", prefix);
-				serviceContent = serviceContent.replaceAll("\\[upperPrefix\\]", upperPrefix);
+				serviceContent = serviceContent.replaceAll("\\[lowerPrefix\\]", lowerPrefix);
+				serviceContent = serviceContent.replaceAll("\\[capitalizePrefix\\]", capitalizePrefix);
 				/* S: Service 파일을 생성한다. */
 				ByteArrayInputStream serviceFileStream = new ByteArrayInputStream(serviceContent.getBytes());
 
-				IFile serviceFile = serviceFolder.getFile(new Path(upperPrefix + "Service.java"));
+				IFile serviceFile = serviceFolder.getFile(new Path(capitalizePrefix + "Service.java"));
 				if(!serviceFile.exists()) serviceFile.create(serviceFileStream ,true,new NullProgressMonitor());
 
 				if(isCreateServiceImpl) {
@@ -303,14 +306,15 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 					/* Service 파일내용을 가져온다.. */
 					String serviceImplContent = getSource(serviceImplTemplateFile);
 					serviceImplContent = serviceImplContent.replaceAll("\\[packagePath\\]", serviceImplPackage);
-					serviceImplContent = serviceImplContent.replaceAll("\\[serviceFullPath\\]", servicePackage + "." + upperPrefix + "Service");
-					serviceImplContent = serviceImplContent.replaceAll("\\[daoFullPath\\]", daoPackage + "." + upperPrefix + "Dao");
+					serviceImplContent = serviceImplContent.replaceAll("\\[serviceFullPath\\]", servicePackage + "." + capitalizePrefix + "Service");
+					serviceImplContent = serviceImplContent.replaceAll("\\[daoFullPath\\]", daoPackage + "." + capitalizePrefix + "Dao");
 					serviceImplContent = serviceImplContent.replaceAll("\\[prefix\\]", prefix);
-					serviceImplContent = serviceImplContent.replaceAll("\\[upperPrefix\\]", upperPrefix);
+					serviceImplContent = serviceImplContent.replaceAll("\\[lowerPrefix\\]", lowerPrefix);
+					serviceImplContent = serviceImplContent.replaceAll("\\[capitalizePrefix\\]", capitalizePrefix);
 					/* S: Service 파일을 생성한다. */
 					ByteArrayInputStream serviceImplFileStream = new ByteArrayInputStream(serviceImplContent.getBytes());
 
-					IFile serviceImplFile = serviceImplFolder.getFile(new Path(upperPrefix + "ServiceImpl.java"));
+					IFile serviceImplFile = serviceImplFolder.getFile(new Path(capitalizePrefix + "ServiceImpl.java"));
 					if(!serviceImplFile.exists()) serviceImplFile.create(serviceImplFileStream ,true,new NullProgressMonitor());
 				}
 /* E : Service 생성 */
@@ -324,11 +328,13 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 				/* Dao 파일내용을 가져온다.. */
 				String daoContent = getSource(daoTemplateFile);
 				daoContent = daoContent.replaceAll("\\[packagePath\\]", daoPackage);
-				daoContent = daoContent.replaceAll("\\[upperPrefix\\]", upperPrefix);
+				daoContent = daoContent.replaceAll("\\[prefix\\]", prefix);
+				daoContent = daoContent.replaceAll("\\[lowerPrefix\\]", lowerPrefix);
+				daoContent = daoContent.replaceAll("\\[capitalizePrefix\\]", capitalizePrefix);
 				/* S: Dao 파일을 생성한다. */
 				ByteArrayInputStream daoFileStream = new ByteArrayInputStream(daoContent.getBytes());
 
-				IFile daoFile = daoFolder.getFile(new Path(upperPrefix + "Dao.java"));
+				IFile daoFile = daoFolder.getFile(new Path(capitalizePrefix + "Dao.java"));
 				if(!daoFile.exists()) daoFile.create(daoFileStream ,true,new NullProgressMonitor());
 /* E : Dao 생성 */
 

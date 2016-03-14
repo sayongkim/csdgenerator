@@ -1,7 +1,5 @@
 package kr.pe.maun.csdgenerator.dialogs;
 
-import kr.pe.maun.csdgenerator.model.CSDGeneratorPropertiesItem;
-
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jface.dialogs.Dialog;
@@ -16,14 +14,17 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
+
+import kr.pe.maun.csdgenerator.model.CSDGeneratorPropertiesItem;
 
 public class CSDGeneratorDialog extends Dialog {
 
@@ -37,6 +38,7 @@ public class CSDGeneratorDialog extends Dialog {
 
 	Button createParentLocation;
 	Button createFolder;
+	Button templateBoard;
 	private Tree tree;
 
 	IPackageFragment packageFragment;
@@ -53,10 +55,11 @@ public class CSDGeneratorDialog extends Dialog {
 
 	@Override
 	protected Control createDialogArea(Composite parent) {
+
 		Composite container = (Composite) super.createDialogArea(parent);
 
 		GridLayout gridLayout = new GridLayout();
-		gridLayout.numColumns = 2;
+		gridLayout.numColumns = 1;
 		container.setLayout(gridLayout);
 
 		GridData gridData = new GridData();
@@ -97,10 +100,28 @@ public class CSDGeneratorDialog extends Dialog {
 		);
 		createFolder.setSelection(this.isCreateFolder);
 
+		Group templateGroup = new Group(container, SWT.NONE);
+		templateGroup.setText("Template");
+		templateGroup.setLayout(new RowLayout(SWT.VERTICAL));
+		templateGroup.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, false));
+
+		templateBoard = new Button(templateGroup, SWT.CHECK);
+		templateBoard.setText("Board");
+		templateBoard.addSelectionListener(new SelectionListener() {
+			@Override public void widgetSelected(SelectionEvent e) {
+				Button button = (Button) e.widget;
+			}
+			@Override public void widgetDefaultSelected(SelectionEvent e) {
+				widgetSelected(e);
+			}
+		}
+	);
+
+/*
 		Label prefixLabel = new Label(container, SWT.NONE);
 		prefixLabel.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, false, false));
 		prefixLabel.setText("Prefix: ");
-
+*/
 		prefixField = new Text(container, SWT.BORDER);
 		prefixField.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, false));
 		prefixField.addModifyListener(new ModifyListener() {
@@ -156,10 +177,10 @@ public class CSDGeneratorDialog extends Dialog {
 
 		String packagePath = packageFragment.getElementName();
 
-		String upperPrefix = "";
+		String capitalizePrefix = "";
 
-		if(prefix.length() > 1) upperPrefix = prefix.substring(0, 1).toUpperCase() + prefix.substring(1, prefix.length());
-		else if(prefix.length() == 1) upperPrefix = prefix.substring(0, 1).toUpperCase();
+		if(prefix.length() > 1) capitalizePrefix = prefix.substring(0, 1).toUpperCase() + prefix.substring(1, prefix.length());
+		else if(prefix.length() == 1) capitalizePrefix = prefix.substring(0, 1).toUpperCase();
 
 		if(isParentLocation) {
 			packagePath = packagePath.substring(0, packagePath.lastIndexOf("."));
@@ -175,7 +196,7 @@ public class CSDGeneratorDialog extends Dialog {
 			String controllerFolder = "";
 
 			if(isAddPrefixControllerFolder) {
-				controllerFolder += upperPrefix;
+				controllerFolder += capitalizePrefix;
 			}
 
 			controllerFolder += "Controller";
@@ -184,13 +205,13 @@ public class CSDGeneratorDialog extends Dialog {
 			controllerFolderTreeItem.setText(controllerFolder);
 
 			TreeItem controllerJavaTreeItem = new TreeItem(controllerFolderTreeItem, SWT.NONE);
-			controllerJavaTreeItem.setText(upperPrefix + "Controller.java");
+			controllerJavaTreeItem.setText(capitalizePrefix + "Controller.java");
 
 			controllerFolderTreeItem.setExpanded(true);
 
 		} else {
 			TreeItem controllerJavaTreeItem = new TreeItem(packageTreeItem, SWT.NONE);
-			controllerJavaTreeItem.setText(upperPrefix + "Controller.java");
+			controllerJavaTreeItem.setText(capitalizePrefix + "Controller.java");
 		}
 
 		if(isCreateServiceFolder) {
@@ -198,7 +219,7 @@ public class CSDGeneratorDialog extends Dialog {
 			String serviceFolder = "";
 
 			if(isAddPrefixServiceFolder) {
-				serviceFolder += upperPrefix;
+				serviceFolder += capitalizePrefix;
 			}
 
 			serviceFolder += "Service";
@@ -207,7 +228,7 @@ public class CSDGeneratorDialog extends Dialog {
 			serviceFolderTreeItem.setText(serviceFolder);
 
 			TreeItem serviceJavaTreeItem = new TreeItem(serviceFolderTreeItem, SWT.NONE);
-			serviceJavaTreeItem.setText(upperPrefix + "Service.java");
+			serviceJavaTreeItem.setText(capitalizePrefix + "Service.java");
 
 			if(isCreateServiceImpl) {
 				TreeItem serviceImplFolderTreeItem = null;
@@ -220,7 +241,7 @@ public class CSDGeneratorDialog extends Dialog {
 					serviceImplFolderTreeItem = serviceFolderTreeItem;
 				}
 				TreeItem serviceImplJavaTreeItem = new TreeItem(serviceImplFolderTreeItem, SWT.NONE);
-				serviceImplJavaTreeItem.setText(upperPrefix + "ServiceImpl.java");
+				serviceImplJavaTreeItem.setText(capitalizePrefix + "ServiceImpl.java");
 				serviceImplFolderTreeItem.setExpanded(true);
 			}
 
@@ -228,7 +249,7 @@ public class CSDGeneratorDialog extends Dialog {
 
 		} else {
 			TreeItem controllerJavaTreeItem = new TreeItem(packageTreeItem, SWT.NONE);
-			controllerJavaTreeItem.setText(upperPrefix + "Service.java");
+			controllerJavaTreeItem.setText(capitalizePrefix + "Service.java");
 		}
 
 		if(isCreateDaoFolder) {
@@ -236,7 +257,7 @@ public class CSDGeneratorDialog extends Dialog {
 			String daoFolder = "";
 
 			if(isAddPrefixDaoFolder) {
-				daoFolder += upperPrefix;
+				daoFolder += capitalizePrefix;
 			}
 
 			daoFolder += "Dao";
@@ -245,13 +266,13 @@ public class CSDGeneratorDialog extends Dialog {
 			daoFolderTreeItem.setText(daoFolder);
 
 			TreeItem daoJavaTreeItem = new TreeItem(daoFolderTreeItem, SWT.NONE);
-			daoJavaTreeItem.setText(upperPrefix + "Dao.java");
+			daoJavaTreeItem.setText(capitalizePrefix + "Dao.java");
 
 			daoFolderTreeItem.setExpanded(true);
 
 		} else {
 			TreeItem daoJavaTreeItem = new TreeItem(packageTreeItem, SWT.NONE);
-			daoJavaTreeItem.setText(upperPrefix + "Dao.java");
+			daoJavaTreeItem.setText(capitalizePrefix + "Dao.java");
 		}
 
 		packageTreeItem.setExpanded(true);

@@ -99,7 +99,7 @@ public class CSDGeneratorDialog extends Dialog {
 			}
 		);
 		createFolder.setSelection(this.isCreateFolder);
-
+/*
 		Group templateGroup = new Group(container, SWT.NONE);
 		templateGroup.setText("Template");
 		templateGroup.setLayout(new RowLayout(SWT.VERTICAL));
@@ -108,14 +108,15 @@ public class CSDGeneratorDialog extends Dialog {
 		templateBoard = new Button(templateGroup, SWT.CHECK);
 		templateBoard.setText("Board");
 		templateBoard.addSelectionListener(new SelectionListener() {
-			@Override public void widgetSelected(SelectionEvent e) {
-				Button button = (Button) e.widget;
+				@Override public void widgetSelected(SelectionEvent e) {
+					Button button = (Button) e.widget;
+				}
+				@Override public void widgetDefaultSelected(SelectionEvent e) {
+					widgetSelected(e);
+				}
 			}
-			@Override public void widgetDefaultSelected(SelectionEvent e) {
-				widgetSelected(e);
-			}
-		}
-	);
+		);
+*/
 
 /*
 		Label prefixLabel = new Label(container, SWT.NONE);

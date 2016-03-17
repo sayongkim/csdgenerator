@@ -1,10 +1,12 @@
 package [packagePath];
 
+import java.util.HashMap;
+import java.util.List;
+
 import javax.annotation.Resource;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -15,5 +17,70 @@ public class [capitalizePrefix]Dao {
 
 	@Resource()
 	private SqlSessionTemplate sqlSession;
+
+	/**
+	 * 총 건수 조회
+	 * @Method : select[capitalizePrefix]TotalCnt
+	 * @Company : [company]
+	 * @Author : [author]
+	 * @Date : [date]
+	 * @param searchMap
+	 * @return
+	 */
+	public int select[capitalizePrefix]TotalCnt(HashMap<String, Object> searchMap) {
+		return sqlSession.selectOne("[lowerPrefix]Mapper.select[capitalizePrefix]TotalCnt", searchMap);
+	}
+
+	/**
+	 * 목록 조회
+	 * @Method : select[capitalizePrefix]TotalCnt
+	 * @Company : [company]
+	 * @Author : [author]
+	 * @Date : [date]
+	 * @param searchMap
+	 * @return
+	 */
+	public List<HashMap<String, String>> select[capitalizePrefix]List(HashMap<String, Object> searchMap) {
+		return sqlSession.selectList("[lowerPrefix]Mapper.select[capitalizePrefix]List", searchMap);
+	}
+
+	/**
+	 * 조회
+	 * @Method : select[capitalizePrefix]TotalCnt
+	 * @Company : [company]
+	 * @Author : [author]
+	 * @Date : [date]
+	 * @param searchMap
+	 * @return
+	 */
+	public HashMap<String, String> select[capitalizePrefix](HashMap<String, Object> searchMap) {
+		return sqlSession.selectOne("[lowerPrefix]Mapper.select[capitalizePrefix]", searchMap);
+	}
+
+	/**
+	 * 등록
+	 * @Method : select[capitalizePrefix]TotalCnt
+	 * @Company : [company]
+	 * @Author : [author]
+	 * @Date : [date]
+	 * @param requestMap
+	 * @return
+	 */
+	public int insert[capitalizePrefix](HashMap<String, Object> requestMap) {
+		return sqlSession.insert("[lowerPrefix]Mapper.insert[capitalizePrefix]", requestMap);
+	}
+
+	/**
+	 * 수정
+	 * @Method : select[capitalizePrefix]TotalCnt
+	 * @Company : [company]
+	 * @Author : [author]
+	 * @Date : [date]
+	 * @param requestMap
+	 * @return
+	 */
+	public int update[capitalizePrefix](HashMap<String, Object> requestMap) {
+		return sqlSession.update("[lowerPrefix]Mapper.update[capitalizePrefix]", requestMap);
+	}
 
 }

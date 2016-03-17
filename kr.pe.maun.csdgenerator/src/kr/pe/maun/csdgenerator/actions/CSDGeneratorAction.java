@@ -8,9 +8,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-
-import kr.pe.maun.csdgenerator.dialogs.CSDGeneratorDialog;
-import kr.pe.maun.csdgenerator.model.CSDGeneratorPropertiesItem;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -27,6 +26,9 @@ import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
+
+import kr.pe.maun.csdgenerator.dialogs.CSDGeneratorDialog;
+import kr.pe.maun.csdgenerator.model.CSDGeneratorPropertiesItem;
 
 public class CSDGeneratorAction implements IObjectActionDelegate {
 
@@ -74,10 +76,10 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 			try {
 
-				newFolder.create(true ,true,new NullProgressMonitor());
+				newFolder.create(true ,true, new NullProgressMonitor());
 
 				IFolder controllerFolder = newFolder.getFolder(new Path(controllerPath));
-				controllerFolder.create(true ,true,new NullProgressMonitor());
+				controllerFolder.create(true ,true, new NullProgressMonitor());
 
 				String controllerContent = new String();
 				controllerContent = "package " + controllerFolder.getFullPath().toString().replace("/", ".");
@@ -86,13 +88,15 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 				ByteArrayInputStream controllerFileStream = new ByteArrayInputStream(controllerContent.getBytes());
 
 				IFile controllerFile = controllerFolder.getFile(new Path(controllerPath + ".java"));
-				controllerFile.create(controllerFileStream ,true,new NullProgressMonitor());
+				controllerFile.create(controllerFileStream ,true, new NullProgressMonitor());
+
+
 
 				IFolder serviceFolder = newFolder.getFolder(new Path(servicePath));
-				serviceFolder.create(true ,true,new NullProgressMonitor());
+				serviceFolder.create(true ,true, new NullProgressMonitor());
 
 				IFolder daoFolder = newFolder.getFolder(new Path(daoPath));
-				daoFolder.create(true ,true,new NullProgressMonitor());
+				daoFolder.create(true ,true, new NullProgressMonitor());
 
 			} catch (CoreException e) {
 				e.printStackTrace();
@@ -137,13 +141,17 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 			IFolder newFolder = folder.getFolder(new Path(prefix));
 
 			String capitalizePrefix = prefix.substring(0, 1).toUpperCase() + prefix.substring(1, prefix.length());
+			String upperPrefix = prefix.toUpperCase();
 			String lowerPrefix = prefix.toLowerCase();
+
+			SimpleDateFormat dateFormat = new SimpleDateFormat("YYYY. MM. DD");
+			String date = dateFormat.format(new Date());
 
 			try {
 
 				/* 폴더를 생성한다. */
 				if(isCreateFolder) {
-					if(!newFolder.exists()) newFolder.create(true ,true,new NullProgressMonitor());
+					if(!newFolder.exists()) newFolder.create(true ,true, new NullProgressMonitor());
 				} else {
 					newFolder = folder;
 				}
@@ -162,7 +170,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 					controllerFolderName += "Controller";
 					controllerPackage = controllerPackage + "." + controllerFolderName;
 					controllerFolder = newFolder.getFolder(new Path(controllerFolderName));
-					if(!controllerFolder.exists()) controllerFolder.create(true ,true,new NullProgressMonitor());
+					if(!controllerFolder.exists()) controllerFolder.create(true ,true, new NullProgressMonitor());
 				} else {
 					controllerFolder = newFolder;
 				}
@@ -237,7 +245,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 				if(isCreateMapper) {
 					mapperFolder = newFolder.getWorkspace().getRoot().getFolder(new Path(mapperPath + "/" + prefix));
-					if(!mapperFolder.exists()) mapperFolder.create(true ,true,new NullProgressMonitor());
+					if(!mapperFolder.exists()) mapperFolder.create(true ,true, new NullProgressMonitor());
 				}
 
 				/* E : Mapper 폴더를 생성한다. */
@@ -248,7 +256,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 				if(isCreateJsp) {
 					jspFolder = newFolder.getWorkspace().getRoot().getFolder(new Path(jspPath + "/" + prefix));
-					if(!jspFolder.exists()) jspFolder.create(true ,true,new NullProgressMonitor());
+					if(!jspFolder.exists()) jspFolder.create(true ,true, new NullProgressMonitor());
 				}
 
 				/* E : Jsp 폴더를 생성한다. */
@@ -264,13 +272,18 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 				controllerContent = controllerContent.replaceAll("\\[packagePath\\]", controllerPackage);
 				controllerContent = controllerContent.replaceAll("\\[serviceFullPath\\]", servicePackage + "." + capitalizePrefix + "Service");
 				controllerContent = controllerContent.replaceAll("\\[prefix\\]", prefix);
+				controllerContent = controllerContent.replaceAll("\\[upperPrefix\\]", upperPrefix);
 				controllerContent = controllerContent.replaceAll("\\[lowerPrefix\\]", lowerPrefix);
 				controllerContent = controllerContent.replaceAll("\\[capitalizePrefix\\]", capitalizePrefix);
+				controllerContent = controllerContent.replaceAll("\\[company\\]", "");
+				controllerContent = controllerContent.replaceAll("\\[author\\]", System.getProperty("user.name"));
+				controllerContent = controllerContent.replaceAll("\\[date\\]", date);
 				/* S: Contoller 파일을 생성한다. */
 				ByteArrayInputStream controllerFileStream = new ByteArrayInputStream(controllerContent.getBytes());
 
 				IFile controllerFile = controllerFolder.getFile(new Path(capitalizePrefix + "Controller.java"));
-				if(!controllerFile.exists()) controllerFile.create(controllerFileStream ,true,new NullProgressMonitor());
+				if(!controllerFile.exists()) controllerFile.create(controllerFileStream ,true, new NullProgressMonitor());
+
 				/* E: Contoller 파일을 생성한다. */
 /* E : Contoller 생성 */
 
@@ -289,13 +302,17 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 				serviceContent = serviceContent.replaceAll("\\[packagePath\\]", servicePackage);
 				serviceContent = serviceContent.replaceAll("\\[daoFullPath\\]", daoPackage + "." + capitalizePrefix + "Dao");
 				serviceContent = serviceContent.replaceAll("\\[prefix\\]", prefix);
+				serviceContent = serviceContent.replaceAll("\\[upperPrefix\\]", upperPrefix);
 				serviceContent = serviceContent.replaceAll("\\[lowerPrefix\\]", lowerPrefix);
 				serviceContent = serviceContent.replaceAll("\\[capitalizePrefix\\]", capitalizePrefix);
+				serviceContent = serviceContent.replaceAll("\\[company\\]", "");
+				serviceContent = serviceContent.replaceAll("\\[author\\]", System.getProperty("user.name"));
+				serviceContent = serviceContent.replaceAll("\\[date\\]", date);
 				/* S: Service 파일을 생성한다. */
 				ByteArrayInputStream serviceFileStream = new ByteArrayInputStream(serviceContent.getBytes());
 
 				IFile serviceFile = serviceFolder.getFile(new Path(capitalizePrefix + "Service.java"));
-				if(!serviceFile.exists()) serviceFile.create(serviceFileStream ,true,new NullProgressMonitor());
+				if(!serviceFile.exists()) serviceFile.create(serviceFileStream ,true, new NullProgressMonitor());
 
 				if(isCreateServiceImpl) {
 
@@ -309,13 +326,17 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 					serviceImplContent = serviceImplContent.replaceAll("\\[serviceFullPath\\]", servicePackage + "." + capitalizePrefix + "Service");
 					serviceImplContent = serviceImplContent.replaceAll("\\[daoFullPath\\]", daoPackage + "." + capitalizePrefix + "Dao");
 					serviceImplContent = serviceImplContent.replaceAll("\\[prefix\\]", prefix);
+					serviceImplContent = serviceImplContent.replaceAll("\\[upperPrefix\\]", upperPrefix);
 					serviceImplContent = serviceImplContent.replaceAll("\\[lowerPrefix\\]", lowerPrefix);
 					serviceImplContent = serviceImplContent.replaceAll("\\[capitalizePrefix\\]", capitalizePrefix);
+					serviceImplContent = serviceImplContent.replaceAll("\\[company\\]", "");
+					serviceImplContent = serviceImplContent.replaceAll("\\[author\\]", System.getProperty("user.name"));
+					serviceImplContent = serviceImplContent.replaceAll("\\[date\\]", date);
 					/* S: Service 파일을 생성한다. */
 					ByteArrayInputStream serviceImplFileStream = new ByteArrayInputStream(serviceImplContent.getBytes());
 
 					IFile serviceImplFile = serviceImplFolder.getFile(new Path(capitalizePrefix + "ServiceImpl.java"));
-					if(!serviceImplFile.exists()) serviceImplFile.create(serviceImplFileStream ,true,new NullProgressMonitor());
+					if(!serviceImplFile.exists()) serviceImplFile.create(serviceImplFileStream ,true, new NullProgressMonitor());
 				}
 /* E : Service 생성 */
 
@@ -329,13 +350,17 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 				String daoContent = getSource(daoTemplateFile);
 				daoContent = daoContent.replaceAll("\\[packagePath\\]", daoPackage);
 				daoContent = daoContent.replaceAll("\\[prefix\\]", prefix);
+				daoContent = daoContent.replaceAll("\\[upperPrefix\\]", upperPrefix);
 				daoContent = daoContent.replaceAll("\\[lowerPrefix\\]", lowerPrefix);
 				daoContent = daoContent.replaceAll("\\[capitalizePrefix\\]", capitalizePrefix);
+				daoContent = daoContent.replaceAll("\\[company\\]", "");
+				daoContent = daoContent.replaceAll("\\[author\\]", System.getProperty("user.name"));
+				daoContent = daoContent.replaceAll("\\[date\\]", date);
 				/* S: Dao 파일을 생성한다. */
 				ByteArrayInputStream daoFileStream = new ByteArrayInputStream(daoContent.getBytes());
 
 				IFile daoFile = daoFolder.getFile(new Path(capitalizePrefix + "Dao.java"));
-				if(!daoFile.exists()) daoFile.create(daoFileStream ,true,new NullProgressMonitor());
+				if(!daoFile.exists()) daoFile.create(daoFileStream ,true, new NullProgressMonitor());
 /* E : Dao 생성 */
 
 /* S : Mapper 생성 */
@@ -347,11 +372,17 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 					/* Mapper 파일내용을 가져온다.. */
 					String mapperContent = getSource(mapperTemplateFile);
 					mapperContent = mapperContent.replaceAll("\\[namespace\\]", prefix + "Mapper");
+					mapperContent = mapperContent.replaceAll("\\[upperPrefix\\]", upperPrefix);
+					mapperContent = mapperContent.replaceAll("\\[lowerPrefix\\]", lowerPrefix);
+					mapperContent = mapperContent.replaceAll("\\[capitalizePrefix\\]", capitalizePrefix);
+					mapperContent = mapperContent.replaceAll("\\[company\\]", "");
+					mapperContent = mapperContent.replaceAll("\\[author\\]", System.getProperty("user.name"));
+					mapperContent = mapperContent.replaceAll("\\[date\\]", date);
 
 					ByteArrayInputStream mapperImplFileStream = new ByteArrayInputStream(mapperContent.getBytes());
 
 					IFile mapperFile = mapperFolder.getFile(new Path(prefix + "Mapper.xml"));
-					if(!mapperFile.exists()) mapperFile.create(mapperImplFileStream ,true,new NullProgressMonitor());
+					if(!mapperFile.exists()) mapperFile.create(mapperImplFileStream ,true, new NullProgressMonitor());
 				}
 /* E : Mapper 생성 */
 
@@ -367,7 +398,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 					ByteArrayInputStream jspImplFileStream = new ByteArrayInputStream(jspContent.getBytes());
 
 					IFile jspFile = jspFolder.getFile(new Path(prefix + ".jsp"));
-					if(!jspFile.exists()) jspFile.create(jspImplFileStream ,true,new NullProgressMonitor());
+					if(!jspFile.exists()) jspFile.create(jspImplFileStream ,true, new NullProgressMonitor());
 				}
 /* E : Jsp 생성 */
 

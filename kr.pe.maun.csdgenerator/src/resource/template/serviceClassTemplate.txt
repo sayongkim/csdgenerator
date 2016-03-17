@@ -1,11 +1,16 @@
 package [packagePath];
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.HashMap;
+import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import [daoFullPath];
 
@@ -17,4 +22,73 @@ public class [capitalizePrefix]Service {
 	@Resource
 	private [capitalizePrefix]Dao [lowerPrefix]Dao;
 
+	/**
+	 * 총 건수 조회
+	 * @Method : select[capitalizePrefix]TotalCnt
+	 * @Company : [company]
+	 * @Author : [author]
+	 * @Date : [date]
+	 * @param searchMap
+	 * @return
+	 */
+	@Transactional(readOnly=true, propagation=Propagation.SUPPORTS, transactionManager="transactionManager")
+	public int select[capitalizePrefix]TotalCnt(HashMap<String, Object> searchMap) {
+		return [lowerPrefix]Dao.select[capitalizePrefix]TotalCnt(searchMap);
+	}
+
+	/**
+	 * 목록 조회
+	 * @Method : [lowerPrefix]Post
+	 * @Company : [company]
+	 * @Author : [author]
+	 * @Date : [date]
+	 * @param searchMap
+	 * @return
+	 */
+	@Transactional(readOnly=true, propagation=Propagation.SUPPORTS, transactionManager="transactionManager")
+	public List<HashMap<String, String>> select[capitalizePrefix]List(HashMap<String, Object> searchMap) {
+		return [lowerPrefix]Dao.select[capitalizePrefix]List(searchMap);
+	}
+
+	/**
+	 * 조회
+	 * @Method : [lowerPrefix]Post
+	 * @Company : [company]
+	 * @Author : [author]
+	 * @Date : [date]
+	 * @param searchMap
+	 * @return
+	 */
+	@Transactional(readOnly=true, propagation=Propagation.SUPPORTS, transactionManager="transactionManager")
+	public HashMap<String, String> select[capitalizePrefix](HashMap<String, Object> searchMap) {
+		return [lowerPrefix]Dao.select[capitalizePrefix](searchMap);
+	}
+
+	/**
+	 * 등록
+	 * @Method : [lowerPrefix]Post
+	 * @Company : [company]
+	 * @Author : [author]
+	 * @Date : [date]
+	 * @param requestMap
+	 * @return
+	 */
+	@Transactional(propagation = Propagation.REQUIRED, isolation=Isolation.DEFAULT, transactionManager="transactionManager")
+	public int insert[capitalizePrefix](HashMap<String, Object> requestMap) {
+		return [lowerPrefix]Dao.insert[capitalizePrefix](requestMap);
+	}
+
+	/**
+	 * 수정
+	 * @Method : [lowerPrefix]Post
+	 * @Company : [company]
+	 * @Author : [author]
+	 * @Date : [date]
+	 * @param requestMap
+	 * @return
+	 */
+	@Transactional(propagation = Propagation.REQUIRED, isolation=Isolation.DEFAULT, transactionManager="transactionManager")
+	public int update[capitalizePrefix](HashMap<String, Object> requestMap) {
+		return [lowerPrefix]Dao.update[capitalizePrefix](requestMap);
+	}
 }

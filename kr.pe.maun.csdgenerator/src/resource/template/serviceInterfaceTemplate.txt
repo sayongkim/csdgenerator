@@ -1,9 +1,62 @@
 package [packagePath];
 
-import javax.annotation.Resource;
-
-import org.springframework.stereotype.Service;
+import java.util.HashMap;
+import java.util.List;
 
 public interface [capitalizePrefix]Service {
 
+	/**
+	 * 총 건수 조회
+	 * @Method : select[capitalizePrefix]TotalCnt
+	 * @Company : [company]
+	 * @Author : [author]
+	 * @Date : [date]
+	 * @param searchMap
+	 * @return
+	 */
+	int selectProblemTotalCnt(HashMap<String, Object> searchMap);
+
+	/**
+	 * 목록 조회
+	 * @Method : select[capitalizePrefix]TotalCnt
+	 * @Company : [company]
+	 * @Author : [author]
+	 * @Date : [date]
+	 * @param searchMap
+	 * @return
+	 */
+	List<HashMap<String, String>> selectProblemList(HashMap<String, Object> searchMap);
+
+	/**
+	 * 조회
+	 * @Method : select[capitalizePrefix]TotalCnt
+	 * @Company : [company]
+	 * @Author : [author]
+	 * @Date : [date]
+	 * @param searchMap
+	 * @return
+	 */
+	HashMap<String, String> selectProblem(HashMap<String, Object> searchMap);
+
+	/**
+	 * 등록
+	 * @Method : select[capitalizePrefix]TotalCnt
+	 * @Company : [company]
+	 * @Author : [author]
+	 * @Date : [date]
+	 * @param requestMap
+	 * @return
+	 */
+	int insertProblem(HashMap<String, Object> requestMap);
+
+	/**
+	 * 수정
+	 * @Method : select[capitalizePrefix]TotalCnt
+	 * @Company : [company]
+	 * @Author : [author]
+	 * @Date : [date]
+	 * @param requestMap
+	 * @return
+	 */
+	int updateProblem(HashMap<String, Object> requestMap);
 }

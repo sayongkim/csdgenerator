@@ -1,4 +1,72 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="[namespace]">
+
+	<sql id="sqlSearch[capitalizePrefix]">
+	</sql>
+
+	<!--
+	Desc : 총 건수 조회
+	TABLE : [upperPrefix]
+	-->
+	<select id="select[capitalizePrefix]TotalCnt" parameterType="hashMap" resultType="int">
+		SELECT
+			COUNT(NO_SEQ) AS cnt
+		FROM [upperPrefix]
+		WHERE
+			<include refid="sqlSearch[capitalizePrefix]" />
+	</select>
+
+	<!--
+	Desc : 목록 조회
+	TABLE : [upperPrefix]
+	-->
+	<select id="select[capitalizePrefix]List" parameterType="hashMap" resultType="hashMap">
+		SELECT
+
+		FROM [upperPrefix]
+		WHERE DEL_YN = 'N'
+			<include refid="sqlSearch[capitalizePrefix]" />
+		ORDER BY NO_SEQ DESC
+		<if test=' startNum != null and startNum != "" and  endNum != null and endNum != "" '>
+		LIMIT #{startNum}, #{endNum}
+		</if>
+	</select>
+
+	<!--
+	Desc : 조회
+	TABLE : [upperPrefix]
+	-->
+	<select id="select[capitalizePrefix]" parameterType="hashMap" resultType="hashMap">
+		SELECT
+
+		FROM [upperPrefix]
+		WHERE
+	</select>
+
+	<!--
+	Desc : 등록
+	TABLE : [upperPrefix]
+	-->
+	<insert id="insert[capitalizePrefix]" parameterType="hashMap">
+		<selectKey resultType="string" keyProperty="no_seq" order="BEFORE">
+		</selectKey>
+		INSERT INTO [upperPrefix] (
+
+		) VALUES (
+
+		)
+	</insert>
+
+	<!--
+	Desc : 수정
+	TABLE : [upperPrefix]
+	-->
+	<update id="update[capitalizePrefix]" parameterType="hashMap">
+		UPDATE [upperPrefix] SET
+
+		WHERE
+
+	</update>
+
 </mapper>

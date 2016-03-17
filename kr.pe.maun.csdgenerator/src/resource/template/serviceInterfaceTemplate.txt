@@ -14,7 +14,7 @@ public interface [capitalizePrefix]Service {
 	 * @param searchMap
 	 * @return
 	 */
-	int selectProblemTotalCnt(HashMap<String, Object> searchMap);
+	int select[capitalizePrefix]TotalCnt(HashMap<String, Object> searchMap);
 
 	/**
 	 * 목록 조회
@@ -25,7 +25,7 @@ public interface [capitalizePrefix]Service {
 	 * @param searchMap
 	 * @return
 	 */
-	List<HashMap<String, String>> selectProblemList(HashMap<String, Object> searchMap);
+	List<HashMap<String, String>> select[capitalizePrefix]List(HashMap<String, Object> searchMap);
 
 	/**
 	 * 조회
@@ -36,7 +36,7 @@ public interface [capitalizePrefix]Service {
 	 * @param searchMap
 	 * @return
 	 */
-	HashMap<String, String> selectProblem(HashMap<String, Object> searchMap);
+	HashMap<String, String> select[capitalizePrefix](HashMap<String, Object> searchMap);
 
 	/**
 	 * 등록
@@ -47,7 +47,7 @@ public interface [capitalizePrefix]Service {
 	 * @param requestMap
 	 * @return
 	 */
-	int insertProblem(HashMap<String, Object> requestMap);
+	int insert[capitalizePrefix](HashMap<String, Object> requestMap);
 
 	/**
 	 * 수정
@@ -58,5 +58,5 @@ public interface [capitalizePrefix]Service {
 	 * @param requestMap
 	 * @return
 	 */
-	int updateProblem(HashMap<String, Object> requestMap);
+	int update[capitalizePrefix](HashMap<String, Object> requestMap);
 }

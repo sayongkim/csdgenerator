@@ -12,6 +12,9 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 
 	public static final QualifiedName PROJECT_SPECIFIC_SETTINGS = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_PROJECT_SPECIFIC_SETTINGS);
 
+	public static final QualifiedName COMPANY = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_COMPANY);
+	public static final QualifiedName AUTHOR = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_AUTHOR);
+
 	public static final QualifiedName CREATE_CONTROLLER_FOLDER = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_CREATE_CONTROLLER_FOLDER);
 	public static final QualifiedName ADD_PREFIX_CONTROLLER_FOLDER = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_ADD_PREFIX_CONTROLLER_FOLDER);
 	public static final QualifiedName CONTROLLER_TEMPLATE_FILE = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_CONTROLLER_TEMPLATE_FILE);
@@ -37,6 +40,9 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 	public static final QualifiedName JSP_TEMPLATE_FILE = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_JSP_TEMPLATE_FILE);
 
 	String projectSpecificSettings;
+
+	private String company;
+	private String author;
 
 	private boolean createControllerFolder;
 	private boolean addPrefixControllerFolder;
@@ -77,6 +83,10 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 		if("true".equals(projectSpecificSettings)) {
 
 			try {
+
+				company = resource.getPersistentProperty(CSDGeneratorPropertiesItem.COMPANY);
+				author = resource.getPersistentProperty(CSDGeneratorPropertiesItem.AUTHOR);
+
 				createControllerFolder = "true".equals(resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_CONTROLLER_FOLDER));
 				addPrefixControllerFolder = "true".equals(resource.getPersistentProperty(CSDGeneratorPropertiesItem.ADD_PREFIX_CONTROLLER_FOLDER));
 
@@ -106,6 +116,10 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 			}
 
 		} else {
+
+			company = preferenceStore.getString(PreferenceConstants.CSDGENERATOR_COMPANY);
+			author = preferenceStore.getString(PreferenceConstants.CSDGENERATOR_AUTHOR);
+
 			createControllerFolder = preferenceStore.getBoolean(PreferenceConstants.CSDGENERATOR_CREATE_CONTROLLER_FOLDER);
 			addPrefixControllerFolder = preferenceStore.getBoolean(PreferenceConstants.CSDGENERATOR_ADD_PREFIX_CONTROLLER_FOLDER);
 
@@ -130,6 +144,26 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 			jspPath = preferenceStore.getString(PreferenceConstants.CSDGENERATOR_JSP_PATH);
 			jspTemplateFile = preferenceStore.getString(PreferenceConstants.CSDGENERATOR_JSP_TEMPLATE_FILE);
 		}
+	}
+
+	@Override
+	public String getCompany() {
+		return this.company;
+	}
+
+	@Override
+	public void setCompany(String company) {
+		this.company = company;
+	}
+
+	@Override
+	public String getAuthor() {
+		return this.author;
+	}
+
+	@Override
+	public void setAuthor(String author) {
+		this.author = author;
 	}
 
 	@Override
@@ -192,8 +226,6 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 		this.serviceTemplateFile = serviceTemplateFile;
 	}
 
-
-
 	@Override
 	public boolean getCreateServiceImpl() {
 		return this.createServiceImpl;
@@ -203,8 +235,6 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 	public void setCreateServiceImpl(boolean createServiceImpl) {
 		this.createServiceImpl = createServiceImpl;
 	}
-
-
 
 	@Override
 	public String getServiceImplTemplateFile() {

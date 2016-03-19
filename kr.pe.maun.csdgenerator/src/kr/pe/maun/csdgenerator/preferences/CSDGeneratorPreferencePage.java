@@ -8,6 +8,7 @@ import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.FileFieldEditor;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
@@ -34,6 +35,9 @@ public class CSDGeneratorPreferencePage
 		super(GRID);
 		setPreferenceStore(CSDGeneratorPlugin.getDefault().getPreferenceStore());
 	}
+
+	private StringFieldEditor company;
+	private StringFieldEditor author;
 
 	private BooleanFieldEditor createControllerFolder;
 	private BooleanFieldEditor addPrefixControllerFolder;
@@ -65,6 +69,12 @@ public class CSDGeneratorPreferencePage
 	public void createFieldEditors() {
 
 		IPreferenceStore store = getPreferenceStore();
+
+		company = new StringFieldEditor(PreferenceConstants.CSDGENERATOR_COMPANY, "Company:", getFieldEditorParent());
+		addField(company);
+
+		author = new StringFieldEditor(PreferenceConstants.CSDGENERATOR_AUTHOR, "Author:", getFieldEditorParent());
+		addField(author);
 
 		createControllerFolder = new BooleanFieldEditor(PreferenceConstants.CSDGENERATOR_CREATE_CONTROLLER_FOLDER, "Create controller folder", getFieldEditorParent());
 		addField(createControllerFolder);

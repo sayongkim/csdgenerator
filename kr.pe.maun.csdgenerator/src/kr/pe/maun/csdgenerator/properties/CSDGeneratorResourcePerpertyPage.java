@@ -26,6 +26,9 @@ import org.eclipse.ui.dialogs.PropertyPage;
 public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 		IWorkbenchPropertyPage {
 
+	private Text company;
+	private Text author;
+
 	private Text controllerTemplateFileName;
 	private Button controllerTemplateFileButton;
 
@@ -90,6 +93,14 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 		GridData specificGridData = new GridData(GridData.HORIZONTAL_ALIGN_END);
 		specificGridData.horizontalSpan = 2;
 
+		GridData textGridData = new GridData();
+		textGridData.horizontalAlignment = GridData.FILL;
+		textGridData.verticalAlignment = GridData.FILL;
+		textGridData.grabExcessHorizontalSpace = false;
+		textGridData.grabExcessVerticalSpace = false;
+		textGridData.heightHint = 16;
+		textGridData.horizontalSpan = 2;
+
 		specificSettings = new Button(panel, SWT.CHECK);
 		specificSettings.setText("Enable project specific settings");
 		/*specificSettings.setLayoutData(new GridData(GridData.FILL));*/
@@ -129,6 +140,20 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 		Label separator = new Label(panel, SWT.HORIZONTAL | SWT.SEPARATOR);
 	    separator.setLayoutData(gridData);
+
+		Label companyLabel = new Label(panel, SWT.NONE);
+		companyLabel.setText("Company:");
+
+		company = new Text(panel, SWT.FILL | SWT.BORDER);
+		company.setLayoutData(textGridData);
+		if(!isSpecificSettings) company.setEnabled(false);
+
+		Label authorLabel = new Label(panel, SWT.NONE);
+		authorLabel.setText("Author:");
+
+		author = new Text(panel, SWT.FILL | SWT.BORDER);
+		author.setLayoutData(textGridData);
+		if(!isSpecificSettings) author.setEnabled(false);
 
 		createControllerFolder = new Button(panel, SWT.CHECK);
 		createControllerFolder.setText("Create controller folder");
@@ -261,14 +286,14 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 		createServiceImplFolder.setLayoutData(gridData);
 		if(!isSpecificSettings) createServiceImplFolder.setEnabled(false);
 		createServiceImplFolder.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+				}
+				@Override public void widgetDefaultSelected(SelectionEvent e) {
+					widgetSelected(e);
+				}
 			}
-			@Override public void widgetDefaultSelected(SelectionEvent e) {
-				widgetSelected(e);
-			}
-		}
-	);
+		);
 		createServiceImplFolder.setSelection(isCreateServiceImplFolder());
 		if(!isSpecificSettings || !isCreateServiceImpl()) createServiceImplFolder.setEnabled(false);
 
@@ -508,6 +533,9 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 		setSpecificSettings(specificSettings.getSelection());
 
+		setCompany(company.getText());
+		setAuthor(author.getText());
+
 		setCreateControllerFolder(createControllerFolder.getSelection());
 		setAddPrefixControllerFolder(addPrefixControllerFolder.getSelection());
 		setControllerTemplateFile(controllerTemplateFileName.getText());
@@ -562,6 +590,55 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 	      catch (CoreException e) {
 	    	  e.printStackTrace();
 	      }
+	}
+
+
+	public String getCompany() {
+		IResource resource = (IResource) getElement().getAdapter(IResource.class);
+
+		try {
+			String value = resource.getPersistentProperty(CSDGeneratorPropertiesItem.COMPANY);
+			if(value != null && !"".equals(value)) return value;
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+
+		return "";
+	}
+
+	public void setCompany(String company) {
+		IResource resource = (IResource) getElement().getAdapter(IResource.class);
+	    try {
+	    	if(!"".equals(company)) {
+	    		resource.setPersistentProperty(CSDGeneratorPropertiesItem.COMPANY, company);
+	    	}
+	    } catch (CoreException e) {
+	    	e.printStackTrace();
+	    }
+	}
+
+	public String getAuthor() {
+		IResource resource = (IResource) getElement().getAdapter(IResource.class);
+
+		try {
+			String value = resource.getPersistentProperty(CSDGeneratorPropertiesItem.AUTHOR);
+			if(value != null && !"".equals(value)) return value;
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+
+		return "";
+	}
+
+	public void setAuthor(String company) {
+		IResource resource = (IResource) getElement().getAdapter(IResource.class);
+	    try {
+	    	if(!"".equals(company)) {
+	    		resource.setPersistentProperty(CSDGeneratorPropertiesItem.AUTHOR, company);
+	    	}
+	    } catch (CoreException e) {
+	    	e.printStackTrace();
+	    }
 	}
 
 	public boolean isCreateControllerFolder() {
@@ -1135,6 +1212,9 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 	private void setEnabledSettings() {
 
+		company.setEnabled(true);
+		author.setEnabled(true);
+
 		createControllerFolder.setEnabled(true);
 		if(createControllerFolder.getSelection()) addPrefixControllerFolder.setEnabled(true);
 		controllerTemplateFileName.setEnabled(true);
@@ -1175,6 +1255,9 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 	}
 
 	private void setDisabledSettings() {
+
+		company.setEnabled(false);
+		author.setEnabled(false);
 
 		addPrefixControllerFolder.setEnabled(false);
 		controllerTemplateFileName.setEnabled(false);

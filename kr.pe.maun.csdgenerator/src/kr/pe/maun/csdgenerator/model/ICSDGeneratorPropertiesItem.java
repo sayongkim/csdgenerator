@@ -3,6 +3,12 @@ package kr.pe.maun.csdgenerator.model;
 
 public interface ICSDGeneratorPropertiesItem {
 
+	String getCompany();
+	void setCompany(String company);
+
+	String getAuthor();
+	void setAuthor(String author);
+
 	boolean getCreateControllerFolder();
 	void setCreateControllerFolder(boolean createControllerFolder);
 

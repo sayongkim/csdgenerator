@@ -7,6 +7,9 @@ public class PreferenceConstants {
 
 	public static final String CSDGENERATOR_PROJECT_SPECIFIC_SETTINGS = "csdgenerator.project.specific.settings";
 
+	public static final String CSDGENERATOR_COMPANY = "csdgenerator.company";
+	public static final String CSDGENERATOR_AUTHOR = "csdgenerator.author";
+
 	public static final String CSDGENERATOR_CREATE_CONTROLLER_FOLDER = "csdgenerator.create.controller.folder";
 	public static final String CSDGENERATOR_ADD_PREFIX_CONTROLLER_FOLDER = "csdgenerator.add.prefix.controller.folder";
 	public static final String CSDGENERATOR_CONTROLLER_TEMPLATE_FILE = "csdgenerator.controller.template.file";

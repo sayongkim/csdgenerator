@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -85,12 +86,10 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 				controllerContent = "package " + controllerFolder.getFullPath().toString().replace("/", ".");
 				controllerContent += "\r\n";
 
-				ByteArrayInputStream controllerFileStream = new ByteArrayInputStream(controllerContent.getBytes());
+				ByteArrayInputStream controllerFileStream = new ByteArrayInputStream(controllerContent.getBytes("UTF-8"));
 
 				IFile controllerFile = controllerFolder.getFile(new Path(controllerPath + ".java"));
 				controllerFile.create(controllerFileStream ,true, new NullProgressMonitor());
-
-
 
 				IFolder serviceFolder = newFolder.getFolder(new Path(servicePath));
 				serviceFolder.create(true ,true, new NullProgressMonitor());
@@ -98,13 +97,16 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 				IFolder daoFolder = newFolder.getFolder(new Path(daoPath));
 				daoFolder.create(true ,true, new NullProgressMonitor());
 
-			} catch (CoreException e) {
+			} catch (CoreException | UnsupportedEncodingException e) {
 				e.printStackTrace();
 			}
 		} else if(packageFragment != null && prefix != null) {
 
 			IResource resource = (IResource) packageFragment.getJavaProject().getProject().getAdapter(IResource.class);
 			CSDGeneratorPropertiesItem propertiesItem = new CSDGeneratorPropertiesItem(resource);
+
+			String company = propertiesItem.getCompany();
+			String author = !"".equals(propertiesItem.getAuthor()) ? propertiesItem.getAuthor() : System.getProperty("user.name");
 
 			boolean isCreateControllerFolder = propertiesItem.getCreateControllerFolder();
 			boolean isAddPrefixControllerFolder = propertiesItem.getAddPrefixControllerFolder();
@@ -275,11 +277,11 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 				controllerContent = controllerContent.replaceAll("\\[upperPrefix\\]", upperPrefix);
 				controllerContent = controllerContent.replaceAll("\\[lowerPrefix\\]", lowerPrefix);
 				controllerContent = controllerContent.replaceAll("\\[capitalizePrefix\\]", capitalizePrefix);
-				controllerContent = controllerContent.replaceAll("\\[company\\]", "");
-				controllerContent = controllerContent.replaceAll("\\[author\\]", System.getProperty("user.name"));
+				controllerContent = controllerContent.replaceAll("\\[company\\]", company);
+				controllerContent = controllerContent.replaceAll("\\[author\\]", author);
 				controllerContent = controllerContent.replaceAll("\\[date\\]", date);
 				/* S: Contoller 파일을 생성한다. */
-				ByteArrayInputStream controllerFileStream = new ByteArrayInputStream(controllerContent.getBytes());
+				ByteArrayInputStream controllerFileStream = new ByteArrayInputStream(controllerContent.getBytes("UTF-8"));
 
 				IFile controllerFile = controllerFolder.getFile(new Path(capitalizePrefix + "Controller.java"));
 				if(!controllerFile.exists()) controllerFile.create(controllerFileStream ,true, new NullProgressMonitor());
@@ -305,11 +307,11 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 				serviceContent = serviceContent.replaceAll("\\[upperPrefix\\]", upperPrefix);
 				serviceContent = serviceContent.replaceAll("\\[lowerPrefix\\]", lowerPrefix);
 				serviceContent = serviceContent.replaceAll("\\[capitalizePrefix\\]", capitalizePrefix);
-				serviceContent = serviceContent.replaceAll("\\[company\\]", "");
-				serviceContent = serviceContent.replaceAll("\\[author\\]", System.getProperty("user.name"));
+				serviceContent = serviceContent.replaceAll("\\[company\\]", company);
+				serviceContent = serviceContent.replaceAll("\\[author\\]", author);
 				serviceContent = serviceContent.replaceAll("\\[date\\]", date);
 				/* S: Service 파일을 생성한다. */
-				ByteArrayInputStream serviceFileStream = new ByteArrayInputStream(serviceContent.getBytes());
+				ByteArrayInputStream serviceFileStream = new ByteArrayInputStream(serviceContent.getBytes("UTF-8"));
 
 				IFile serviceFile = serviceFolder.getFile(new Path(capitalizePrefix + "Service.java"));
 				if(!serviceFile.exists()) serviceFile.create(serviceFileStream ,true, new NullProgressMonitor());
@@ -329,11 +331,11 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 					serviceImplContent = serviceImplContent.replaceAll("\\[upperPrefix\\]", upperPrefix);
 					serviceImplContent = serviceImplContent.replaceAll("\\[lowerPrefix\\]", lowerPrefix);
 					serviceImplContent = serviceImplContent.replaceAll("\\[capitalizePrefix\\]", capitalizePrefix);
-					serviceImplContent = serviceImplContent.replaceAll("\\[company\\]", "");
-					serviceImplContent = serviceImplContent.replaceAll("\\[author\\]", System.getProperty("user.name"));
+					serviceImplContent = serviceImplContent.replaceAll("\\[company\\]", company);
+					serviceImplContent = serviceImplContent.replaceAll("\\[author\\]", author);
 					serviceImplContent = serviceImplContent.replaceAll("\\[date\\]", date);
 					/* S: Service 파일을 생성한다. */
-					ByteArrayInputStream serviceImplFileStream = new ByteArrayInputStream(serviceImplContent.getBytes());
+					ByteArrayInputStream serviceImplFileStream = new ByteArrayInputStream(serviceImplContent.getBytes("UTF-8"));
 
 					IFile serviceImplFile = serviceImplFolder.getFile(new Path(capitalizePrefix + "ServiceImpl.java"));
 					if(!serviceImplFile.exists()) serviceImplFile.create(serviceImplFileStream ,true, new NullProgressMonitor());
@@ -353,11 +355,11 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 				daoContent = daoContent.replaceAll("\\[upperPrefix\\]", upperPrefix);
 				daoContent = daoContent.replaceAll("\\[lowerPrefix\\]", lowerPrefix);
 				daoContent = daoContent.replaceAll("\\[capitalizePrefix\\]", capitalizePrefix);
-				daoContent = daoContent.replaceAll("\\[company\\]", "");
-				daoContent = daoContent.replaceAll("\\[author\\]", System.getProperty("user.name"));
+				daoContent = daoContent.replaceAll("\\[company\\]", company);
+				daoContent = daoContent.replaceAll("\\[author\\]", author);
 				daoContent = daoContent.replaceAll("\\[date\\]", date);
 				/* S: Dao 파일을 생성한다. */
-				ByteArrayInputStream daoFileStream = new ByteArrayInputStream(daoContent.getBytes());
+				ByteArrayInputStream daoFileStream = new ByteArrayInputStream(daoContent.getBytes("UTF-8"));
 
 				IFile daoFile = daoFolder.getFile(new Path(capitalizePrefix + "Dao.java"));
 				if(!daoFile.exists()) daoFile.create(daoFileStream ,true, new NullProgressMonitor());
@@ -375,11 +377,11 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 					mapperContent = mapperContent.replaceAll("\\[upperPrefix\\]", upperPrefix);
 					mapperContent = mapperContent.replaceAll("\\[lowerPrefix\\]", lowerPrefix);
 					mapperContent = mapperContent.replaceAll("\\[capitalizePrefix\\]", capitalizePrefix);
-					mapperContent = mapperContent.replaceAll("\\[company\\]", "");
-					mapperContent = mapperContent.replaceAll("\\[author\\]", System.getProperty("user.name"));
+					mapperContent = mapperContent.replaceAll("\\[company\\]", company);
+					mapperContent = mapperContent.replaceAll("\\[author\\]", author);
 					mapperContent = mapperContent.replaceAll("\\[date\\]", date);
 
-					ByteArrayInputStream mapperImplFileStream = new ByteArrayInputStream(mapperContent.getBytes());
+					ByteArrayInputStream mapperImplFileStream = new ByteArrayInputStream(mapperContent.getBytes("UTF-8"));
 
 					IFile mapperFile = mapperFolder.getFile(new Path(prefix + "Mapper.xml"));
 					if(!mapperFile.exists()) mapperFile.create(mapperImplFileStream ,true, new NullProgressMonitor());
@@ -395,14 +397,14 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 					/* Jsp 파일내용을 가져온다.. */
 					String jspContent = getSource(jspTemplateFile);
 
-					ByteArrayInputStream jspImplFileStream = new ByteArrayInputStream(jspContent.getBytes());
+					ByteArrayInputStream jspImplFileStream = new ByteArrayInputStream(jspContent.getBytes("UTF-8"));
 
 					IFile jspFile = jspFolder.getFile(new Path(prefix + ".jsp"));
 					if(!jspFile.exists()) jspFile.create(jspImplFileStream ,true, new NullProgressMonitor());
 				}
 /* E : Jsp 생성 */
 
-			} catch (CoreException e) {
+			} catch (CoreException | UnsupportedEncodingException e) {
 				e.printStackTrace();
 			}
 		}
@@ -430,7 +432,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 			if(templateFile.indexOf("platform") > -1) {
 				URL url = new URL(templateFile);
 				inputStream = url.openConnection().getInputStream();
-				in = new BufferedReader(new InputStreamReader(inputStream));
+				in = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
 			} else {
 				in = new BufferedReader(new FileReader(templateFile));
 			}

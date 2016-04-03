@@ -7,8 +7,13 @@ public class PreferenceConstants {
 
 	public static final String CSDGENERATOR_PROJECT_SPECIFIC_SETTINGS = "csdgenerator.project.specific.settings";
 
+	public static final String CSDGENERATOR_TYPE = "csdgenerator.type";
+
 	public static final String CSDGENERATOR_COMPANY = "csdgenerator.company";
 	public static final String CSDGENERATOR_AUTHOR = "csdgenerator.author";
+
+	public static final String CSDGENERATOR_DEFAULT_CONNECTION_PROFILE = "csdgenerator.default.connection.profile";
+	public static final String CSDGENERATOR_TEMPLATE_GROUP = "csdgenerator.template.group";
 
 	public static final String CSDGENERATOR_CREATE_CONTROLLER_FOLDER = "csdgenerator.create.controller.folder";
 	public static final String CSDGENERATOR_ADD_PREFIX_CONTROLLER_FOLDER = "csdgenerator.add.prefix.controller.folder";

@@ -1,12 +1,17 @@
 package kr.pe.maun.csdgenerator.model;
 
+import java.util.List;
+
 import kr.pe.maun.csdgenerator.CSDGeneratorPlugin;
 import kr.pe.maun.csdgenerator.preferences.PreferenceConstants;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.osgi.service.prefs.BackingStoreException;
+import org.osgi.service.prefs.Preferences;
 
 public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 
@@ -41,8 +46,13 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 
 	String projectSpecificSettings;
 
+	private String type;
+
 	private String company;
 	private String author;
+
+	private List<TemplateGroupItem> templateGroup;
+	private String defaultConnectionProfile;
 
 	private boolean createControllerFolder;
 	private boolean addPrefixControllerFolder;
@@ -78,6 +88,15 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 			projectSpecificSettings = resource.getPersistentProperty(CSDGeneratorPropertiesItem.PROJECT_SPECIFIC_SETTINGS);
 		} catch (CoreException e) {
 			e.printStackTrace();
+		}
+
+		Preferences preferences = ConfigurationScope.INSTANCE.getNode(PreferenceConstants.CSDGENERATOR_TEMPLATE_GROUP);
+
+		try {
+			String[] childrenNames = preferences.childrenNames();
+		} catch (BackingStoreException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
 
 		if("true".equals(projectSpecificSettings)) {
@@ -116,6 +135,7 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 			}
 
 		} else {
+
 
 			company = preferenceStore.getString(PreferenceConstants.CSDGENERATOR_COMPANY);
 			author = preferenceStore.getString(PreferenceConstants.CSDGENERATOR_AUTHOR);

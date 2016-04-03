@@ -3,22 +3,48 @@ package kr.pe.maun.csdgenerator.actions;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectStreamClass;
+import java.io.StringWriter;
+import java.net.MalformedURLException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Result;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.viewers.ISelection;
@@ -27,9 +53,16 @@ import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
+import kr.pe.maun.csdgenerator.db.DatabaseResource;
 import kr.pe.maun.csdgenerator.dialogs.CSDGeneratorDialog;
 import kr.pe.maun.csdgenerator.model.CSDGeneratorPropertiesItem;
+import kr.pe.maun.csdgenerator.model.ColumnItem;
 
 public class CSDGeneratorAction implements IObjectActionDelegate {
 
@@ -84,7 +117,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 				String controllerContent = new String();
 				controllerContent = "package " + controllerFolder.getFullPath().toString().replace("/", ".");
-				controllerContent += "\r\n";
+				controllerContent += "\n";
 
 				ByteArrayInputStream controllerFileStream = new ByteArrayInputStream(controllerContent.getBytes("UTF-8"));
 
@@ -373,6 +406,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 					/* Mapper 파일내용을 가져온다.. */
 					String mapperContent = getSource(mapperTemplateFile);
+
 					mapperContent = mapperContent.replaceAll("\\[namespace\\]", prefix + "Mapper");
 					mapperContent = mapperContent.replaceAll("\\[upperPrefix\\]", upperPrefix);
 					mapperContent = mapperContent.replaceAll("\\[lowerPrefix\\]", lowerPrefix);
@@ -380,11 +414,60 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 					mapperContent = mapperContent.replaceAll("\\[company\\]", company);
 					mapperContent = mapperContent.replaceAll("\\[author\\]", author);
 					mapperContent = mapperContent.replaceAll("\\[date\\]", date);
+					if(dialog.getTargetTable() != null) {
+						mapperContent = mapperContent.replaceAll("\\[table\\]", dialog.getTargetTable().toUpperCase());
+					} else {
+						mapperContent = mapperContent.replaceAll("\\[table\\]", capitalizePrefix);
+					}
+
+					if(dialog.getTargetTable() != null & dialog.getConnectionProfile() != null) {
+
+						DatabaseResource databaseResource = new DatabaseResource();
+
+						List<ColumnItem> columns = databaseResource.getColumn(dialog.getConnectionProfile(), dialog.getTargetTable());
+
+						DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+						try {
+							DocumentBuilder builder = factory.newDocumentBuilder();
+							Document document = builder.parse(new ByteArrayInputStream(mapperContent.getBytes()));
+							Element documentElement = document.getDocumentElement();
+
+							NodeList nodeList = documentElement.getChildNodes();
+
+							for(int i = 0; i < nodeList.getLength(); i++) {
+								Node item = nodeList.item(i);
+								String content = item.getTextContent();
+								if("select".equals(item.getNodeName())) {
+									content = content.replaceAll("\\[columns\\]", selecColumn(columns));
+								} else if("insert".equals(item.getNodeName())) {
+									content = content.replaceAll("\\[columns\\]", insertColumn(columns));
+									content = content.replaceAll("\\[values\\]", insertValue(columns));
+								} else if("update".equals(item.getNodeName())) {
+									content = content.replaceAll("\\[columns\\]", updateColumn(columns));
+								}
+								item.setTextContent(content);
+							}
+
+							StringWriter writer = new StringWriter();
+							Transformer transformer = TransformerFactory.newInstance().newTransformer();
+							transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+							transformer.transform(new DOMSource(document), new StreamResult(writer));
+
+							mapperContent = writer.toString();
+
+						} catch (ParserConfigurationException | SAXException | IOException | TransformerException | TransformerFactoryConfigurationError e) {
+							e.printStackTrace();
+						}
+					}
+
+					mapperContent = mapperContent.replaceAll("&lt;", "<");
+					mapperContent = mapperContent.replaceAll("&gt;", ">");
 
 					ByteArrayInputStream mapperImplFileStream = new ByteArrayInputStream(mapperContent.getBytes("UTF-8"));
 
 					IFile mapperFile = mapperFolder.getFile(new Path(prefix + "Mapper.xml"));
-					if(!mapperFile.exists()) mapperFile.create(mapperImplFileStream ,true, new NullProgressMonitor());
+					if(!mapperFile.exists()) mapperFile.create(new ByteArrayInputStream(mapperContent.getBytes()) ,true, new NullProgressMonitor());
+
 				}
 /* E : Mapper 생성 */
 
@@ -404,6 +487,96 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 				}
 /* E : Jsp 생성 */
 
+/* S : VO 생성 */
+
+				if(dialog.getTargetTable() != null & dialog.getConnectionProfile() != null) {
+
+					DatabaseResource databaseResource = new DatabaseResource();
+
+					List<ColumnItem> columns = databaseResource.getColumn(dialog.getConnectionProfile(), dialog.getTargetTable());
+
+					String voContent = getSource("platform:/plugin/kr.pe.maun.csdgenerator/resource/template/voTemplate.txt");
+
+					voContent = voContent.replaceAll("\\[packagePath\\]", "vo");
+					voContent = voContent.replaceAll("\\[capitalizePrefix\\]", capitalizePrefix);
+
+					StringBuffer valueBuffer = new StringBuffer();
+					StringBuffer gettersAndSetters = new StringBuffer();
+
+					for(int i = 0; i < columns.size(); i++) {
+
+						ColumnItem column = columns.get(i);
+						String columnName = toCamelCase(column.getColumnName());
+
+						valueBuffer.append("\tprivate String ");
+						valueBuffer.append(columnName);
+						valueBuffer.append("; // ");
+						valueBuffer.append(column.getComments());
+						valueBuffer.append("\n");
+
+						gettersAndSetters.append("\tpublic String ");
+						gettersAndSetters.append(toCamelCase("get_" + column.getColumnName()));
+						gettersAndSetters.append("() {\n");
+						gettersAndSetters.append("\t\treturn this.");
+						gettersAndSetters.append(columnName);
+						gettersAndSetters.append(";\n");
+						gettersAndSetters.append("\t}\n\n");
+
+						gettersAndSetters.append("\tpublic String ");
+						gettersAndSetters.append(toCamelCase("set_" + column.getColumnName()));
+						gettersAndSetters.append("(String ");
+						gettersAndSetters.append(columnName);
+						gettersAndSetters.append(") {\n");
+						gettersAndSetters.append("\t\treturn this.");
+						gettersAndSetters.append(columnName);
+						gettersAndSetters.append(" = ");
+						gettersAndSetters.append(columnName);
+						gettersAndSetters.append(";\n");
+						gettersAndSetters.append("\t}\n\n");
+					}
+
+					voContent = voContent.replaceAll("\\[value\\]", valueBuffer.toString());
+					voContent = voContent.replaceAll("\\[GettersAndSetters\\]", gettersAndSetters.toString());
+
+					ByteArrayInputStream voFileStream = new ByteArrayInputStream(voContent.getBytes());
+
+					IFolder voFolder = newFolder.getWorkspace().getRoot().getFolder(new Path("/Test/src/main/java/vo"));
+					IFile voFile = voFolder.getFile(new Path(capitalizePrefix + "Vo.java"));
+					if(!voFile.exists()) voFile.create(voFileStream ,true, new NullProgressMonitor());
+
+					IJavaProject javaProject = packageFragment.getJavaProject();
+					IProject project = packageFragment.getJavaProject().getProject();
+
+					project.build(IncrementalProjectBuilder.INCREMENTAL_BUILD, new NullProgressMonitor());
+
+					String[] classPaths = JavaRuntime.computeDefaultRuntimeClassPath(packageFragment.getJavaProject());
+			        URL[] urls = new URL[classPaths.length];
+			        try {
+
+						for (int i = 0; i < classPaths.length; i++) {
+							urls[i] = new URL("file:///" + classPaths[i] + File.separator);
+						}
+
+						URLClassLoader loader = new URLClassLoader(urls);
+						Class<?> clazz = loader.loadClass("vo." + capitalizePrefix + "Vo");
+						ObjectStreamClass streamClass = ObjectStreamClass.lookup(clazz);
+						loader.close();
+
+						ICompilationUnit compilationUnit = JavaCore.createCompilationUnitFrom(voFile);
+
+						IType[] types = compilationUnit.getTypes();
+						IType type = types[0];
+						type.createField("\tstatic final long serialVersionUID = " + streamClass.getSerialVersionUID() + "L;\n\n", type.getFields()[0], false, null);
+
+						compilationUnit.save(null, true);
+
+					} catch (ClassNotFoundException | IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+
+/* E : VO 생성 */
 			} catch (CoreException | UnsupportedEncodingException e) {
 				e.printStackTrace();
 			}
@@ -457,4 +630,79 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 		return source;
 	};
+
+	private String toCamelCase(String source) {
+	    StringBuffer result = new StringBuffer();
+	    String[] sourceArray = source.split("_");
+	    result.append(sourceArray[0].toLowerCase());
+	    if(sourceArray.length > 1) {
+		    for (int i = 1; i < sourceArray.length; i++) {
+		    	String s = sourceArray[i];
+		        result.append(Character.toUpperCase(s.charAt(0)));
+		        if (s.length() > 1) {
+		            result.append(s.substring(1, s.length()).toLowerCase());
+		        }
+		    }
+	    }
+	    return result.toString();
+	}
+
+	private String selecColumn(List<ColumnItem> columnItems) {
+		StringBuffer result = new StringBuffer();
+		if(columnItems.size() > 0) {
+			for (int i = 0; i < columnItems.size(); i++) {
+				ColumnItem columnItem = columnItems.get(i);
+				if(i > 0) result.append("\t\t\t,");
+				result.append(columnItem.getColumnName());
+				result.append(" AS ");
+				result.append(toCamelCase(columnItem.getColumnName()));
+				if(i < (columnItems.size() - 1)) result.append("\n");
+			}
+		}
+		return result.toString();
+	}
+
+	private String insertColumn(List<ColumnItem> columnItems) {
+		StringBuffer result = new StringBuffer();
+		if(columnItems.size() > 0) {
+			for (int i = 0; i < columnItems.size(); i++) {
+				ColumnItem columnItem = columnItems.get(i);
+				if(i > 0) result.append("\t\t\t,");
+				result.append(columnItem.getColumnName());
+				if(i < (columnItems.size() - 1)) result.append("\n");
+			}
+		}
+		return result.toString();
+	}
+
+	private String insertValue(List<ColumnItem> columnItems) {
+		StringBuffer result = new StringBuffer();
+		if(columnItems.size() > 0) {
+			for (int i = 0; i < columnItems.size(); i++) {
+				ColumnItem columnItem = columnItems.get(i);
+				if(i > 0) result.append("\t\t\t,");
+				result.append("#{");
+				result.append(toCamelCase(columnItem.getColumnName()));
+				result.append("}");
+				if(i < (columnItems.size() - 1)) result.append("\n");
+			}
+		}
+		return result.toString();
+	}
+
+	private String updateColumn(List<ColumnItem> columnItems) {
+		StringBuffer result = new StringBuffer();
+		if(columnItems.size() > 0) {
+			for (int i = 0; i < columnItems.size(); i++) {
+				ColumnItem columnItem = columnItems.get(i);
+				if(i > 0) result.append("\t\t\t,");
+				result.append(columnItem.getColumnName());
+				result.append(" = #{");
+				result.append(toCamelCase(columnItem.getColumnName()));
+				result.append("}");
+				if(i < (columnItems.size() - 1)) result.append("\n");
+			}
+		}
+		return result.toString();
+	}
 }

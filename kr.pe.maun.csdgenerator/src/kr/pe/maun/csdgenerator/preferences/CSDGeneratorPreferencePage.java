@@ -1,17 +1,21 @@
 package kr.pe.maun.csdgenerator.preferences;
 
-import kr.pe.maun.csdgenerator.CSDGeneratorPlugin;
-
+import org.eclipse.datatools.connectivity.IConnectionProfile;
+import org.eclipse.datatools.connectivity.ProfileManager;
 import org.eclipse.jface.preference.BooleanFieldEditor;
+import org.eclipse.jface.preference.ComboFieldEditor;
 import org.eclipse.jface.preference.DirectoryFieldEditor;
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.FileFieldEditor;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+
+import kr.pe.maun.csdgenerator.CSDGeneratorPlugin;
 
 /**
  * This class represents a preference page that
@@ -38,6 +42,9 @@ public class CSDGeneratorPreferencePage
 
 	private StringFieldEditor company;
 	private StringFieldEditor author;
+
+	private ComboFieldEditor connectionProfile;
+	private ComboFieldEditor tableList;
 
 	private BooleanFieldEditor createControllerFolder;
 	private BooleanFieldEditor addPrefixControllerFolder;

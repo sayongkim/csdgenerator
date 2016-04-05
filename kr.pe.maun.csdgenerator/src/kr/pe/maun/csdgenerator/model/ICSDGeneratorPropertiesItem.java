@@ -3,11 +3,17 @@ package kr.pe.maun.csdgenerator.model;
 
 public interface ICSDGeneratorPropertiesItem {
 
+	String getType();
+	void setType(String type);
+
 	String getCompany();
 	void setCompany(String company);
 
 	String getAuthor();
 	void setAuthor(String author);
+
+	String getDatabaseConnectionProfileName();
+	void setDatabaseConnectionProfileName(String databaseConnectionProfileName);
 
 	boolean getCreateControllerFolder();
 	void setCreateControllerFolder(boolean createControllerFolder);
@@ -15,17 +21,11 @@ public interface ICSDGeneratorPropertiesItem {
 	boolean getAddPrefixControllerFolder();
 	void setAddPrefixControllerFolder(boolean addPrefixControllerFolder);
 
-	String getControllerTemplateFile();
-	void setControllerTemplateFile(String controllerTemplateFile);
-
 	boolean getCreateServiceFolder();
 	void setCreateServiceFolder(boolean createServiceFolder);
 
 	boolean getAddPrefixServiceFolder();
 	void setAddPrefixServiceFolder(boolean addPrefixServiceFolder);
-
-	String getServiceTemplateFile();
-	void setServiceTemplateFile(String serviceTemplateFile);
 
 	boolean getCreateServiceImpl();
 	void setCreateServiceImpl(boolean createServiceImpl);
@@ -33,17 +33,11 @@ public interface ICSDGeneratorPropertiesItem {
 	boolean getCreateServiceImplFolder();
 	void setCreateServiceImplFolder(boolean createServiceImplFolder);
 
-	String getServiceImplTemplateFile();
-	void setServiceImplTemplateFile(String serviceImplTemplateFile);
-
 	boolean getCreateDaoFolder();
 	void setCreateDaoFolder(boolean createDaoFolder);
 
 	boolean getAddPrefixDaoFolder();
 	void setAddPrefixDaoFolder(boolean addPrefixDaoFolder);
-
-	String getDaoTemplateFile();
-	void setDaoTemplateFile(String daoTemplateFile);
 
 	boolean getCreateMapper();
 	void setCreateMapper(boolean createMapper);
@@ -51,15 +45,9 @@ public interface ICSDGeneratorPropertiesItem {
 	String getMapperPath();
 	void setMapperPath(String mapperPath);
 
-	String getMapperTemplateFile();
-	void setMapperTemplateFile(String mapperTemplateFile);
-
 	boolean getCreateJsp();
 	void setCreateJsp(boolean createJsp);
 
 	String getJspPath();
 	void setJspPath(String jspPath);
-
-	String getJspTemplateFile();
-	void setJspTemplateFile(String jspTemplateFile);
 }

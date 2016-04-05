@@ -68,7 +68,7 @@ public class PropertiesControllerTemplateDialog extends Dialog {
 		templateNameField.setBackground(new Color(device, 255, 255, 255));
 
 		Label templateFileLabel = new Label(container, SWT.NONE);
-		templateFileLabel.setText("Template Folder:");
+		templateFileLabel.setText("Template File:");
 
 		templateFileField = new Text(container, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
 		templateFileField.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false));

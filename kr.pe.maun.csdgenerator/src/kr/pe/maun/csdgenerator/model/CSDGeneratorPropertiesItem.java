@@ -1,24 +1,23 @@
 package kr.pe.maun.csdgenerator.model;
 
-import java.util.List;
-
-import kr.pe.maun.csdgenerator.CSDGeneratorPlugin;
-import kr.pe.maun.csdgenerator.preferences.PreferenceConstants;
-
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.osgi.service.prefs.BackingStoreException;
-import org.osgi.service.prefs.Preferences;
+
+import kr.pe.maun.csdgenerator.CSDGeneratorPlugin;
+import kr.pe.maun.csdgenerator.preferences.PreferenceConstants;
 
 public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 
 	public static final QualifiedName PROJECT_SPECIFIC_SETTINGS = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_PROJECT_SPECIFIC_SETTINGS);
 
+	public static final QualifiedName TYPE = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_TYPE);
+
 	public static final QualifiedName COMPANY = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_COMPANY);
 	public static final QualifiedName AUTHOR = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_AUTHOR);
+
+	public static final QualifiedName DATABASE_CONNECTION_PROFILE_NAME = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_DATABASE_CONNECTION_PROFILE_NAME);
 
 	public static final QualifiedName CREATE_CONTROLLER_FOLDER = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_CREATE_CONTROLLER_FOLDER);
 	public static final QualifiedName ADD_PREFIX_CONTROLLER_FOLDER = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_ADD_PREFIX_CONTROLLER_FOLDER);
@@ -40,6 +39,9 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 	public static final QualifiedName MAPPER_PATH = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_MAPPER_PATH);
 	public static final QualifiedName MAPPER_TEMPLATE_FILE = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_MAPPER_TEMPLATE_FILE);
 
+	public static final QualifiedName CREATE_VO = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_CREATE_VO);
+	public static final QualifiedName VO_PATH = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_VO_PATH);
+
 	public static final QualifiedName CREATE_JSP = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_CREATE_JSP);
 	public static final QualifiedName JSP_PATH = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_JSP_PATH);
 	public static final QualifiedName JSP_TEMPLATE_FILE = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_JSP_TEMPLATE_FILE);
@@ -51,60 +53,48 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 	private String company;
 	private String author;
 
-	private List<TemplateGroupItem> templateGroup;
-	private String defaultConnectionProfile;
+	private String databaseConnectionProfileName;
 
 	private boolean createControllerFolder;
 	private boolean addPrefixControllerFolder;
-	private String controllerTemplateFile;
 
 	private boolean createServiceFolder;
 	private boolean addPrefixServiceFolder;
-	private String serviceTemplateFile;
 
 	private boolean createServiceImpl;
 	private boolean createServiceImplFolder;
-	private String serviceImplTemplateFile;
 
 	private boolean createDaoFolder;
 	private boolean addPrefixDaoFolder;
-	private String daoTemplateFile;
 
 	private boolean createMapper;
 	private String mapperPath;
-	private String mapperTemplateFile;
 
 	private boolean createJsp;
 	private String jspPath;
-	private String jspTemplateFile;
 
 	public CSDGeneratorPropertiesItem(IResource resource) {
 		super();
 
-		String projectSpecificSettings = "";
+		String projectSpecificSettings = "true";
 		IPreferenceStore preferenceStore = CSDGeneratorPlugin.getDefault().getPreferenceStore();
-
+/*
 		try {
 			projectSpecificSettings = resource.getPersistentProperty(CSDGeneratorPropertiesItem.PROJECT_SPECIFIC_SETTINGS);
 		} catch (CoreException e) {
 			e.printStackTrace();
 		}
-
-		Preferences preferences = ConfigurationScope.INSTANCE.getNode(PreferenceConstants.CSDGENERATOR_TEMPLATE_GROUP);
-
-		try {
-			String[] childrenNames = preferences.childrenNames();
-		} catch (BackingStoreException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
+*/
 		if("true".equals(projectSpecificSettings)) {
 
 			try {
 
+				type = resource.getPersistentProperty(CSDGeneratorPropertiesItem.TYPE);
+
 				company = resource.getPersistentProperty(CSDGeneratorPropertiesItem.COMPANY);
 				author = resource.getPersistentProperty(CSDGeneratorPropertiesItem.AUTHOR);
+
+				databaseConnectionProfileName = resource.getPersistentProperty(CSDGeneratorPropertiesItem.DATABASE_CONNECTION_PROFILE_NAME);
 
 				createControllerFolder = "true".equals(resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_CONTROLLER_FOLDER));
 				addPrefixControllerFolder = "true".equals(resource.getPersistentProperty(CSDGeneratorPropertiesItem.ADD_PREFIX_CONTROLLER_FOLDER));
@@ -117,18 +107,11 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 				createDaoFolder = "true".equals(resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_DAO_FOLDER));
 				addPrefixDaoFolder = "true".equals(resource.getPersistentProperty(CSDGeneratorPropertiesItem.ADD_PREFIX_DAO_FOLDER));
 
-				controllerTemplateFile = resource.getPersistentProperty(CSDGeneratorPropertiesItem.CONTROLLER_TEMPLATE_FILE);
-				serviceTemplateFile = resource.getPersistentProperty(CSDGeneratorPropertiesItem.SERVICE_TEMPLATE_FILE);
-				serviceImplTemplateFile = resource.getPersistentProperty(CSDGeneratorPropertiesItem.SERVICEIMPL_TEMPLATE_FILE);
-				daoTemplateFile = resource.getPersistentProperty(CSDGeneratorPropertiesItem.DAO_TEMPLATE_FILE);
-
 				createMapper = "true".equals(resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_MAPPER));
 				mapperPath = resource.getPersistentProperty(CSDGeneratorPropertiesItem.MAPPER_PATH);
-				mapperTemplateFile = resource.getPersistentProperty(CSDGeneratorPropertiesItem.MAPPER_TEMPLATE_FILE);
 
 				createJsp = "true".equals(resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_JSP));
 				jspPath = resource.getPersistentProperty(CSDGeneratorPropertiesItem.JSP_PATH);
-				jspTemplateFile = resource.getPersistentProperty(CSDGeneratorPropertiesItem.JSP_TEMPLATE_FILE);
 
 			} catch (CoreException e) {
 				e.printStackTrace();
@@ -136,6 +119,8 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 
 		} else {
 
+
+			type = preferenceStore.getString(PreferenceConstants.CSDGENERATOR_TYPE);
 
 			company = preferenceStore.getString(PreferenceConstants.CSDGENERATOR_COMPANY);
 			author = preferenceStore.getString(PreferenceConstants.CSDGENERATOR_AUTHOR);
@@ -151,19 +136,22 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 			createDaoFolder = preferenceStore.getBoolean(PreferenceConstants.CSDGENERATOR_CREATE_DAO_FOLDER);
 			addPrefixDaoFolder = preferenceStore.getBoolean(PreferenceConstants.CSDGENERATOR_ADD_PREFIX_DAO_FOLDER);
 
-			controllerTemplateFile = preferenceStore.getString(PreferenceConstants.CSDGENERATOR_CONTROLLER_TEMPLATE_FILE);
-			serviceTemplateFile = preferenceStore.getString(PreferenceConstants.CSDGENERATOR_SERVICE_TEMPLATE_FILE);
-			serviceImplTemplateFile = preferenceStore.getString(PreferenceConstants.CSDGENERATOR_SERVICEIMPL_TEMPLATE_FILE);
-			daoTemplateFile = preferenceStore.getString(PreferenceConstants.CSDGENERATOR_DAO_TEMPLATE_FILE);
-
 			createMapper = preferenceStore.getBoolean(PreferenceConstants.CSDGENERATOR_CREATE_MAPPER);
 			mapperPath = preferenceStore.getString(PreferenceConstants.CSDGENERATOR_MAPPER_PATH);
-			mapperTemplateFile = preferenceStore.getString(PreferenceConstants.CSDGENERATOR_MAPPER_TEMPLATE_FILE);
 
 			createJsp = preferenceStore.getBoolean(PreferenceConstants.CSDGENERATOR_CREATE_JSP);
 			jspPath = preferenceStore.getString(PreferenceConstants.CSDGENERATOR_JSP_PATH);
-			jspTemplateFile = preferenceStore.getString(PreferenceConstants.CSDGENERATOR_JSP_TEMPLATE_FILE);
 		}
+	}
+
+	@Override
+	public String getType() {
+		return type;
+	}
+
+	@Override
+	public void setType(String type) {
+		this.type = type;
 	}
 
 	@Override
@@ -187,6 +175,16 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 	}
 
 	@Override
+	public String getDatabaseConnectionProfileName() {
+		return databaseConnectionProfileName;
+	}
+
+	@Override
+	public void setDatabaseConnectionProfileName(String databaseConnectionProfileName) {
+		this.databaseConnectionProfileName = databaseConnectionProfileName;
+	}
+
+	@Override
 	public boolean getCreateControllerFolder() {
 		return this.createControllerFolder;
 	}
@@ -204,16 +202,6 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 	@Override
 	public void setAddPrefixControllerFolder(boolean addPrefixControllerFolder) {
 		this.addPrefixControllerFolder = addPrefixControllerFolder;
-	}
-
-	@Override
-	public String getControllerTemplateFile() {
-		return this.controllerTemplateFile;
-	}
-
-	@Override
-	public void setControllerTemplateFile(String controllerTemplateFile) {
-		this.controllerTemplateFile = controllerTemplateFile;
 	}
 
 	@Override
@@ -237,16 +225,6 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 	}
 
 	@Override
-	public String getServiceTemplateFile() {
-		return this.serviceTemplateFile;
-	}
-
-	@Override
-	public void setServiceTemplateFile(String serviceTemplateFile) {
-		this.serviceTemplateFile = serviceTemplateFile;
-	}
-
-	@Override
 	public boolean getCreateServiceImpl() {
 		return this.createServiceImpl;
 	}
@@ -254,16 +232,6 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 	@Override
 	public void setCreateServiceImpl(boolean createServiceImpl) {
 		this.createServiceImpl = createServiceImpl;
-	}
-
-	@Override
-	public String getServiceImplTemplateFile() {
-		return this.serviceImplTemplateFile;
-	}
-
-	@Override
-	public void setServiceImplTemplateFile(String serviceImplTemplateFile) {
-		this.serviceImplTemplateFile = serviceImplTemplateFile;
 	}
 
 	@Override
@@ -297,16 +265,6 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 	}
 
 	@Override
-	public String getDaoTemplateFile() {
-		return this.daoTemplateFile;
-	}
-
-	@Override
-	public void setDaoTemplateFile(String daoTemplateFile) {
-		this.daoTemplateFile = daoTemplateFile;
-	}
-
-	@Override
 	public boolean getCreateMapper() {
 		return createMapper;
 	}
@@ -324,16 +282,6 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 	@Override
 	public void setMapperPath(String mapperPath) {
 		this.mapperPath = mapperPath;
-	}
-
-	@Override
-	public String getMapperTemplateFile() {
-		return mapperTemplateFile;
-	}
-
-	@Override
-	public void setMapperTemplateFile(String mapperTemplateFile) {
-		this.mapperTemplateFile = mapperTemplateFile;
 	}
 
 	@Override
@@ -356,13 +304,4 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 		this.jspPath = jspPath;
 	}
 
-	@Override
-	public String getJspTemplateFile() {
-		return jspTemplateFile;
-	}
-
-	@Override
-	public void setJspTemplateFile(String jspTemplateFile) {
-		this.jspTemplateFile = jspTemplateFile;
-	}
 }

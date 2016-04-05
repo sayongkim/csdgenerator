@@ -1,5 +1,7 @@
 package kr.pe.maun.csdgenerator.properties;
 
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.osgi.service.prefs.BackingStoreException;
@@ -17,37 +19,27 @@ public class CSDGeneratorPropertiesHelper {
 	private static final String GENERAL_TEMPLATE_GOUP_JSP_NAME = "general.template.group.jsp";
 
 	private static final String CONTROLLER_TEMPLATE_NAME = "controller.template";
-	private static final String CONTROLLER_TEMPLATE_PATH = "controller.template.path";
+	private static final String CONTROLLER_TEMPLATE_FILE = "controller.template.file";
 
 
 	private static final String SERVICE_TEMPLATE_NAME = "service.template";
-	private static final String SERVICE_TEMPLATE_PATH = "service.template.path";
+	private static final String SERVICE_TEMPLATE_FILE = "service.template.file";
 
 	private static final String DAO_TEMPLATE_NAME = "dao.template";
-	private static final String DAO_TEMPLATE_PATH = "dao.template.path";
+	private static final String DAO_TEMPLATE_FILE = "dao.template.file";
 
 	private static final String MAPPER_TEMPLATE_NAME = "mapper.template";
-	private static final String MAPPER_TEMPLATE_PATH = "mapper.template.path";
+	private static final String MAPPER_TEMPLATE_FILE = "mapper.template.file";
 
 	private static final String JSP_TEMPLATE_NAME = "jsp.template";
-	private static final String JSP_TEMPLATE_LIST_PATH = "jsp.template.list";
-	private static final String JSP_TEMPLATE_REG_PATH = "jsp.template.reg";
-	private static final String JSP_TEMPLATE_VIEW_PATH = "jsp.template.view";
+	private static final String JSP_TEMPLATE_LIST_FILE = "jsp.template.list.file";
+	private static final String JSP_TEMPLATE_REG_FILE = "jsp.template.reg.file";
+	private static final String JSP_TEMPLATE_VIEW_FILE = "jsp.template.view.file";
 
-	private static final String VO_DATA_TYPE_MAPPING_PATH_NAME = "vo.data.type.mapping";
+	private static final String VO_DATA_TYPE = "vo.data.type";
 
 	public CSDGeneratorPropertiesHelper(Preferences preferences){
 		this.preferences = preferences;
-	}
-
-	public String[] getGeneralTemplateGoupName(){
-		try {
-			Preferences node = preferences.node(GENERAL_TEMPLATE_GOUP_NAME);
-			return node.keys();
-		} catch (BackingStoreException e) {
-			e.printStackTrace();
-		}
-		return new String[]{};
 	}
 
 	public String[] getGeneralTemplateGroupNames(){
@@ -80,7 +72,7 @@ public class CSDGeneratorPropertiesHelper {
 		return preferences.node(GENERAL_TEMPLATE_GOUP_JSP_NAME).get(key, null);
 	}
 
-	public void generalPropertiesFlush(Tree templateTree){
+	public String[] generalPropertiesFlush(Tree templateTree){
 		try {
 			preferences.node(GENERAL_TEMPLATE_GOUP_NAME).clear();
 			preferences.node(GENERAL_TEMPLATE_GOUP_CONTROLLER_NAME).clear();
@@ -91,16 +83,18 @@ public class CSDGeneratorPropertiesHelper {
 			TreeItem[] templateItems = templateTree.getItems();
 			for(TreeItem template : templateItems) {
 				preferences.node(GENERAL_TEMPLATE_GOUP_NAME).put(template.getText(), template.getText());
-				preferences.node(GENERAL_TEMPLATE_GOUP_CONTROLLER_NAME).put(template.getText(), template.getItems()[0].getText());
-				preferences.node(GENERAL_TEMPLATE_GOUP_SERVICE_NAME).put(template.getText(), template.getItems()[1].getText());
-				preferences.node(GENERAL_TEMPLATE_GOUP_DAO_NAME).put(template.getText(), template.getItems()[2].getText());
-				preferences.node(GENERAL_TEMPLATE_GOUP_MAPPER_NAME).put(template.getText(), template.getItems()[3].getText());
-				preferences.node(GENERAL_TEMPLATE_GOUP_JSP_NAME).put(template.getText(), template.getItems()[4].getText());
+				preferences.node(GENERAL_TEMPLATE_GOUP_CONTROLLER_NAME).put(template.getText(), (String) template.getItems()[0].getData());
+				preferences.node(GENERAL_TEMPLATE_GOUP_SERVICE_NAME).put(template.getText(), (String) template.getItems()[1].getData());
+				preferences.node(GENERAL_TEMPLATE_GOUP_DAO_NAME).put(template.getText(), (String) template.getItems()[2].getData());
+				preferences.node(GENERAL_TEMPLATE_GOUP_MAPPER_NAME).put(template.getText(), (String) template.getItems()[3].getData());
+				preferences.node(GENERAL_TEMPLATE_GOUP_JSP_NAME).put(template.getText(), (String) template.getItems()[4].getData());
 			}
 			preferences.node(GENERAL_TEMPLATE_GOUP_NAME).flush();
 		} catch (BackingStoreException e) {
 			e.printStackTrace();
 		}
+
+		return getGeneralTemplateGroupNames();
 	}
 
 	public String[] getControllerTemplateNames(){
@@ -113,24 +107,25 @@ public class CSDGeneratorPropertiesHelper {
 		return new String[]{};
 	}
 
-	public String getControllerTemplatePath(String key) {
-		return preferences.node(CONTROLLER_TEMPLATE_PATH).get(key, null);
+	public String getControllerTemplateFile(String key) {
+		return preferences.node(CONTROLLER_TEMPLATE_FILE).get(key, null);
 	}
 
-	public void controllerPropertiesFlush(Tree templateTree){
+	public String[] controllerPropertiesFlush(Tree templateTree){
 		try {
 			preferences.node(CONTROLLER_TEMPLATE_NAME).clear();
-			preferences.node(CONTROLLER_TEMPLATE_PATH).clear();
+			preferences.node(CONTROLLER_TEMPLATE_FILE).clear();
 			TreeItem[] templateItems = templateTree.getItems();
 			for(TreeItem template : templateItems) {
 				TreeItem templatePathItem = template.getItems()[0];
 				preferences.node(CONTROLLER_TEMPLATE_NAME).put(template.getText(), template.getText());
-				preferences.node(CONTROLLER_TEMPLATE_PATH).put(template.getText(), templatePathItem.getText());
+				preferences.node(CONTROLLER_TEMPLATE_FILE).put(template.getText(), templatePathItem.getText());
 			}
 			preferences.node(CONTROLLER_TEMPLATE_NAME).flush();
 		} catch (BackingStoreException e) {
 			e.printStackTrace();
 		}
+		return getControllerTemplateNames();
 	}
 
 	public String[] getServiceTemplateName(){
@@ -153,24 +148,26 @@ public class CSDGeneratorPropertiesHelper {
 		return new String[]{};
 	}
 
-	public String getServiceTemplatePath(String key) {
-		return preferences.node(SERVICE_TEMPLATE_PATH).get(key, null);
+	public String getServiceTemplateFile(String key) {
+		return preferences.node(SERVICE_TEMPLATE_FILE).get(key, null);
 	}
 
-	public void servicePropertiesFlush(Tree templateTree){
+	public String[] servicePropertiesFlush(Tree templateTree){
 		try {
 			preferences.node(SERVICE_TEMPLATE_NAME).clear();
-			preferences.node(SERVICE_TEMPLATE_PATH).clear();
+			preferences.node(SERVICE_TEMPLATE_FILE).clear();
 			TreeItem[] templateItems = templateTree.getItems();
 			for(TreeItem template : templateItems) {
 				TreeItem templatePathItem = template.getItems()[0];
 				preferences.node(SERVICE_TEMPLATE_NAME).put(template.getText(), template.getText());
-				preferences.node(SERVICE_TEMPLATE_PATH).put(template.getText(), templatePathItem.getText());
+				preferences.node(SERVICE_TEMPLATE_FILE).put(template.getText(), templatePathItem.getText());
 			}
 			preferences.node(SERVICE_TEMPLATE_NAME).flush();
 		} catch (BackingStoreException e) {
 			e.printStackTrace();
 		}
+
+		return getServiceTemplateName();
 	}
 
 	public String[] getDaoTemplateName(){
@@ -193,24 +190,25 @@ public class CSDGeneratorPropertiesHelper {
 		return new String[]{};
 	}
 
-	public String getDaoTemplatePath(String key) {
-		return preferences.node(DAO_TEMPLATE_PATH).get(key, null);
+	public String getDaoTemplateFile(String key) {
+		return preferences.node(DAO_TEMPLATE_FILE).get(key, null);
 	}
 
-	public void daoPropertiesFlush(Tree templateTree){
+	public String[] daoPropertiesFlush(Tree templateTree){
 		try {
 			preferences.node(DAO_TEMPLATE_NAME).clear();
-			preferences.node(DAO_TEMPLATE_PATH).clear();
+			preferences.node(DAO_TEMPLATE_FILE).clear();
 			TreeItem[] templateItems = templateTree.getItems();
 			for(TreeItem template : templateItems) {
 				TreeItem templatePathItem = template.getItems()[0];
 				preferences.node(DAO_TEMPLATE_NAME).put(template.getText(), template.getText());
-				preferences.node(DAO_TEMPLATE_PATH).put(template.getText(), templatePathItem.getText());
+				preferences.node(DAO_TEMPLATE_FILE).put(template.getText(), templatePathItem.getText());
 			}
 			preferences.node(DAO_TEMPLATE_NAME).flush();
 		} catch (BackingStoreException e) {
 			e.printStackTrace();
 		}
+		return getDaoTemplateName();
 	}
 
 	public String[] getMapperTemplateName(){
@@ -233,27 +231,28 @@ public class CSDGeneratorPropertiesHelper {
 		return new String[]{};
 	}
 
-	public String getMapperTemplatePath(String key) {
-		return preferences.node(MAPPER_TEMPLATE_PATH).get(key, null);
+	public String getMapperTemplateFile(String key) {
+		return preferences.node(MAPPER_TEMPLATE_FILE).get(key, null);
 	}
 
-	public void mapperPropertiesFlush(Tree templateTree){
+	public String[] mapperPropertiesFlush(Tree templateTree){
 		try {
 			preferences.node(MAPPER_TEMPLATE_NAME).clear();
-			preferences.node(MAPPER_TEMPLATE_PATH).clear();
+			preferences.node(MAPPER_TEMPLATE_FILE).clear();
 			TreeItem[] templateItems = templateTree.getItems();
 			for(TreeItem template : templateItems) {
 				TreeItem templatePathItem = template.getItems()[0];
 				preferences.node(MAPPER_TEMPLATE_NAME).put(template.getText(), template.getText());
-				preferences.node(MAPPER_TEMPLATE_PATH).put(template.getText(), templatePathItem.getText());
+				preferences.node(MAPPER_TEMPLATE_FILE).put(template.getText(), templatePathItem.getText());
 			}
 			preferences.node(MAPPER_TEMPLATE_NAME).flush();
 		} catch (BackingStoreException e) {
 			e.printStackTrace();
 		}
+		return getMapperTemplateName();
 	}
 
-	public String[] getJSPTemplateName(){
+	public String[] getJspTemplateNames(){
 		try {
 			Preferences node = preferences.node(JSP_TEMPLATE_NAME);
 			return node.keys();
@@ -263,4 +262,65 @@ public class CSDGeneratorPropertiesHelper {
 		return new String[]{};
 	}
 
+	public String getJspTemplateListFile(String key) {
+		return preferences.node(JSP_TEMPLATE_LIST_FILE).get(key, null);
+	}
+
+	public String getJspTemplateRegFile(String key) {
+		return preferences.node(JSP_TEMPLATE_REG_FILE).get(key, null);
+	}
+
+	public String getJspTemplateViewFile(String key) {
+		return preferences.node(JSP_TEMPLATE_VIEW_FILE).get(key, null);
+	}
+
+	public String[] jspPropertiesFlush(Tree templateTree){
+		try {
+			preferences.node(JSP_TEMPLATE_NAME).clear();
+			preferences.node(JSP_TEMPLATE_LIST_FILE).clear();
+			preferences.node(JSP_TEMPLATE_REG_FILE).clear();
+			preferences.node(JSP_TEMPLATE_VIEW_FILE).clear();
+			TreeItem[] templateItems = templateTree.getItems();
+			for(TreeItem template : templateItems) {
+				preferences.node(JSP_TEMPLATE_NAME).put(template.getText(), template.getText());
+				preferences.node(JSP_TEMPLATE_LIST_FILE).put(template.getText(), (String) template.getItems()[0].getData());
+				preferences.node(JSP_TEMPLATE_REG_FILE).put(template.getText(), (String) template.getItems()[1].getData());
+				preferences.node(JSP_TEMPLATE_VIEW_FILE).put(template.getText(), (String) template.getItems()[2].getData());
+			}
+			preferences.node(JSP_TEMPLATE_NAME).flush();
+		} catch (BackingStoreException e) {
+			e.printStackTrace();
+		}
+
+		return getJspTemplateNames();
+	}
+
+	public String[] getDataTypes(){
+		try {
+			Preferences node = preferences.node(VO_DATA_TYPE);
+			return node.keys();
+		} catch (BackingStoreException e) {
+			e.printStackTrace();
+		}
+		return new String[]{};
+	}
+
+	public String getJavaObject(String key) {
+		return preferences.node(VO_DATA_TYPE).get(key, null);
+	}
+
+	public String[] dataTypeFlush(Table mappingTable){
+		try {
+			preferences.node(VO_DATA_TYPE).clear();
+			TableItem[] tableItems = mappingTable.getItems();
+			for(TableItem tableItem : tableItems) {
+				preferences.node(VO_DATA_TYPE).put(tableItem.getText(0), tableItem.getText(1));
+			}
+			preferences.node(JSP_TEMPLATE_NAME).flush();
+		} catch (BackingStoreException e) {
+			e.printStackTrace();
+		}
+
+		return getDataTypes();
+	}
 }

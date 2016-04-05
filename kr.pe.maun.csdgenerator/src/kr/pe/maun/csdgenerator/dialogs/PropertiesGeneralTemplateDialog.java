@@ -1,7 +1,6 @@
 package kr.pe.maun.csdgenerator.dialogs;
 
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.datatools.connectivity.IConnectionProfile;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
@@ -19,7 +18,6 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -36,8 +34,10 @@ public class PropertiesGeneralTemplateDialog extends Dialog {
 
 	private Text templateGroupNameField;
 
-	private Text templateFolderField;
-	private Button templateFolderButton;
+	private Text templatePathField;
+	private Button templatePathButton;
+
+	private IPath templatePath;
 
 	private String templateGroupName;
 	private String controllerTemplateName = "";
@@ -45,7 +45,6 @@ public class PropertiesGeneralTemplateDialog extends Dialog {
 	private String daoTemplateName = "";
 	private String mapperTemplateName = "";
 	private String jspTemplateName = "";
-	private String templateFile;
 
 	Combo controllerTempateNameCombo;
 	Combo serviceTempateNameCombo;
@@ -80,38 +79,54 @@ public class PropertiesGeneralTemplateDialog extends Dialog {
 			}
 		});
 
-		Label templateFolderLabel = new Label(container, SWT.NONE);
-		templateFolderLabel.setText("Template Folder:");
+		if(templateGroupName != null) {
+			templateGroupNameField.setText(templateGroupName);
+			templateGroupNameField.setEditable(false);
+			templateGroupNameField.setBackground(new Color(device, 255, 255, 255));
+		} else {
+			Label templateFolderLabel = new Label(container, SWT.NONE);
+			templateFolderLabel.setText("Template Folder:");
+			templateFolderLabel.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, false, false));
 
-		templateFolderField=new Text(container, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
-		templateFolderField.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false));
-		templateFolderField.setBackground(new Color(device, 255, 255, 255));
+			templatePathField=new Text(container, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
+			templatePathField.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false));
+			templatePathField.setBackground(new Color(device, 255, 255, 255));
 
-		templateFolderButton = new Button(container, SWT.PUSH);
-		templateFolderButton.setText("Browse...");
-		templateFolderButton.addSelectionListener(new SelectionListener() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					ContainerSelectionDialog dialog = new ContainerSelectionDialog(getShell(), null, false, "");
-					dialog.open();
-					Object[] result=dialog.getResult();
-					if (result != null && result.length == 1) templateFolderField.setText(((IPath) result[0]).toString());
+			templatePathButton = new Button(container, SWT.PUSH);
+			templatePathButton.setText("Browse...");
+			templatePathButton.addSelectionListener(new SelectionListener() {
+					@Override
+					public void widgetSelected(SelectionEvent e) {
+						ContainerSelectionDialog dialog = new ContainerSelectionDialog(getShell(), null, false, "");
+						dialog.open();
+						Object[] result=dialog.getResult();
+						if (result != null && result.length == 1) {
+							String templatePathString = ((IPath) result[0]).toString();
+							templatePathField.setText(templatePathString);
+							templateGroupNameField.setText(templatePathString.substring(templatePathString.lastIndexOf("/") + 1));
+							templatePath = (IPath) result[0];
+
+							controllerTempateNameCombo.setEnabled(false);
+							serviceTempateNameCombo.setEnabled(false);
+							daoTempateNameCombo.setEnabled(false);
+							mapperTempateNameCombo.setEnabled(false);
+							jspTempateNameCombo.setEnabled(false);
+						}
+					}
+					@Override
+					public void widgetDefaultSelected(SelectionEvent e) {
+						widgetSelected(e);
+					}
 				}
-				@Override
-				public void widgetDefaultSelected(SelectionEvent e) {
-					widgetSelected(e);
-				}
-			}
-		);
+			);
+		}
 
 		Label controllerTemplateNameLabel = new Label(container, SWT.NONE);
 		controllerTemplateNameLabel.setText("Controller Template:");
 
 		controllerTempateNameCombo = new Combo(container, SWT.READ_ONLY);
 		controllerTempateNameCombo.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, false, 2, 0));
-		for (String templateName : controllerTemplateNames) {
-			controllerTempateNameCombo.add(templateName);
-		}
+		controllerTempateNameCombo.setItems(controllerTemplateNames);
 		controllerTempateNameCombo.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -123,14 +138,14 @@ public class PropertiesGeneralTemplateDialog extends Dialog {
 			}
 		});
 
+		if(!"".equals(controllerTemplateName)) controllerTempateNameCombo.select(controllerTempateNameCombo.indexOf(controllerTemplateName));
+
 		Label serviceTemplateNameLabel = new Label(container, SWT.NONE);
 		serviceTemplateNameLabel.setText("Service Template:");
 
 		serviceTempateNameCombo = new Combo(container, SWT.READ_ONLY);
 		serviceTempateNameCombo.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, false, 2, 0));
-		for (String templateName : serviceTemplateNames) {
-			serviceTempateNameCombo.add(templateName);
-		}
+		serviceTempateNameCombo.setItems(serviceTemplateNames);
 		serviceTempateNameCombo.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -142,14 +157,14 @@ public class PropertiesGeneralTemplateDialog extends Dialog {
 			}
 		});
 
+		if(!"".equals(serviceTemplateName)) serviceTempateNameCombo.select(serviceTempateNameCombo.indexOf(serviceTemplateName));
+
 		Label daoTemplateNameLabel = new Label(container, SWT.NONE);
 		daoTemplateNameLabel.setText("Dao Template:");
 
 		daoTempateNameCombo = new Combo(container, SWT.READ_ONLY);
 		daoTempateNameCombo.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, false, 2, 0));
-		for (String templateName : daoTemplateNames) {
-			daoTempateNameCombo.add(templateName);
-		}
+		daoTempateNameCombo.setItems(daoTemplateNames);
 		daoTempateNameCombo.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -161,14 +176,14 @@ public class PropertiesGeneralTemplateDialog extends Dialog {
 			}
 		});
 
+		if(!"".equals(daoTemplateName)) daoTempateNameCombo.select(daoTempateNameCombo.indexOf(daoTemplateName));
+
 		Label mapperTemplateNameLabel = new Label(container, SWT.NONE);
 		mapperTemplateNameLabel.setText("Mapper Template:");
 
 		mapperTempateNameCombo = new Combo(container, SWT.READ_ONLY);
 		mapperTempateNameCombo.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, false, 2, 0));
-		for (String templateName : mapperTemplateNames) {
-			mapperTempateNameCombo.add(templateName);
-		}
+		mapperTempateNameCombo.setItems(mapperTemplateNames);
 		mapperTempateNameCombo.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -180,16 +195,14 @@ public class PropertiesGeneralTemplateDialog extends Dialog {
 			}
 		});
 
+		if(!"".equals(mapperTemplateName)) mapperTempateNameCombo.select(mapperTempateNameCombo.indexOf(mapperTemplateName));
+
 		Label jspTemplateNameLabel = new Label(container, SWT.NONE);
 		jspTemplateNameLabel.setText("JSP Template:");
 
 		jspTempateNameCombo = new Combo(container, SWT.READ_ONLY);
 		jspTempateNameCombo.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, false, 2, 0));
-		/*
-		for (String templateName : jspTemplateNames) {
-			jspTempateNameCombo.add(templateName);
-		}
-		*/
+		jspTempateNameCombo.setItems(jspTemplateNames);
 		jspTempateNameCombo.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -200,6 +213,8 @@ public class PropertiesGeneralTemplateDialog extends Dialog {
 				widgetSelected(e);
 			}
 		});
+
+		if(!"".equals(jspTemplateName)) jspTempateNameCombo.select(jspTempateNameCombo.indexOf(jspTemplateName));
 
 		return container;
 	}
@@ -223,7 +238,7 @@ public class PropertiesGeneralTemplateDialog extends Dialog {
 
 	@Override
 	protected Point getInitialSize() {
-		return new Point(500, 400);
+		return new Point(500, 280);
 	}
 
 	protected void okButtonEnabled() {
@@ -232,7 +247,7 @@ public class PropertiesGeneralTemplateDialog extends Dialog {
 
 		if (templateGroupName != null && !"".equals(templateGroupName)) {
 			okButton.setEnabled(true);
-			if(templateGroupNames != null && templateGroupNameField.isEnabled()) {
+			if(templateGroupNames != null && templateGroupNameField.getEditable()) {
 				for(String name : templateGroupNames) {
 					if(name.equals(templateGroupName)) {
 						okButton.setEnabled(false);
@@ -339,6 +354,10 @@ public class PropertiesGeneralTemplateDialog extends Dialog {
 
 	public void setJspTemplateName(String jspTemplateName) {
 		this.jspTemplateName = jspTemplateName;
+	}
+
+	public IPath getTemplatePath() {
+		return templatePath;
 	}
 
 }

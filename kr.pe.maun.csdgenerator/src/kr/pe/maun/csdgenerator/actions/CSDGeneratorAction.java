@@ -3,7 +3,6 @@ package kr.pe.maun.csdgenerator.actions;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -11,7 +10,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectStreamClass;
 import java.io.StringWriter;
-import java.net.MalformedURLException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -23,7 +21,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Result;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -63,6 +60,7 @@ import kr.pe.maun.csdgenerator.db.DatabaseResource;
 import kr.pe.maun.csdgenerator.dialogs.CSDGeneratorDialog;
 import kr.pe.maun.csdgenerator.model.CSDGeneratorPropertiesItem;
 import kr.pe.maun.csdgenerator.model.ColumnItem;
+import kr.pe.maun.csdgenerator.utils.StringUtils;
 
 public class CSDGeneratorAction implements IObjectActionDelegate {
 
@@ -143,27 +141,27 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 			boolean isCreateControllerFolder = propertiesItem.getCreateControllerFolder();
 			boolean isAddPrefixControllerFolder = propertiesItem.getAddPrefixControllerFolder();
-			String controllerTemplateFile = propertiesItem.getControllerTemplateFile();
+			String controllerTemplateFile = "";
 
 			boolean isCreateServiceFolder = propertiesItem.getCreateServiceFolder();
 			boolean isAddPrefixServiceFolder = propertiesItem.getAddPrefixServiceFolder();
-			String serviceTemplateFile = propertiesItem.getServiceTemplateFile();
+			String serviceTemplateFile = "";
 
 			boolean isCreateServiceImpl = propertiesItem.getCreateServiceImpl();
 			boolean isCreateServiceImplFolder = propertiesItem.getCreateServiceImpl();
-			String serviceImplTemplateFile = propertiesItem.getServiceImplTemplateFile();
+			String serviceImplTemplateFile = "";
 
 			boolean isCreateDaoFolder = propertiesItem.getCreateDaoFolder();
 			boolean isAddPrefixDaoFolder = propertiesItem.getAddPrefixDaoFolder();
-			String daoTemplateFile = propertiesItem.getDaoTemplateFile();
+			String daoTemplateFile = "";
 
 			boolean isCreateMapper = propertiesItem.getCreateMapper();
 			String mapperPath = propertiesItem.getMapperPath();
-			String mapperTemplateFile = propertiesItem.getMapperTemplateFile();
+			String mapperTemplateFile = "";
 
 			boolean isCreateJsp = propertiesItem.getCreateJsp();
 			String jspPath = propertiesItem.getJspPath();
-			String jspTemplateFile = propertiesItem.getJspTemplateFile();
+			String jspTemplateFile = "";
 
 			String rootPackagePath = packageFragment.getElementName();
 			folder = (IFolder) packageFragment.getResource().getAdapter(IFolder.class);
@@ -463,8 +461,6 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 					mapperContent = mapperContent.replaceAll("&lt;", "<");
 					mapperContent = mapperContent.replaceAll("&gt;", ">");
 
-					ByteArrayInputStream mapperImplFileStream = new ByteArrayInputStream(mapperContent.getBytes("UTF-8"));
-
 					IFile mapperFile = mapperFolder.getFile(new Path(prefix + "Mapper.xml"));
 					if(!mapperFile.exists()) mapperFile.create(new ByteArrayInputStream(mapperContent.getBytes()) ,true, new NullProgressMonitor());
 
@@ -506,7 +502,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 					for(int i = 0; i < columns.size(); i++) {
 
 						ColumnItem column = columns.get(i);
-						String columnName = toCamelCase(column.getColumnName());
+						String columnName = StringUtils.toCamelCase(column.getColumnName());
 
 						valueBuffer.append("\tprivate String ");
 						valueBuffer.append(columnName);
@@ -515,7 +511,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 						valueBuffer.append("\n");
 
 						gettersAndSetters.append("\tpublic String ");
-						gettersAndSetters.append(toCamelCase("get_" + column.getColumnName()));
+						gettersAndSetters.append(StringUtils.toCamelCase("get_" + column.getColumnName()));
 						gettersAndSetters.append("() {\n");
 						gettersAndSetters.append("\t\treturn this.");
 						gettersAndSetters.append(columnName);
@@ -523,7 +519,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 						gettersAndSetters.append("\t}\n\n");
 
 						gettersAndSetters.append("\tpublic String ");
-						gettersAndSetters.append(toCamelCase("set_" + column.getColumnName()));
+						gettersAndSetters.append(StringUtils.toCamelCase("set_" + column.getColumnName()));
 						gettersAndSetters.append("(String ");
 						gettersAndSetters.append(columnName);
 						gettersAndSetters.append(") {\n");
@@ -631,22 +627,6 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 		return source;
 	};
 
-	private String toCamelCase(String source) {
-	    StringBuffer result = new StringBuffer();
-	    String[] sourceArray = source.split("_");
-	    result.append(sourceArray[0].toLowerCase());
-	    if(sourceArray.length > 1) {
-		    for (int i = 1; i < sourceArray.length; i++) {
-		    	String s = sourceArray[i];
-		        result.append(Character.toUpperCase(s.charAt(0)));
-		        if (s.length() > 1) {
-		            result.append(s.substring(1, s.length()).toLowerCase());
-		        }
-		    }
-	    }
-	    return result.toString();
-	}
-
 	private String selecColumn(List<ColumnItem> columnItems) {
 		StringBuffer result = new StringBuffer();
 		if(columnItems.size() > 0) {
@@ -655,7 +635,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 				if(i > 0) result.append("\t\t\t,");
 				result.append(columnItem.getColumnName());
 				result.append(" AS ");
-				result.append(toCamelCase(columnItem.getColumnName()));
+				result.append(StringUtils.toCamelCase(columnItem.getColumnName()));
 				if(i < (columnItems.size() - 1)) result.append("\n");
 			}
 		}
@@ -682,7 +662,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 				ColumnItem columnItem = columnItems.get(i);
 				if(i > 0) result.append("\t\t\t,");
 				result.append("#{");
-				result.append(toCamelCase(columnItem.getColumnName()));
+				result.append(StringUtils.toCamelCase(columnItem.getColumnName()));
 				result.append("}");
 				if(i < (columnItems.size() - 1)) result.append("\n");
 			}
@@ -698,7 +678,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 				if(i > 0) result.append("\t\t\t,");
 				result.append(columnItem.getColumnName());
 				result.append(" = #{");
-				result.append(toCamelCase(columnItem.getColumnName()));
+				result.append(StringUtils.toCamelCase(columnItem.getColumnName()));
 				result.append("}");
 				if(i < (columnItems.size() - 1)) result.append("\n");
 			}

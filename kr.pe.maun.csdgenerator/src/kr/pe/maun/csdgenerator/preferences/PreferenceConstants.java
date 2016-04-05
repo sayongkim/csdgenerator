@@ -12,7 +12,8 @@ public class PreferenceConstants {
 	public static final String CSDGENERATOR_COMPANY = "csdgenerator.company";
 	public static final String CSDGENERATOR_AUTHOR = "csdgenerator.author";
 
-	public static final String CSDGENERATOR_DEFAULT_CONNECTION_PROFILE = "csdgenerator.default.connection.profile";
+	public static final String CSDGENERATOR_DATABASE_CONNECTION_PROFILE_NAME = "csdgenerator.database.connection.profile.name";
+
 	public static final String CSDGENERATOR_TEMPLATE_GROUP = "csdgenerator.template.group";
 
 	public static final String CSDGENERATOR_CREATE_CONTROLLER_FOLDER = "csdgenerator.create.controller.folder";
@@ -34,6 +35,9 @@ public class PreferenceConstants {
 	public static final String CSDGENERATOR_CREATE_MAPPER = "csdgenerator.create.mapper";
 	public static final String CSDGENERATOR_MAPPER_PATH = "csdgenerator.mapper.path";
 	public static final String CSDGENERATOR_MAPPER_TEMPLATE_FILE = "csdgenerator.mapper.template.file";
+
+	public static final String CSDGENERATOR_CREATE_VO = "csdgenerator.create.vo";
+	public static final String CSDGENERATOR_VO_PATH = "csdgenerator.vo.path";
 
 	public static final String CSDGENERATOR_CREATE_JSP = "csdgenerator.create.jsp";
 	public static final String CSDGENERATOR_JSP_PATH = "csdgenerator.jsp.path";

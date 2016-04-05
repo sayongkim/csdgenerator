@@ -22,7 +22,7 @@ public class DatabaseResource {
 	private final String MYSQL_TABLE_QUERY = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = ?";
 	private final String MYSQL_COLUMN_QUERY = "SELECT COLUMN_NAME, COLUMN_TYPE, COLUMN_COMMENT FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?";
 
-	public List<String> getTables(IConnectionProfile profile) {
+	public List<String> getDatabaseTables(IConnectionProfile profile) {
 
 		ArrayList<String> tables = new ArrayList<String>();
 

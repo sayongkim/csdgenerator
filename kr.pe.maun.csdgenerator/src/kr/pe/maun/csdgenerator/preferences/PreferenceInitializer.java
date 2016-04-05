@@ -13,9 +13,13 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 	public void initializeDefaultPreferences() {
 		IPreferenceStore store = CSDGeneratorPlugin.getDefault().getPreferenceStore();
 
+		store.setDefault(PreferenceConstants.CSDGENERATOR_TYPE, "");
+
 		store.setDefault(PreferenceConstants.CSDGENERATOR_COMPANY, "");
 		store.setDefault(PreferenceConstants.CSDGENERATOR_AUTHOR, "");
-		
+
+		store.setDefault(PreferenceConstants.CSDGENERATOR_DATABASE_CONNECTION_PROFILE_NAME, "");
+
 		store.setDefault(PreferenceConstants.CSDGENERATOR_AUTHOR, "");
 
 		store.setDefault(PreferenceConstants.CSDGENERATOR_CREATE_CONTROLLER_FOLDER, false);

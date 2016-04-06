@@ -21,25 +21,24 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 
 	public static final QualifiedName CREATE_CONTROLLER_FOLDER = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_CREATE_CONTROLLER_FOLDER);
 	public static final QualifiedName ADD_PREFIX_CONTROLLER_FOLDER = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_ADD_PREFIX_CONTROLLER_FOLDER);
-	public static final QualifiedName CONTROLLER_TEMPLATE_FILE = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_CONTROLLER_TEMPLATE_FILE);
+	public static final QualifiedName CREATE_CONTROLLER_SUB_FOLDER = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_CREATE_CONTROLLER_SUB_FOLDER);
 
 	public static final QualifiedName CREATE_SERVICE_FOLDER = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_CREATE_SERVICE_FOLDER);
 	public static final QualifiedName ADD_PREFIX_SERVICE_FOLDER = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_ADD_PREFIX_SERVICE_FOLDER);
-	public static final QualifiedName SERVICE_TEMPLATE_FILE = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_SERVICE_TEMPLATE_FILE);
+	public static final QualifiedName CREATE_SERVICE_SUB_FOLDER = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_CREATE_SERVICE_SUB_FOLDER);
 
 	public static final QualifiedName CREATE_SERVICEIMPL = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_CREATE_SERVICEIMPL);
 	public static final QualifiedName CREATE_SERVICEIMPL_FOLDER = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_CREATE_SERVICEIMPL_FOLDER);
-	public static final QualifiedName SERVICEIMPL_TEMPLATE_FILE = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_SERVICEIMPL_TEMPLATE_FILE);
 
 	public static final QualifiedName CREATE_DAO_FOLDER = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_CREATE_DAO_FOLDER);
 	public static final QualifiedName ADD_PREFIX_DAO_FOLDER = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_ADD_PREFIX_DAO_FOLDER);
-	public static final QualifiedName DAO_TEMPLATE_FILE = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_DAO_TEMPLATE_FILE);
+	public static final QualifiedName CREATE_DAO_SUB_FOLDER = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_CREATE_DAO_SUB_FOLDER);
 
 	public static final QualifiedName CREATE_MAPPER = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_CREATE_MAPPER);
 	public static final QualifiedName MAPPER_PATH = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_MAPPER_PATH);
-	public static final QualifiedName MAPPER_TEMPLATE_FILE = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_MAPPER_TEMPLATE_FILE);
 
 	public static final QualifiedName CREATE_VO = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_CREATE_VO);
+	public static final QualifiedName CREATE_SEARCH_VO = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_CREATE_SEARCH_VO);
 	public static final QualifiedName VO_PATH = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_VO_PATH);
 
 	public static final QualifiedName CREATE_JSP = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_CREATE_JSP);
@@ -57,18 +56,25 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 
 	private boolean createControllerFolder;
 	private boolean addPrefixControllerFolder;
+	private boolean createControllerSubFolder;
 
 	private boolean createServiceFolder;
 	private boolean addPrefixServiceFolder;
+	private boolean createServiceSubFolder;
 
 	private boolean createServiceImpl;
 	private boolean createServiceImplFolder;
 
 	private boolean createDaoFolder;
 	private boolean addPrefixDaoFolder;
+	private boolean createDaoSubFolder;
 
 	private boolean createMapper;
 	private String mapperPath;
+
+	private boolean createVo;
+	private boolean createSearchVo;
+	private String voPath;
 
 	private boolean createJsp;
 	private String jspPath;
@@ -98,17 +104,25 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 
 				createControllerFolder = "true".equals(resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_CONTROLLER_FOLDER));
 				addPrefixControllerFolder = "true".equals(resource.getPersistentProperty(CSDGeneratorPropertiesItem.ADD_PREFIX_CONTROLLER_FOLDER));
+				createControllerSubFolder = "true".equals(resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_CONTROLLER_SUB_FOLDER));
 
 				createServiceFolder = "true".equals(resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_SERVICE_FOLDER));
 				addPrefixServiceFolder = "true".equals(resource.getPersistentProperty(CSDGeneratorPropertiesItem.ADD_PREFIX_SERVICE_FOLDER));
+				createServiceSubFolder = "true".equals(resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_SERVICE_SUB_FOLDER));
+
 				createServiceImpl = "true".equals(resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_SERVICEIMPL));
 				createServiceImplFolder = "true".equals(resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_SERVICEIMPL_FOLDER));
 
 				createDaoFolder = "true".equals(resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_DAO_FOLDER));
 				addPrefixDaoFolder = "true".equals(resource.getPersistentProperty(CSDGeneratorPropertiesItem.ADD_PREFIX_DAO_FOLDER));
+				createDaoSubFolder = "true".equals(resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_DAO_SUB_FOLDER));
 
 				createMapper = "true".equals(resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_MAPPER));
 				mapperPath = resource.getPersistentProperty(CSDGeneratorPropertiesItem.MAPPER_PATH);
+
+				createVo = "true".equals(resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_VO));
+				createSearchVo = "true".equals(resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_SEARCH_VO));
+				voPath = resource.getPersistentProperty(CSDGeneratorPropertiesItem.VO_PATH);
 
 				createJsp = "true".equals(resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_JSP));
 				jspPath = resource.getPersistentProperty(CSDGeneratorPropertiesItem.JSP_PATH);
@@ -127,14 +141,18 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 
 			createControllerFolder = preferenceStore.getBoolean(PreferenceConstants.CSDGENERATOR_CREATE_CONTROLLER_FOLDER);
 			addPrefixControllerFolder = preferenceStore.getBoolean(PreferenceConstants.CSDGENERATOR_ADD_PREFIX_CONTROLLER_FOLDER);
+			createControllerSubFolder = preferenceStore.getBoolean(PreferenceConstants.CSDGENERATOR_CREATE_CONTROLLER_SUB_FOLDER);
 
 			createServiceFolder = preferenceStore.getBoolean(PreferenceConstants.CSDGENERATOR_CREATE_SERVICE_FOLDER);
 			addPrefixServiceFolder = preferenceStore.getBoolean(PreferenceConstants.CSDGENERATOR_ADD_PREFIX_SERVICE_FOLDER);
+			createServiceSubFolder = preferenceStore.getBoolean(PreferenceConstants.CSDGENERATOR_CREATE_SERVICE_SUB_FOLDER);
+
 			createServiceImpl = preferenceStore.getBoolean(PreferenceConstants.CSDGENERATOR_CREATE_SERVICEIMPL);
 			createServiceImplFolder = preferenceStore.getBoolean(PreferenceConstants.CSDGENERATOR_CREATE_SERVICEIMPL_FOLDER);
 
 			createDaoFolder = preferenceStore.getBoolean(PreferenceConstants.CSDGENERATOR_CREATE_DAO_FOLDER);
 			addPrefixDaoFolder = preferenceStore.getBoolean(PreferenceConstants.CSDGENERATOR_ADD_PREFIX_DAO_FOLDER);
+			createDaoSubFolder = preferenceStore.getBoolean(PreferenceConstants.CSDGENERATOR_CREATE_DAO_SUB_FOLDER);
 
 			createMapper = preferenceStore.getBoolean(PreferenceConstants.CSDGENERATOR_CREATE_MAPPER);
 			mapperPath = preferenceStore.getString(PreferenceConstants.CSDGENERATOR_MAPPER_PATH);
@@ -205,6 +223,16 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 	}
 
 	@Override
+	public boolean getCreateControllerSubFolder() {
+		return this.createControllerSubFolder;
+	}
+
+	@Override
+	public void setCreateControllerSubFolder(boolean createControllerSubFolder) {
+		this.createControllerSubFolder = createControllerSubFolder;
+	}
+
+	@Override
 	public boolean getCreateServiceFolder() {
 		return this.createServiceFolder;
 	}
@@ -222,6 +250,16 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 	@Override
 	public void setAddPrefixServiceFolder(boolean addPrefixServiceFolder) {
 		this.addPrefixServiceFolder = addPrefixServiceFolder;
+	}
+
+	@Override
+	public boolean getCreateServiceSubFolder() {
+		return this.createServiceSubFolder;
+	}
+
+	@Override
+	public void setCreateServiceSubFolder(boolean createServiceSubFolder) {
+		this.createServiceSubFolder = createServiceSubFolder;
 	}
 
 	@Override
@@ -265,6 +303,16 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 	}
 
 	@Override
+	public boolean getCreateDaoSubFolder() {
+		return this.createDaoSubFolder;
+	}
+
+	@Override
+	public void setCreateDaoSubFolder(boolean createDaoSubFolder) {
+		this.createDaoSubFolder = createDaoSubFolder;
+	}
+
+	@Override
 	public boolean getCreateMapper() {
 		return createMapper;
 	}
@@ -282,6 +330,36 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 	@Override
 	public void setMapperPath(String mapperPath) {
 		this.mapperPath = mapperPath;
+	}
+
+	@Override
+	public boolean getCreateVo() {
+		return createVo;
+	}
+
+	@Override
+	public void setCreateVo(boolean createVo) {
+		this.createVo = createVo;
+	}
+
+	@Override
+	public boolean getCreateSearchVo() {
+		return createSearchVo;
+	}
+
+	@Override
+	public void setCreateSearchVo(boolean createSearchVo) {
+		this.createSearchVo = createSearchVo;
+	}
+
+	@Override
+	public String getVoPath() {
+		return voPath;
+	}
+
+	@Override
+	public void setVoPath(String voPath) {
+		this.voPath = voPath;
 	}
 
 	@Override

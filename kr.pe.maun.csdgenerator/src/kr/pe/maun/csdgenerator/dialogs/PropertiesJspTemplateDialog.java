@@ -29,14 +29,14 @@ public class PropertiesJspTemplateDialog extends Dialog {
 
 	private Text templateListFileField;
 	private Button templateListFileButton;
-	private Text templateRegFileField;
-	private Button templateRegFileButton;
+	private Text templatePostFileField;
+	private Button templatePostFileButton;
 	private Text templateViewFileField;
 	private Button templateViewFileButton;
 
 	private String templateName;
 	private String templateListFile = "";
-	private String templateRegFile = "";
+	private String templatePostFile = "";
 	private String templateViewFile = "";
 
 	private Button okButton;
@@ -101,25 +101,25 @@ public class PropertiesJspTemplateDialog extends Dialog {
 			}
 		});
 
-		Label templateRegFileLabel = new Label(container, SWT.NONE);
-		templateRegFileLabel.setText("Reg Template File:");
+		Label templatePostFileLabel = new Label(container, SWT.NONE);
+		templatePostFileLabel.setText("Post Template File:");
 
-		templateRegFileField = new Text(container, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
-		templateRegFileField.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false));
-		templateRegFileField.setBackground(new Color(device, 255, 255, 255));
-		if (templateRegFile != null)
-			templateRegFileField.setText(templateRegFile);
+		templatePostFileField = new Text(container, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
+		templatePostFileField.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false));
+		templatePostFileField.setBackground(new Color(device, 255, 255, 255));
+		if (templatePostFile != null)
+			templatePostFileField.setText(templatePostFile);
 
-		templateRegFileButton = new Button(container, SWT.PUSH);
-		templateRegFileButton.setText("Browse...");
-		templateRegFileButton.addSelectionListener(new SelectionListener() {
+		templatePostFileButton = new Button(container, SWT.PUSH);
+		templatePostFileButton.setText("Browse...");
+		templatePostFileButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				FileDialog dialog = new FileDialog(getShell(), SWT.OPEN);
 				String fileName = dialog.open();
 				if (fileName != null) {
-					templateRegFileField.setText(fileName);
-					templateRegFile = fileName;
+					templatePostFileField.setText(fileName);
+					templatePostFile = fileName;
 					okButtonEnabled();
 				}
 			}
@@ -227,12 +227,12 @@ public class PropertiesJspTemplateDialog extends Dialog {
 		this.templateListFile = templateListFile;
 	}
 
-	public String getTemplateRegFile() {
-		return templateRegFile;
+	public String getTemplatePostFile() {
+		return templatePostFile;
 	}
 
-	public void setTemplateRegFile(String templateRegFile) {
-		this.templateRegFile = templateRegFile;
+	public void setTemplatePostFile(String templatePostFile) {
+		this.templatePostFile = templatePostFile;
 	}
 
 	public String getTemplateViewFile() {

@@ -43,9 +43,6 @@ public class CSDGeneratorPreferencePage
 	private StringFieldEditor company;
 	private StringFieldEditor author;
 
-	private ComboFieldEditor connectionProfile;
-	private ComboFieldEditor tableList;
-
 	private BooleanFieldEditor createControllerFolder;
 	private BooleanFieldEditor addPrefixControllerFolder;
 
@@ -91,8 +88,6 @@ public class CSDGeneratorPreferencePage
 			addPrefixControllerFolder.setEnabled(false, getFieldEditorParent());
 		addField(addPrefixControllerFolder);
 
-		addField(new FileFieldEditor(PreferenceConstants.CSDGENERATOR_CONTROLLER_TEMPLATE_FILE, "Controller template file:", getFieldEditorParent()));
-
 		createServiceFolder = new BooleanFieldEditor(PreferenceConstants.CSDGENERATOR_CREATE_SERVICE_FOLDER, "Create service folder", getFieldEditorParent());
 		addField(createServiceFolder);
 
@@ -100,8 +95,6 @@ public class CSDGeneratorPreferencePage
 		addField(addPrefixServiceFolder);
 		if(!store.getBoolean(PreferenceConstants.CSDGENERATOR_CREATE_SERVICE_FOLDER))
 			addPrefixServiceFolder.setEnabled(false, getFieldEditorParent());
-
-		addField(new FileFieldEditor(PreferenceConstants.CSDGENERATOR_SERVICE_TEMPLATE_FILE, "Service Template File:", getFieldEditorParent()));
 
 		createServiceImplFile = new BooleanFieldEditor(PreferenceConstants.CSDGENERATOR_CREATE_SERVICEIMPL, "Create ServiceImpl", getFieldEditorParent());
 		addField(createServiceImplFile);
@@ -111,7 +104,6 @@ public class CSDGeneratorPreferencePage
 		if(!store.getBoolean(PreferenceConstants.CSDGENERATOR_CREATE_SERVICEIMPL))
 			createServiceImplFolder.setEnabled(false, getFieldEditorParent());
 
-		serviceimplTemplateFile = new FileFieldEditor(PreferenceConstants.CSDGENERATOR_SERVICEIMPL_TEMPLATE_FILE, "ServiceImpl Template File:", getFieldEditorParent());
 		addField(serviceimplTemplateFile);
 		if(!store.getBoolean(PreferenceConstants.CSDGENERATOR_CREATE_SERVICEIMPL))
 			serviceimplTemplateFile.setEnabled(false, getFieldEditorParent());
@@ -124,8 +116,6 @@ public class CSDGeneratorPreferencePage
 		if(!store.getBoolean(PreferenceConstants.CSDGENERATOR_CREATE_DAO_FOLDER))
 			addPrefixDaoFolder.setEnabled(false, getFieldEditorParent());
 
-		addField(new FileFieldEditor(PreferenceConstants.CSDGENERATOR_DAO_TEMPLATE_FILE, "Dao Template File:", getFieldEditorParent()));
-
 		createMapper = new BooleanFieldEditor(PreferenceConstants.CSDGENERATOR_CREATE_MAPPER, "Create Mapper", getFieldEditorParent());
 		addField(createMapper);
 
@@ -134,7 +124,6 @@ public class CSDGeneratorPreferencePage
 		if(!store.getBoolean(PreferenceConstants.CSDGENERATOR_CREATE_MAPPER))
 			mapperPath.setEnabled(false, getFieldEditorParent());
 
-		mapperTemplateFile = new FileFieldEditor(PreferenceConstants.CSDGENERATOR_MAPPER_TEMPLATE_FILE, "Mapper Template File:", getFieldEditorParent());
 		addField(mapperTemplateFile);
 		if(!store.getBoolean(PreferenceConstants.CSDGENERATOR_CREATE_MAPPER))
 			mapperTemplateFile.setEnabled(false, getFieldEditorParent());

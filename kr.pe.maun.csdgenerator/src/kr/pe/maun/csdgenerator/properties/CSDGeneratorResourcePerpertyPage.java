@@ -94,14 +94,17 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 	private Button createControllerFolderButton;
 	private Button addPrefixControllerFolderButton;
+	private Button createControllerSubFolderButton;
 
-	private Button createServiceFolder;
-	private Button addPrefixServiceFolder;
-	private Button createServiceImpl;
-	private Button createServiceImplFolder;
+	private Button createServiceFolderButton;
+	private Button addPrefixServiceFolderButton;
+	private Button createServiceSubFolderButton;
+	private Button createServiceImplButton;
+	private Button createServiceImplFolderButton;
 
-	private Button createDaoFolder;
-	private Button addPrefixDaoFolder;
+	private Button createDaoFolderButton;
+	private Button addPrefixDaoFolderButton;
+	private Button createDaoSubFolderButton;
 
 	private Button createMapper;
 
@@ -205,11 +208,13 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 	    generalComposite.setLayout(new GridLayout(3, false));
 	    generalComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
+	    /*
+
 	    Composite typeComposite = new Composite(generalComposite, SWT.NULL);
 	    typeComposite.setLayout(new GridLayout(4, false));
 	    typeComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 0));
 
-	    /* S : Type A */
+	     /* S : Type A
 
 	    typeAButton = new Button(typeComposite, SWT.RADIO);
 	    typeAButton.setText("Type A:");
@@ -266,7 +271,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 	    typeASourceTreeItem.setExpanded(true);
 
 		/* E : Type A */
-		/* S : Type B */
+		/* S : Type B
 
 	    typeBButton = new Button(typeComposite, SWT.RADIO);
 		typeBButton.setText("Type B:");
@@ -408,8 +413,8 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 			generalTemplateMapperTreeItem.setText("Mapper: " + propertiesHelper.getGeneralTemplateMapper(key));
 			generalTemplateMapperTreeItem.setData(propertiesHelper.getGeneralTemplateMapper(key));
 			TreeItem generalTemplateJSPTreeItem = new TreeItem(generalTemplateNameTreeItem, SWT.NULL);
-			generalTemplateJSPTreeItem.setText("JSP: " + propertiesHelper.getGeneralTemplateJSP(key));
-			generalTemplateJSPTreeItem.setData(propertiesHelper.getGeneralTemplateJSP(key));
+			generalTemplateJSPTreeItem.setText("JSP: " + propertiesHelper.getGeneralTemplateJsp(key));
+			generalTemplateJSPTreeItem.setData(propertiesHelper.getGeneralTemplateJsp(key));
 			/*generalTemplateNameTreeItem.setExpanded(true);*/
 		}
 
@@ -440,7 +445,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 						String mapperTemplateName = "";
 						String jspTemplateName = "";
 						String jspTemplateListFile = "";
-						String jspTemplateRegFile = "";
+						String jspTemplatePostFile = "";
 						String jspTemplateViewFile = "";
 
 						try {
@@ -487,9 +492,9 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 										if(name.indexOf("JTL_") > -1) {
 											jspTemplateName =  templateFolder.getName() + "_" + name.substring(0, name.indexOf(".")).replace("JTL_", "");
 											jspTemplateListFile = templateFile.getAbsolutePath();
-										} else if(name.indexOf("JTR_") > -1) {
+										} else if(name.indexOf("JTP_") > -1) {
 											if("".equals(jspTemplateName)) jspTemplateName =  templateFolder.getName() + "_" + name.substring(0, name.indexOf(".")).replace("JTR_", "");
-											jspTemplateRegFile = templateFile.getAbsolutePath();
+											jspTemplatePostFile = templateFile.getAbsolutePath();
 										} else if(name.indexOf("JTV_") > -1) {
 											if("".equals(jspTemplateName)) jspTemplateName =  templateFolder.getName() + "_" + name.substring(0, name.indexOf(".")).replace("JTV_", "");
 											jspTemplateViewFile = templateFile.getAbsolutePath();
@@ -504,9 +509,9 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 								TreeItem jspTemplateListTreeItem = new TreeItem(jspTemplateNameTreeItem, SWT.NULL);
 								jspTemplateListTreeItem.setText("List: " + jspTemplateListFile);
 								jspTemplateListTreeItem.setData(jspTemplateListFile);
-								TreeItem jspTemplateRegTreeItem = new TreeItem(jspTemplateNameTreeItem, SWT.NULL);
-								jspTemplateRegTreeItem.setText("Reg: " + jspTemplateRegFile);
-								jspTemplateRegTreeItem.setData(jspTemplateRegFile);
+								TreeItem jspTemplatePostTreeItem = new TreeItem(jspTemplateNameTreeItem, SWT.NULL);
+								jspTemplatePostTreeItem.setText("Post: " + jspTemplatePostFile);
+								jspTemplatePostTreeItem.setData(jspTemplatePostFile);
 								TreeItem jspTemplateViewTreeItem = new TreeItem(jspTemplateNameTreeItem, SWT.NULL);
 								jspTemplateViewTreeItem.setText("View: " + jspTemplateViewFile);
 								jspTemplateViewTreeItem.setData(jspTemplateViewFile);
@@ -674,8 +679,10 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 					Button button = (Button) e.widget;
 					if(button.getSelection()) {
 						setEnabledAddPrefixControllerFolder();
+						setEnabledCreateControllerSubFolder();
 					} else {
 						setDisabledAddPrefixControllerFolder();
+						setDisabledCreateControllerSubFolder();
 					}
 				}
 				@Override public void widgetDefaultSelected(SelectionEvent e) {
@@ -690,6 +697,12 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 		addPrefixControllerFolderButton.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 0));
 		if(!isSpecificSettings || !isCreateControllerFolder()) addPrefixControllerFolderButton.setEnabled(false);
 		addPrefixControllerFolderButton.setSelection(isAddPrefixControllerFolder());
+
+		createControllerSubFolderButton = new Button(controllerComposite, SWT.CHECK);
+		createControllerSubFolderButton.setText("Create controller sub folder");
+		createControllerSubFolderButton.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 0));
+		if(!isSpecificSettings || !isCreateControllerFolder()) createControllerSubFolderButton.setEnabled(false);
+		createControllerSubFolderButton.setSelection(isCreateControllerSubFolder());
 
 		Label controllerTemplateLabel = new Label(controllerComposite, SWT.NONE);
 		controllerTemplateLabel.setText("Controller Template:");
@@ -806,18 +819,19 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 	    Composite serviceComposite = new Composite(tabFolder, SWT.NULL);
 	    serviceComposite.setLayout(new GridLayout(3, false));
 
-
-		createServiceFolder = new Button(serviceComposite, SWT.CHECK);
-		createServiceFolder.setText("Create service folder");
-		createServiceFolder.setLayoutData(new GridData(GridData.FILL, GridData.FILL, false, false, 3, 0));
-		if(!isSpecificSettings) createServiceFolder.setEnabled(false);
-		createServiceFolder.addSelectionListener(new SelectionListener() {
+		createServiceFolderButton = new Button(serviceComposite, SWT.CHECK);
+		createServiceFolderButton.setText("Create service folder");
+		createServiceFolderButton.setLayoutData(new GridData(GridData.FILL, GridData.FILL, false, false, 3, 0));
+		if(!isSpecificSettings) createServiceFolderButton.setEnabled(false);
+		createServiceFolderButton.addSelectionListener(new SelectionListener() {
 				@Override public void widgetSelected(SelectionEvent e) {
 					Button button = (Button) e.widget;
 					if(button.getSelection()) {
 						setEnabledAddPrefixServiceFolder();
+						setEnabledCreateServiceSubFolder();
 					} else {
 						setDisabledAddPrefixServiceFolder();
+						setDisabledCreateServiceSubFolder();
 					}
 				}
 				@Override public void widgetDefaultSelected(SelectionEvent e) {
@@ -825,19 +839,25 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 				}
 			}
 		);
-		createServiceFolder.setSelection(isCreateServiceFolder());
+		createServiceFolderButton.setSelection(isCreateServiceFolder());
 
-		addPrefixServiceFolder = new Button(serviceComposite, SWT.CHECK);
-		addPrefixServiceFolder.setText("Add prefix service folder name");
-		addPrefixServiceFolder.setLayoutData(new GridData(GridData.FILL, GridData.FILL, false, false, 3, 0));
-		if(!isSpecificSettings || !isCreateServiceFolder()) addPrefixServiceFolder.setEnabled(false);
-		addPrefixServiceFolder.setSelection(isAddPrefixServiceFolder());
+		addPrefixServiceFolderButton = new Button(serviceComposite, SWT.CHECK);
+		addPrefixServiceFolderButton.setText("Add prefix service folder name");
+		addPrefixServiceFolderButton.setLayoutData(new GridData(GridData.FILL, GridData.FILL, false, false, 3, 0));
+		if(!isSpecificSettings || !isCreateServiceFolder()) addPrefixServiceFolderButton.setEnabled(false);
+		addPrefixServiceFolderButton.setSelection(isAddPrefixServiceFolder());
 
-		createServiceImpl = new Button(serviceComposite, SWT.CHECK);
-		createServiceImpl.setText("Create ServiceImpl");
-		createServiceImpl.setLayoutData(new GridData(GridData.FILL, GridData.FILL, false, false, 3, 0));
-		if(!isSpecificSettings) createServiceImpl.setEnabled(false);
-		createServiceImpl.addSelectionListener(new SelectionListener() {
+		createServiceSubFolderButton = new Button(serviceComposite, SWT.CHECK);
+		createServiceSubFolderButton.setText("Create service sub folder");
+		createServiceSubFolderButton.setLayoutData(new GridData(GridData.FILL, GridData.FILL, false, false, 3, 0));
+		if(!isSpecificSettings || !isCreateServiceFolder()) createServiceSubFolderButton.setEnabled(false);
+		createServiceSubFolderButton.setSelection(isCreateServiceSubFolder());
+
+		createServiceImplButton = new Button(serviceComposite, SWT.CHECK);
+		createServiceImplButton.setText("Create ServiceImpl");
+		createServiceImplButton.setLayoutData(new GridData(GridData.FILL, GridData.FILL, false, false, 3, 0));
+		if(!isSpecificSettings) createServiceImplButton.setEnabled(false);
+		createServiceImplButton.addSelectionListener(new SelectionListener() {
 				@Override public void widgetSelected(SelectionEvent e) {
 					Button button = (Button) e.widget;
 					if(button.getSelection()) {
@@ -853,13 +873,13 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 				}
 			}
 		);
-		createServiceImpl.setSelection(isCreateServiceImpl());
+		createServiceImplButton.setSelection(isCreateServiceImpl());
 
-		createServiceImplFolder = new Button(serviceComposite, SWT.CHECK);
-		createServiceImplFolder.setText("Create ServiceImpl folder");
-		createServiceImplFolder.setLayoutData(new GridData(GridData.FILL, GridData.FILL, false, false, 3, 0));
-		if(!isSpecificSettings) createServiceImplFolder.setEnabled(false);
-		createServiceImplFolder.addSelectionListener(new SelectionListener() {
+		createServiceImplFolderButton = new Button(serviceComposite, SWT.CHECK);
+		createServiceImplFolderButton.setText("Create ServiceImpl folder");
+		createServiceImplFolderButton.setLayoutData(new GridData(GridData.FILL, GridData.FILL, false, false, 3, 0));
+		if(!isSpecificSettings) createServiceImplFolderButton.setEnabled(false);
+		createServiceImplFolderButton.addSelectionListener(new SelectionListener() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 				}
@@ -868,8 +888,8 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 				}
 			}
 		);
-		createServiceImplFolder.setSelection(isCreateServiceImplFolder());
-		if(!isSpecificSettings || !isCreateServiceImpl()) createServiceImplFolder.setEnabled(false);
+		createServiceImplFolderButton.setSelection(isCreateServiceImplFolder());
+		if(!isSpecificSettings || !isCreateServiceImpl()) createServiceImplFolderButton.setEnabled(false);
 
 		Label serviceTemplateLabel = new Label(serviceComposite, SWT.NONE);
 		serviceTemplateLabel.setText("Service Template:");
@@ -986,17 +1006,19 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 	    Composite daoComposite = new Composite(tabFolder, SWT.NULL);
 	    daoComposite.setLayout(new GridLayout(3, false));
 
-		createDaoFolder = new Button(daoComposite, SWT.CHECK);
-		createDaoFolder.setText("Create dao folder");
-		createDaoFolder.setLayoutData(new GridData(GridData.FILL, GridData.FILL, false, false, 3, 0));
-		if(!isSpecificSettings) createDaoFolder.setEnabled(false);
-		createDaoFolder.addSelectionListener(new SelectionListener() {
+		createDaoFolderButton = new Button(daoComposite, SWT.CHECK);
+		createDaoFolderButton.setText("Create dao folder");
+		createDaoFolderButton.setLayoutData(new GridData(GridData.FILL, GridData.FILL, false, false, 3, 0));
+		if(!isSpecificSettings) createDaoFolderButton.setEnabled(false);
+		createDaoFolderButton.addSelectionListener(new SelectionListener() {
 				@Override public void widgetSelected(SelectionEvent e) {
 					Button button = (Button) e.widget;
 					if(button.getSelection()) {
 						setEnabledAddPrefixDaoFolder();
+						setEnabledCreateDaoSubFolder();
 					} else {
 						setDisabledAddPrefixDaoFolder();
+						setDisabledCreateDaoSubFolder();
 					}
 				}
 				@Override public void widgetDefaultSelected(SelectionEvent e) {
@@ -1004,13 +1026,19 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 				}
 			}
 		);
-		createDaoFolder.setSelection(isCreateDaoFolder());
+		createDaoFolderButton.setSelection(isCreateDaoFolder());
 
-		addPrefixDaoFolder = new Button(daoComposite, SWT.CHECK);
-		addPrefixDaoFolder.setText("Add prefix dao folder name");
-		addPrefixDaoFolder.setLayoutData(new GridData(GridData.FILL, GridData.FILL, false, false, 3, 0));
-		if(!isSpecificSettings || !isCreateDaoFolder()) addPrefixDaoFolder.setEnabled(false);
-		addPrefixDaoFolder.setSelection(isAddPrefixDaoFolder());
+		addPrefixDaoFolderButton = new Button(daoComposite, SWT.CHECK);
+		addPrefixDaoFolderButton.setText("Add prefix dao folder name");
+		addPrefixDaoFolderButton.setLayoutData(new GridData(GridData.FILL, GridData.FILL, false, false, 3, 0));
+		if(!isSpecificSettings || !isCreateDaoFolder()) addPrefixDaoFolderButton.setEnabled(false);
+		addPrefixDaoFolderButton.setSelection(isAddPrefixDaoFolder());
+
+		createDaoSubFolderButton = new Button(daoComposite, SWT.CHECK);
+		createDaoSubFolderButton.setText("Create dao sub folder");
+		createDaoSubFolderButton.setLayoutData(new GridData(GridData.FILL, GridData.FILL, false, false, 3, 0));
+		if(!isSpecificSettings || !isCreateDaoFolder()) createDaoSubFolderButton.setEnabled(false);
+		createDaoSubFolderButton.setSelection(isCreateDaoSubFolder());
 
 		Label daoTemplateLabel = new Label(daoComposite, SWT.NONE);
 		daoTemplateLabel.setText("Dao Template:");
@@ -1154,7 +1182,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 		mapperPathName=new Text(mapperComposite, SWT.SINGLE | SWT.BORDER);
 		mapperPathName.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false));
-		if(!isSpecificSettings) mapperPathName.setEnabled(false);
+		if(!isSpecificSettings || !isCreateMapper()) mapperPathName.setEnabled(false);
 		mapperPathName.setText(getMapperPath());
 
 		mapperPathButton = new Button(mapperComposite, SWT.PUSH);
@@ -1286,14 +1314,15 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 /* S : VO Tab Folder */
 	    TabItem voTab = new TabItem(tabFolder, SWT.NONE);
-	    voTab.setText("VO");
+	    voTab.setText("Vo");
 
 	    Composite voComposite = new Composite(tabFolder, SWT.NULL);
 	    voComposite.setLayout(new GridLayout(3, false));
 
 		createVo = new Button(voComposite, SWT.CHECK);
-		createVo.setText("Create VO");
+		createVo.setText("Create Vo");
 		createVo.setLayoutData(new GridData(GridData.FILL, GridData.FILL, false, false, 3, 0));
+		createVo.setSelection(isCreateVo());
 		if(!isSpecificSettings) createVo.setEnabled(false);
 		createVo.addSelectionListener(new SelectionListener() {
 				@Override public void widgetSelected(SelectionEvent e) {
@@ -1315,26 +1344,19 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 		);
 
 		createSearchVo = new Button(voComposite, SWT.CHECK);
-		createSearchVo.setText("Create Search VO");
+		createSearchVo.setText("Create Search Vo");
 		createSearchVo.setLayoutData(new GridData(GridData.FILL, GridData.FILL, false, false, 3, 0));
+		createSearchVo.setSelection(isCreateSearchVo());
 		if(!isSpecificSettings || !isCreateVo()) createSearchVo.setEnabled(false);
-		createSearchVo.addSelectionListener(new SelectionListener() {
-				@Override public void widgetSelected(SelectionEvent e) {
-					Button button = (Button) e.widget;
-				}
-				@Override public void widgetDefaultSelected(SelectionEvent e) {
-					widgetSelected(e);
-				}
-			}
-		);
 
 		/* S : select vo path */
 		Label voPathLabel = new Label(voComposite, SWT.NONE);
-		voPathLabel.setText("VO Path:");
+		voPathLabel.setText("Vo Path:");
 		voPathLabel.setLayoutData(new GridData(GridData.END, GridData.CENTER, false, false));
 
 		voPathName=new Text(voComposite, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
 		voPathName.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false));
+		voPathName.setText(getVoPath());
 		if(!isSpecificSettings || !isCreateVo()) voPathName.setEnabled(false);
 		voPathName.setBackground(new Color(device, 255, 255, 255));
 
@@ -1555,9 +1577,9 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 			TreeItem jspTemplateListTreeItem = new TreeItem(jspTemplateNameTreeItem, SWT.NULL);
 			jspTemplateListTreeItem.setText("List: " + propertiesHelper.getJspTemplateListFile(key));
 			jspTemplateListTreeItem.setData(propertiesHelper.getJspTemplateListFile(key));
-			TreeItem jspTemplateRegTreeItem = new TreeItem(jspTemplateNameTreeItem, SWT.NULL);
-			jspTemplateRegTreeItem.setText("Reg: " + propertiesHelper.getJspTemplateRegFile(key));
-			jspTemplateRegTreeItem.setData(propertiesHelper.getJspTemplateRegFile(key));
+			TreeItem jspTemplatePostTreeItem = new TreeItem(jspTemplateNameTreeItem, SWT.NULL);
+			jspTemplatePostTreeItem.setText("Post: " + propertiesHelper.getJspTemplatePostFile(key));
+			jspTemplatePostTreeItem.setData(propertiesHelper.getJspTemplatePostFile(key));
 			TreeItem jspTemplateViewTreeItem = new TreeItem(jspTemplateNameTreeItem, SWT.NULL);
 			jspTemplateViewTreeItem.setText("View: " + propertiesHelper.getJspTemplateViewFile(key));
 			jspTemplateViewTreeItem.setData(propertiesHelper.getJspTemplateViewFile(key));
@@ -1578,9 +1600,9 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 					TreeItem jspTemplateListTreeItem = new TreeItem(jspTemplateNameTreeItem, SWT.NULL);
 					jspTemplateListTreeItem.setText("List: " + propertiesJspTemplateDialog.getTemplateListFile());
 					jspTemplateListTreeItem.setData(propertiesJspTemplateDialog.getTemplateListFile());
-					TreeItem jspTemplateRegTreeItem = new TreeItem(jspTemplateNameTreeItem, SWT.NULL);
-					jspTemplateRegTreeItem.setText("Reg: " + propertiesJspTemplateDialog.getTemplateRegFile());
-					jspTemplateRegTreeItem.setData(propertiesJspTemplateDialog.getTemplateRegFile());
+					TreeItem jspTemplatePostTreeItem = new TreeItem(jspTemplateNameTreeItem, SWT.NULL);
+					jspTemplatePostTreeItem.setText("Post: " + propertiesJspTemplateDialog.getTemplatePostFile());
+					jspTemplatePostTreeItem.setData(propertiesJspTemplateDialog.getTemplatePostFile());
 					TreeItem jspTemplateViewTreeItem = new TreeItem(jspTemplateNameTreeItem, SWT.NULL);
 					jspTemplateViewTreeItem.setText("View: " + propertiesJspTemplateDialog.getTemplateViewFile());
 					jspTemplateViewTreeItem.setData(propertiesJspTemplateDialog.getTemplateViewFile());
@@ -1622,14 +1644,14 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 					propertiesJspTemplateDialog.setTemplateName((String) templateName.getText());
 					propertiesJspTemplateDialog.setTemplateListFile((String) listTemplateName.getData());
-					propertiesJspTemplateDialog.setTemplateRegFile((String) regTemplateName.getData());
+					propertiesJspTemplateDialog.setTemplatePostFile((String) regTemplateName.getData());
 					propertiesJspTemplateDialog.setTemplateViewFile((String) viewTemplateName.getData());
 
 					if(propertiesJspTemplateDialog.open() == Window.OK) {
 						templateName.getItems()[0].setText("List: " + propertiesJspTemplateDialog.getTemplateListFile());
 						templateName.getItems()[0].setData(propertiesJspTemplateDialog.getTemplateListFile());
-						templateName.getItems()[1].setText("Reg: " + propertiesJspTemplateDialog.getTemplateRegFile());
-						templateName.getItems()[1].setData(propertiesJspTemplateDialog.getTemplateRegFile());
+						templateName.getItems()[1].setText("Post: " + propertiesJspTemplateDialog.getTemplatePostFile());
+						templateName.getItems()[1].setData(propertiesJspTemplateDialog.getTemplatePostFile());
 						templateName.getItems()[2].setText("View: " + propertiesJspTemplateDialog.getTemplateViewFile());
 						templateName.getItems()[2].setData(propertiesJspTemplateDialog.getTemplateViewFile());
 						jspTemplateNames = propertiesHelper.jspPropertiesFlush(jspTemplateTree);
@@ -1676,31 +1698,38 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 	public boolean performOk() {
 
 		/*setSpecificSettings(specificSettings.getSelection());*/
-
+/*
 		if(typeAButton.getSelection()) {
 			setType("A");
 		} else {
 			setType("B");
 		}
-
+*/
 		setCompany(companyText.getText());
 		setAuthor(authorText.getText());
 
 		setCreateControllerFolder(createControllerFolderButton.getSelection());
 		setAddPrefixControllerFolder(addPrefixControllerFolderButton.getSelection());
+		setCreateControllerSubFolder(createControllerSubFolderButton.getSelection());
 		/*setControllerTemplateFile(controllerTemplateFileName.getText());*/
 
-		setCreateServiceFolder(createServiceFolder.getSelection());
-		setAddPrefixServiceFolder(addPrefixServiceFolder.getSelection());
+		setCreateServiceFolder(createServiceFolderButton.getSelection());
+		setAddPrefixServiceFolder(addPrefixServiceFolderButton.getSelection());
+		setCreateServiceSubFolder(createServiceSubFolderButton.getSelection());
 
-		setCreateServiceImpl(createServiceImpl.getSelection());
-		setCreateServiceImplFolder(createServiceImplFolder.getSelection());
+		setCreateServiceImpl(createServiceImplButton.getSelection());
+		setCreateServiceImplFolder(createServiceImplFolderButton.getSelection());
 
-		setCreateDaoFolder(createDaoFolder.getSelection());
-		setAddPrefixDaoFolder(addPrefixDaoFolder.getSelection());
+		setCreateDaoFolder(createDaoFolderButton.getSelection());
+		setAddPrefixDaoFolder(addPrefixDaoFolderButton.getSelection());
+		setCreateDaoSubFolder(createDaoSubFolderButton.getSelection());
 
 		setCreateMapper(createMapper.getSelection());
 		setMapperPath(mapperPathName.getText());
+
+		setCreateVo(createVo.getSelection());
+		setCreateSearchVo(createSearchVo.getSelection());
+		setVoPath(voPathName.getText());
 
 		setCreateJsp(createJsp.getSelection());
 		setJspPath(jspPathName.getText());
@@ -1891,29 +1920,34 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 	      }
 	}
 
-	public String getControllerTemplateFile() {
+
+	public boolean isCreateControllerSubFolder() {
 		IResource resource = (IResource) getElement().getAdapter(IResource.class);
 
 		try {
-			String value = resource.getPersistentProperty(CSDGeneratorPropertiesItem.CONTROLLER_TEMPLATE_FILE);
-			if(value != null && !"".equals(value)) return value;
+			String value = resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_CONTROLLER_SUB_FOLDER);
+			if("true".equals(value)) {
+				return true;
+			}
 		} catch (CoreException e) {
 			e.printStackTrace();
 		}
 
-		return "";
+		return false;
 	}
 
-	public void setControllerTemplateFile(String controllerTemplateFile) {
-	      IResource resource = (IResource) getElement().getAdapter(IResource.class);
-	      try {
-	    	  if(!"".equals(controllerTemplateFile)) {
-	    		  resource.setPersistentProperty(CSDGeneratorPropertiesItem.CONTROLLER_TEMPLATE_FILE, controllerTemplateFile);
-	    	  }
-	      }
-	      catch (CoreException e) {
-	    	  e.printStackTrace();
-	      }
+	public void setCreateControllerSubFolder(boolean createControllerSubFolder) {
+		IResource resource = (IResource) getElement().getAdapter(IResource.class);
+		try {
+			if(createControllerSubFolder) {
+				resource.setPersistentProperty(CSDGeneratorPropertiesItem.CREATE_CONTROLLER_SUB_FOLDER, "true");
+			} else {
+				resource.setPersistentProperty(CSDGeneratorPropertiesItem.CREATE_CONTROLLER_SUB_FOLDER, "false");
+			}
+		}
+		catch (CoreException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public boolean isCreateServiceFolder() {
@@ -2030,6 +2064,35 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 		}
 	}
 
+	public boolean isCreateServiceSubFolder() {
+		IResource resource = (IResource) getElement().getAdapter(IResource.class);
+
+		try {
+			String value = resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_SERVICE_SUB_FOLDER);
+			if("true".equals(value)) {
+				return true;
+			}
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+
+		return false;
+	}
+
+	public void setCreateServiceSubFolder(boolean createServiceSubFolder) {
+	      IResource resource = (IResource) getElement().getAdapter(IResource.class);
+	      try {
+	    	  if(createServiceSubFolder) {
+	    		  resource.setPersistentProperty(CSDGeneratorPropertiesItem.CREATE_SERVICE_SUB_FOLDER, "true");
+	    	  } else {
+	    		  resource.setPersistentProperty(CSDGeneratorPropertiesItem.CREATE_SERVICE_SUB_FOLDER, "false");
+	    	  }
+	      }
+	      catch (CoreException e) {
+	    	  e.printStackTrace();
+	      }
+	}
+
 	public boolean isCreateDaoFolder() {
 		IResource resource = (IResource) getElement().getAdapter(IResource.class);
 
@@ -2063,7 +2126,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 		IResource resource = (IResource) getElement().getAdapter(IResource.class);
 
 		try {
-			String value = resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_DAO_FOLDER);
+			String value = resource.getPersistentProperty(CSDGeneratorPropertiesItem.ADD_PREFIX_DAO_FOLDER);
 			if("true".equals(value)) {
 				return true;
 			}
@@ -2081,6 +2144,35 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 	    		  resource.setPersistentProperty(CSDGeneratorPropertiesItem.ADD_PREFIX_DAO_FOLDER, "true");
 	    	  } else {
 	    		  resource.setPersistentProperty(CSDGeneratorPropertiesItem.ADD_PREFIX_DAO_FOLDER, "false");
+	    	  }
+	      }
+	      catch (CoreException e) {
+	    	  e.printStackTrace();
+	      }
+	}
+
+	public boolean isCreateDaoSubFolder() {
+		IResource resource = (IResource) getElement().getAdapter(IResource.class);
+
+		try {
+			String value = resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_DAO_SUB_FOLDER);
+			if("true".equals(value)) {
+				return true;
+			}
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+
+		return false;
+	}
+
+	public void setCreateDaoSubFolder(boolean createDaoSubFolder) {
+	      IResource resource = (IResource) getElement().getAdapter(IResource.class);
+	      try {
+	    	  if(createDaoSubFolder) {
+	    		  resource.setPersistentProperty(CSDGeneratorPropertiesItem.CREATE_DAO_SUB_FOLDER, "true");
+	    	  } else {
+	    		  resource.setPersistentProperty(CSDGeneratorPropertiesItem.CREATE_DAO_SUB_FOLDER, "false");
 	    	  }
 	      }
 	      catch (CoreException e) {
@@ -2142,31 +2234,6 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 	      }
 	}
 
-	public String getMapperTemplateFile() {
-			IResource resource = (IResource) getElement().getAdapter(IResource.class);
-
-			try {
-				String value = resource.getPersistentProperty(CSDGeneratorPropertiesItem.MAPPER_TEMPLATE_FILE);
-				if(value != null && !"".equals(value)) return value;
-			} catch (CoreException e) {
-				e.printStackTrace();
-			}
-
-			return "";
-	}
-
-	public void setMapperTemplateFile(String mapperTemplateFile) {
-	      IResource resource = (IResource) getElement().getAdapter(IResource.class);
-	      try {
-	    	  if(!"".equals(mapperTemplateFile)) {
-	    		  resource.setPersistentProperty(CSDGeneratorPropertiesItem.MAPPER_TEMPLATE_FILE, mapperTemplateFile);
-	    	  }
-	      }
-	      catch (CoreException e) {
-	    	  e.printStackTrace();
-	      }
-	}
-
 	public boolean isCreateVo() {
 		IResource resource = (IResource) getElement().getAdapter(IResource.class);
 
@@ -2189,6 +2256,60 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 	    		  resource.setPersistentProperty(CSDGeneratorPropertiesItem.CREATE_VO, "true");
 	    	  } else {
 	    		  resource.setPersistentProperty(CSDGeneratorPropertiesItem.CREATE_VO, "false");
+	    	  }
+	      }
+	      catch (CoreException e) {
+	    	  e.printStackTrace();
+	      }
+	}
+
+	public boolean isCreateSearchVo() {
+		IResource resource = (IResource) getElement().getAdapter(IResource.class);
+
+		try {
+			String value = resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_SEARCH_VO);
+			if("true".equals(value)) {
+				return true;
+			}
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+
+		return false;
+	}
+
+	public void setCreateSearchVo(boolean createVo) {
+	      IResource resource = (IResource) getElement().getAdapter(IResource.class);
+	      try {
+	    	  if(createVo) {
+	    		  resource.setPersistentProperty(CSDGeneratorPropertiesItem.CREATE_SEARCH_VO, "true");
+	    	  } else {
+	    		  resource.setPersistentProperty(CSDGeneratorPropertiesItem.CREATE_SEARCH_VO, "false");
+	    	  }
+	      }
+	      catch (CoreException e) {
+	    	  e.printStackTrace();
+	      }
+	}
+
+	public String getVoPath() {
+			IResource resource = (IResource) getElement().getAdapter(IResource.class);
+
+			try {
+				String value = resource.getPersistentProperty(CSDGeneratorPropertiesItem.VO_PATH);
+				if(value != null && !"".equals(value)) return value;
+			} catch (CoreException e) {
+				e.printStackTrace();
+			}
+
+			return "";
+	}
+
+	public void setVoPath(String mapperPath) {
+	      IResource resource = (IResource) getElement().getAdapter(IResource.class);
+	      try {
+	    	  if(!"".equals(mapperPath)) {
+	    		  resource.setPersistentProperty(CSDGeneratorPropertiesItem.VO_PATH, mapperPath);
 	    	  }
 	      }
 	      catch (CoreException e) {
@@ -2283,28 +2404,52 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 		addPrefixControllerFolderButton.setEnabled(false);
 	}
 
+	private void setEnabledCreateControllerSubFolder() {
+		createControllerSubFolderButton.setEnabled(true);
+	}
+
+	private void setDisabledCreateControllerSubFolder() {
+		createControllerSubFolderButton.setEnabled(false);
+	}
+
 	private void setEnabledAddPrefixServiceFolder() {
-		addPrefixServiceFolder.setEnabled(true);
+		addPrefixServiceFolderButton.setEnabled(true);
 	}
 
 	private void setDisabledAddPrefixServiceFolder() {
-		addPrefixServiceFolder.setEnabled(false);
+		addPrefixServiceFolderButton.setEnabled(false);
+	}
+
+	private void setEnabledCreateServiceSubFolder() {
+		createServiceSubFolderButton.setEnabled(true);
+	}
+
+	private void setDisabledCreateServiceSubFolder() {
+		createServiceSubFolderButton.setEnabled(false);
 	}
 
 	private void setEnabledAddPrefixDaoFolder() {
-		addPrefixDaoFolder.setEnabled(true);
+		addPrefixDaoFolderButton.setEnabled(true);
 	}
 
 	private void setDisabledAddPrefixDaoFolder() {
-		addPrefixDaoFolder.setEnabled(false);
+		addPrefixDaoFolderButton.setEnabled(false);
+	}
+
+	private void setEnabledCreateDaoSubFolder() {
+		createDaoSubFolderButton.setEnabled(true);
+	}
+
+	private void setDisabledCreateDaoSubFolder() {
+		createDaoSubFolderButton.setEnabled(false);
 	}
 
 	private void setEnabledServiceImplFolder() {
-		createServiceImplFolder.setEnabled(true);
+		createServiceImplFolderButton.setEnabled(true);
 	}
 
 	private void setDisabledServiceImplFolder() {
-		createServiceImplFolder.setEnabled(false);
+		createServiceImplFolderButton.setEnabled(false);
 	}
 
 	private void setEnabledServiceImplTemplateFile() {
@@ -2375,20 +2520,20 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 		/*controllerTemplateFileName.setEnabled(true);*/
 		controllerTemplateFileButton.setEnabled(true);
 
-		createServiceFolder.setEnabled(true);
-		if(createServiceFolder.getSelection()) addPrefixServiceFolder.setEnabled(true);
+		createServiceFolderButton.setEnabled(true);
+		if(createServiceFolderButton.getSelection()) addPrefixServiceFolderButton.setEnabled(true);
 		serviceTemplateFileName.setEnabled(true);
 		serviceTemplateFileButton.setEnabled(true);
 
-		createServiceImpl.setEnabled(true);
-		if(createServiceImpl.getSelection()) {
-			createServiceImplFolder.setEnabled(true);
+		createServiceImplButton.setEnabled(true);
+		if(createServiceImplButton.getSelection()) {
+			createServiceImplFolderButton.setEnabled(true);
 			serviceImplTemplateFileName.setEnabled(true);
 			serviceImplTemplateFileButton.setEnabled(true);
 		}
 
-		createDaoFolder.setEnabled(true);
-		if(createDaoFolder.getSelection()) addPrefixDaoFolder.setEnabled(true);
+		createDaoFolderButton.setEnabled(true);
+		if(createDaoFolderButton.getSelection()) addPrefixDaoFolderButton.setEnabled(true);
 		daoTemplateFileName.setEnabled(true);
 		daoTemplateFileButton.setEnabled(true);
 
@@ -2422,24 +2567,24 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 		/*controllerTemplateFileName.setEnabled(false);*/
 		controllerTemplateFileButton.setEnabled(false);
 
-		addPrefixServiceFolder.setEnabled(false);
+		addPrefixServiceFolderButton.setEnabled(false);
 		serviceTemplateFileName.setEnabled(false);
 		serviceTemplateFileButton.setEnabled(false);
 
 		serviceImplTemplateFileName.setEnabled(false);
 		serviceImplTemplateFileButton.setEnabled(false);
 
-		addPrefixDaoFolder.setEnabled(false);
+		addPrefixDaoFolderButton.setEnabled(false);
 		daoTemplateFileName.setEnabled(false);
 		daoTemplateFileButton.setEnabled(false);
 
 		createControllerFolderButton.setEnabled(false);
 
-		createServiceFolder.setEnabled(false);
-		createServiceImpl.setEnabled(false);
-		createServiceImplFolder.setEnabled(false);
+		createServiceFolderButton.setEnabled(false);
+		createServiceImplButton.setEnabled(false);
+		createServiceImplFolderButton.setEnabled(false);
 
-		createDaoFolder.setEnabled(false);
+		createDaoFolderButton.setEnabled(false);
 
 		createMapper.setEnabled(false);
 		mapperPathButton.setEnabled(false);

@@ -22,13 +22,25 @@ public class DatabaseResource {
 	private final String MYSQL_TABLE_QUERY = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = ?";
 	private final String MYSQL_COLUMN_QUERY = "SELECT COLUMN_NAME, COLUMN_TYPE, COLUMN_COMMENT FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?";
 
+	private IConnection connection;
+	IConnectionProfile profile;
+
+	public DatabaseResource() {
+	}
+
+	public DatabaseResource(IConnectionProfile profile) {
+		this.profile = profile;
+		connection = new JDBCConnectionFactory().createConnection(profile);
+	}
+
 	public List<String> getDatabaseTables(IConnectionProfile profile) {
 
 		ArrayList<String> tables = new ArrayList<String>();
 
-		IConnection connection = null;
-
 		try {
+			if(connection != null) {
+				connection.close();
+			}
 			connection = new JDBCConnectionFactory().createConnection(profile);
 			Connection rawConnection = (Connection) connection.getRawConnection();
 			Properties baseProperties = profile.getBaseProperties();
@@ -65,14 +77,11 @@ public class DatabaseResource {
 		return tables;
 	}
 
-	public List<ColumnItem> getColumn(IConnectionProfile profile, String tableName) {
+	public List<ColumnItem> getColumn(String tableName) {
 
 		ArrayList<ColumnItem> columnItems = new ArrayList<ColumnItem>();
 
-		IConnection connection = null;
-
 		try {
-			connection = new JDBCConnectionFactory().createConnection(profile);
 			Connection rawConnection = (Connection) connection.getRawConnection();
 			Properties baseProperties = profile.getBaseProperties();
 			String vendor = baseProperties.getProperty("org.eclipse.datatools.connectivity.db.vendor").toLowerCase();
@@ -106,12 +115,16 @@ public class DatabaseResource {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-		} finally {
-			if(connection != null) {
-				connection.close();
-			}
 		}
 
 		return columnItems;
+	}
+
+	@Override
+	protected void finalize() throws Throwable {
+		if(connection != null) {
+			connection.close();
+		}
+		super.finalize();
 	}
 }

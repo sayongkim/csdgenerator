@@ -33,7 +33,7 @@ public class CSDGeneratorPropertiesHelper {
 
 	private static final String JSP_TEMPLATE_NAME = "jsp.template";
 	private static final String JSP_TEMPLATE_LIST_FILE = "jsp.template.list.file";
-	private static final String JSP_TEMPLATE_REG_FILE = "jsp.template.reg.file";
+	private static final String JSP_TEMPLATE_POST_FILE = "jsp.template.post.file";
 	private static final String JSP_TEMPLATE_VIEW_FILE = "jsp.template.view.file";
 
 	private static final String VO_DATA_TYPE = "vo.data.type";
@@ -68,7 +68,7 @@ public class CSDGeneratorPropertiesHelper {
 		return preferences.node(GENERAL_TEMPLATE_GOUP_MAPPER_NAME).get(key, null);
 	}
 
-	public String getGeneralTemplateJSP(String key) {
+	public String getGeneralTemplateJsp(String key) {
 		return preferences.node(GENERAL_TEMPLATE_GOUP_JSP_NAME).get(key, null);
 	}
 
@@ -266,8 +266,8 @@ public class CSDGeneratorPropertiesHelper {
 		return preferences.node(JSP_TEMPLATE_LIST_FILE).get(key, null);
 	}
 
-	public String getJspTemplateRegFile(String key) {
-		return preferences.node(JSP_TEMPLATE_REG_FILE).get(key, null);
+	public String getJspTemplatePostFile(String key) {
+		return preferences.node(JSP_TEMPLATE_POST_FILE).get(key, null);
 	}
 
 	public String getJspTemplateViewFile(String key) {
@@ -278,13 +278,13 @@ public class CSDGeneratorPropertiesHelper {
 		try {
 			preferences.node(JSP_TEMPLATE_NAME).clear();
 			preferences.node(JSP_TEMPLATE_LIST_FILE).clear();
-			preferences.node(JSP_TEMPLATE_REG_FILE).clear();
+			preferences.node(JSP_TEMPLATE_POST_FILE).clear();
 			preferences.node(JSP_TEMPLATE_VIEW_FILE).clear();
 			TreeItem[] templateItems = templateTree.getItems();
 			for(TreeItem template : templateItems) {
 				preferences.node(JSP_TEMPLATE_NAME).put(template.getText(), template.getText());
 				preferences.node(JSP_TEMPLATE_LIST_FILE).put(template.getText(), (String) template.getItems()[0].getData());
-				preferences.node(JSP_TEMPLATE_REG_FILE).put(template.getText(), (String) template.getItems()[1].getData());
+				preferences.node(JSP_TEMPLATE_POST_FILE).put(template.getText(), (String) template.getItems()[1].getData());
 				preferences.node(JSP_TEMPLATE_VIEW_FILE).put(template.getText(), (String) template.getItems()[2].getData());
 			}
 			preferences.node(JSP_TEMPLATE_NAME).flush();

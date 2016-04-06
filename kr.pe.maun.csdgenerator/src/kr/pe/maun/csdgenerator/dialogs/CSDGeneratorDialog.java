@@ -2,11 +2,16 @@ package kr.pe.maun.csdgenerator.dialogs;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ProjectScope;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.datatools.connectivity.IConnectionProfile;
 import org.eclipse.datatools.connectivity.ProfileManager;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -51,39 +56,57 @@ public class CSDGeneratorDialog extends Dialog {
 	private CSDGeneratorPropertiesItem propertiesItem;
 	private CSDGeneratorPropertiesHelper propertiesHelper;
 
-	private String type;
+	private String templateGroupName = "";
 
 	private String prefix = "";
 	private Text prefixField;
-
+/*
+	private String regExGroup = "";
+	private Text regExGroupField;
+*/
 	private boolean isParentLocation = false;
 	private boolean isCreateFolder = true;
 
-	Combo templateCombo;
+	private boolean isCreateController = true;
+	private boolean isCreateService = true;
+	private boolean isCreateDao = true;
+	private boolean isCreateMapper = true;
+	private boolean isCreateJsp = true;
+	private boolean isCreateVo = true;
+	private boolean isCreateSearchVo = true;
 
-	private String targetTable;
+	String mapperPath;
+	String voPath;
+	String jspPath;
+
 	private IConnectionProfile connectionProfile;
 
 	private ISelection selection;
 
-	Button createParentLocation;
-	Button createFolder;
+	private Combo templateCombo;
+	private Combo connectionProfileCombo;
+	private Combo parameterCombo;
+	private Combo returnCombo;
 
-	Combo connectionProfileCombo;
-	Combo tablesCombo;
+	private Button createParentLocationButton;
+	private Button createFolderButton;
+	private Button createControllerButton;
+	private Button createServiceButton;
+	private Button createDaoButton;
+	private Button createMapperButton;
+	private Button createJspButton;
+	private Button createVoButton;
+	private Button regExButton;
 
-	Button templateBoard;
-
-	IConnectionProfile[] connectionProfiles;
-	DatabaseResource databaseResource;
+	private IConnectionProfile[] connectionProfiles;
+	private DatabaseResource databaseResource;
 
 	private Tree previewTree;
 	private Tree databaseTablesTree;
 
 	private String[] databaseTables;
 
-	IPackageFragment javaPackageFragment;
-	IResource resource;
+	private IPackageFragment javaPackageFragment;
 
 	private Button okButton;
 
@@ -100,7 +123,6 @@ public class CSDGeneratorDialog extends Dialog {
 	protected Control createDialogArea(Composite parent) {
 
 		Composite container = (Composite) super.createDialogArea(parent);
-		container.setBackgroundMode(SWT.INHERIT_FORCE);
 
 		if (selection instanceof TreeSelection) {
 			TreeSelection treeSelection = (TreeSelection) selection;
@@ -118,14 +140,23 @@ public class CSDGeneratorDialog extends Dialog {
 		propertiesItem = new CSDGeneratorPropertiesItem((IResource) project.getAdapter(IResource.class));
 		propertiesHelper = new CSDGeneratorPropertiesHelper(new ProjectScope(project).getNode(CSDGeneratorPlugin.PLUGIN_ID));
 
-		type = propertiesItem.getType();
+		mapperPath = propertiesItem.getMapperPath();
+		voPath = propertiesItem.getVoPath();
+		jspPath = propertiesItem.getJspPath();
+
+		isCreateMapper = propertiesItem.getCreateMapper() && mapperPath != null && !"".equals(mapperPath);
+		isCreateJsp = propertiesItem.getCreateJsp() && jspPath != null && !"".equals(jspPath);
+		isCreateVo = propertiesItem.getCreateVo() && voPath != null && !"".equals(voPath);
+		isCreateSearchVo = propertiesItem.getCreateSearchVo();
+
 		String databaseConnectionProfileName = propertiesItem.getDatabaseConnectionProfileName();
+
 		String[] templateGroupNames = propertiesHelper.getGeneralTemplateGroupNames();
 
 		container.setLayout(new GridLayout(4, false));
 
 		Label templateLabel = new Label(container, SWT.NONE);
-		templateLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+		templateLabel.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
 		templateLabel.setText("Template: ");
 
 		templateCombo = new Combo(container, SWT.READ_ONLY);
@@ -135,6 +166,54 @@ public class CSDGeneratorDialog extends Dialog {
 		templateCombo.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+
+				templateGroupName = templateCombo.getText();
+
+				String generalTemplateController = propertiesHelper.getGeneralTemplateController(templateCombo.getText());
+				String generalTemplateService = propertiesHelper.getGeneralTemplateService(templateCombo.getText());
+				String generalTemplateDao = propertiesHelper.getGeneralTemplateDao(templateCombo.getText());
+				String generalTemplateMapper = propertiesHelper.getGeneralTemplateMapper(templateCombo.getText());
+				String generalTemplateJsp = propertiesHelper.getGeneralTemplateJsp(templateCombo.getText());
+
+				if(generalTemplateController != null
+						&& propertiesHelper.getControllerTemplateFile(generalTemplateController) != null) {
+					createControllerButton.setEnabled(true);
+				} else {
+					createControllerButton.setEnabled(false);
+				}
+
+				if(generalTemplateService != null
+						&& propertiesHelper.getServiceTemplateFile(generalTemplateService) != null) {
+					createServiceButton.setEnabled(true);
+				} else {
+					createServiceButton.setEnabled(false);
+				}
+
+				if(generalTemplateDao != null
+						&& propertiesHelper.getDaoTemplateFile(generalTemplateDao) != null) {
+					createDaoButton.setEnabled(true);
+				} else {
+					createDaoButton.setEnabled(false);
+				}
+
+				if(generalTemplateMapper != null
+						&& propertiesHelper.getMapperTemplateFile(generalTemplateMapper) != null) {
+					createMapperButton.setEnabled(true);
+				} else {
+					createMapperButton.setEnabled(false);
+				}
+
+				if(generalTemplateJsp != null
+						&& propertiesHelper.getJspTemplateListFile(generalTemplateJsp) != null
+						&& propertiesHelper.getJspTemplatePostFile(generalTemplateJsp) != null
+						&& propertiesHelper.getJspTemplateViewFile(generalTemplateJsp) != null) {
+					createJspButton.setEnabled(true);
+				} else {
+					createJspButton.setEnabled(false);
+				}
+
+				createTree();
+
 				okButtonEnabled();
 			}
 
@@ -153,14 +232,14 @@ public class CSDGeneratorDialog extends Dialog {
 
 		connectionProfiles = ProfileManager.getInstance().getProfiles();
 		connectionProfileCombo = new Combo(container, SWT.READ_ONLY);
-		connectionProfileCombo.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, false, false));
+		connectionProfileCombo.setLayoutData(new GridData(GridData.BEGINNING, GridData.CENTER, false, false));
 		for (IConnectionProfile profile : connectionProfiles) {
 			connectionProfileCombo.add(profile.getName());
 		}
 		connectionProfileCombo.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				getDatabaseTables();
+				getDatabaseTrees();
 			}
 
 			@Override
@@ -169,10 +248,11 @@ public class CSDGeneratorDialog extends Dialog {
 			}
 		});
 
-		createParentLocation = new Button(container, SWT.CHECK);
-		createParentLocation.setText("Create parent location");
-		createParentLocation.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false, 4, 0));
-		createParentLocation.addSelectionListener(new SelectionListener() {
+		new Label(container, SWT.NONE);
+		createParentLocationButton = new Button(container, SWT.CHECK);
+		createParentLocationButton.setText("Create parent location");
+		createParentLocationButton.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false, 3, 0));
+		createParentLocationButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				Button button = (Button) e.widget;
@@ -185,12 +265,13 @@ public class CSDGeneratorDialog extends Dialog {
 				widgetSelected(e);
 			}
 		});
-		if("B".equals(type)) createParentLocation.setEnabled(false);
+		createParentLocationButton.setEnabled(false);
 
-		createFolder = new Button(container, SWT.CHECK);
-		createFolder.setText("Create folder");
-		createFolder.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false, 4, 0));
-		createFolder.addSelectionListener(new SelectionListener() {
+		new Label(container, SWT.NONE);
+		createFolderButton = new Button(container, SWT.CHECK);
+		createFolderButton.setText("Create folder");
+		createFolderButton.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false, 3, 0));
+		createFolderButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				Button button = (Button) e.widget;
@@ -203,34 +284,180 @@ public class CSDGeneratorDialog extends Dialog {
 				widgetSelected(e);
 			}
 		});
-		createFolder.setSelection(this.isCreateFolder);
+		createFolderButton.setSelection(isCreateFolder);
+
+		GridLayout createButtonCompositeLayout = new GridLayout(6, false);
+		createButtonCompositeLayout.marginWidth = 0;
+		createButtonCompositeLayout.marginHeight = 0;
+
+		new Label(container, SWT.NONE);
+		Composite craeteButtonComposite = new Composite(container, SWT.NONE);
+		craeteButtonComposite.setLayout(createButtonCompositeLayout);
+		craeteButtonComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 0));
+
+		createControllerButton = new Button(craeteButtonComposite, SWT.CHECK);
+		createControllerButton.setText("Controller");
+		createControllerButton.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				Button button = (Button) e.widget;
+				setCreateController(button.getSelection());
+				createTree();
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				widgetSelected(e);
+			}
+		});
+		createControllerButton.setSelection(isCreateController);
+
+		createServiceButton = new Button(craeteButtonComposite, SWT.CHECK);
+		createServiceButton.setText("Service");
+		createServiceButton.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				Button button = (Button) e.widget;
+				setCreateService(button.getSelection());
+				createTree();
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				widgetSelected(e);
+			}
+		});
+		createServiceButton.setSelection(isCreateService);
+
+		createDaoButton = new Button(craeteButtonComposite, SWT.CHECK);
+		createDaoButton.setText("Dao");
+		createDaoButton.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				Button button = (Button) e.widget;
+				setCreateDao(button.getSelection());
+				createTree();
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				widgetSelected(e);
+			}
+		});
+		createDaoButton.setSelection(isCreateDao);
+
+		createMapperButton = new Button(craeteButtonComposite, SWT.CHECK);
+		createMapperButton.setText("Mapper");
+		createMapperButton.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				Button button = (Button) e.widget;
+				setCreateMapper(button.getSelection());
+				createTree();
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				widgetSelected(e);
+			}
+		});
+		createMapperButton.setSelection(isCreateMapper);
+		if(!isCreateMapper) createMapperButton.setEnabled(false);
+
+		createVoButton = new Button(craeteButtonComposite, SWT.CHECK);
+		createVoButton.setText("Vo");
+		createVoButton.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				Button button = (Button) e.widget;
+				setCreateVo(button.getSelection());
+				createTree();
+				if(button.getSelection()) {
+					parameterCombo.setEnabled(false);
+					returnCombo.setEnabled(false);
+				} else {
+					parameterCombo.setEnabled(true);
+					returnCombo.setEnabled(true);
+				}
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				widgetSelected(e);
+			}
+		});
+		createVoButton.setSelection(isCreateVo);
+		if(!isCreateVo) createVoButton.setEnabled(false);
+
+		createJspButton = new Button(craeteButtonComposite, SWT.CHECK);
+		createJspButton.setText("Jsp");
+		createJspButton.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				Button button = (Button) e.widget;
+				setCreateJsp(button.getSelection());
+				createTree();
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				widgetSelected(e);
+			}
+		});
+		createJspButton.setSelection(isCreateJsp);
+		if(!isCreateJsp) createJspButton.setEnabled(false);
 
 		/* E : DB 연결 */
 
-		/*
-		 * Group templateGroup = new Group(container, SWT.NONE);
-		 * templateGroup.setText("Template"); templateGroup.setLayout(new
-		 * RowLayout(SWT.VERTICAL)); templateGroup.setLayoutData(new
-		 * GridData(GridData.FILL, GridData.CENTER, true, false));
-		 *
-		 * templateBoard = new Button(templateGroup, SWT.CHECK);
-		 * templateBoard.setText("Board");
-		 * templateBoard.addSelectionListener(new SelectionListener() {
-		 *
-		 * @Override public void widgetSelected(SelectionEvent e) { Button
-		 * button = (Button) e.widget; }
-		 *
-		 * @Override public void widgetDefaultSelected(SelectionEvent e) {
-		 * widgetSelected(e); } } );
-		 */
+		GridData layoutData = new GridData(SWT.BEGINNING, SWT.FILL, false, false, 3, 0);
+		layoutData.widthHint = 400;
 
-		/*
-		 * Label prefixLabel = new Label(container, SWT.NONE);
-		 * prefixLabel.setLayoutData(new GridData(GridData.BEGINNING,
-		 * GridData.CENTER, false, false)); prefixLabel.setText("Prefix: ");
-		 */
+		Label parameterLabel = new Label(container, SWT.NONE);
+		parameterLabel.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
+		parameterLabel.setText("    Parameter: ");
+
+		List<String> objectList = new ArrayList<String>();
+		objectList.add("HashMap<String, Object>");
+		objectList.add("HashMap<String, String>");
+
+		if(voPath != null && !"".equals(voPath)) {
+			IFolder voFolder = project.getWorkspace().getRoot().getFolder(new Path(voPath));
+			try {
+				IResource[] members = voFolder.members();
+				for(IResource member : members) {
+					objectList.add(member.getName().replaceAll(".java", ""));
+				}
+			} catch (CoreException e1) {
+				e1.printStackTrace();
+			}
+		}
+
+		parameterCombo = new Combo(container, SWT.READ_ONLY);
+		parameterCombo.setLayoutData(layoutData);
+		parameterCombo.setItems(objectList.toArray(new String[objectList.size()]));
+		if(isCreateVo) {
+			parameterCombo.select(0);
+			parameterCombo.setEnabled(false);
+		}
+
+		Label returnLabel = new Label(container, SWT.NONE);
+		returnLabel.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
+		returnLabel.setText("Return: ");
+
+		returnCombo = new Combo(container, SWT.READ_ONLY);
+		returnCombo.setLayoutData(layoutData);
+		returnCombo.setItems(objectList.toArray(new String[objectList.size()]));
+		if(isCreateVo) {
+			returnCombo.select(0);
+			returnCombo.setEnabled(false);
+		}
+
+		Label prefixLabel = new Label(container, SWT.NONE);
+		prefixLabel.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
+		prefixLabel.setText("Prefix: ");
+
 		prefixField = new Text(container, SWT.BORDER);
-		prefixField.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false, 4, 0));
+		prefixField.setLayoutData(layoutData);
 		prefixField.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
@@ -238,6 +465,28 @@ public class CSDGeneratorDialog extends Dialog {
 				createTree();
 			}
 		});
+
+		new Label(container, SWT.NONE);
+		regExButton = new Button(container, SWT.CHECK);
+		regExButton.setText("Regular expressions");
+		regExButton.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false, 3, 0));
+		regExButton.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				Button button = (Button) e.widget;
+				if(button.getSelection()) {
+					prefixField.setText("[A-Za-z0-9]+_([A-Za-z0-9_]+)");
+				} else {
+					prefixField.setText("");
+				}
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				widgetSelected(e);
+			}
+		});
+		regExButton.setEnabled(false);
 
 		Label previewLabel = new Label(container, SWT.NONE);
 		previewLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false, 3, 0));
@@ -259,12 +508,30 @@ public class CSDGeneratorDialog extends Dialog {
 				databaseTables = null;
 				TreeItem[] treeItems = databaseTablesTree.getItems();
 				List<String> databaseTableList = new ArrayList<String>();
+
+				TreeItem selectTreeItem = databaseTablesTree.getSelection()[0];
+				if(selectTreeItem.getChecked()) {
+					selectTreeItem.setChecked(false);
+				} else {
+					selectTreeItem.setChecked(true);
+				}
+
 				for(TreeItem treeItem : treeItems) {
 					if(treeItem.getChecked()) {
 						databaseTableList.add(treeItem.getText());
 					}
 				}
 				databaseTables = databaseTableList.toArray(new String[databaseTableList.size()]);
+
+				if(databaseTables.length > 1) {
+					regExButton.setEnabled(true);
+				} else {
+					regExButton.setEnabled(false);
+					if(regExButton.getSelection()) prefixField.setText("");
+				}
+
+				databaseTablesTree.deselectAll();
+
 				createTree();
 			}
 			@Override
@@ -272,26 +539,16 @@ public class CSDGeneratorDialog extends Dialog {
 				widgetSelected(e);
 			}
 		});
-/*
-		tablesCombo = new Combo(container, SWT.READ_ONLY);
-		tablesCombo.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, false, false));
-		tablesCombo.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				targetTable = tablesCombo.getText();
-			}
 
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				widgetSelected(e);
-			}
-		});
-		tablesCombo.setEnabled(false);
-
-*/
 		if(!"".equals(databaseConnectionProfileName)) {
+			for (IConnectionProfile profile : connectionProfiles) {
+				if (profile.getName().equals(databaseConnectionProfileName)) {
+					connectionProfile = profile;
+					break;
+				}
+			}
 			connectionProfileCombo.select(connectionProfileCombo.indexOf(databaseConnectionProfileName));
-			getDatabaseTables();
+			getDatabaseTrees();
 		}
 
 		return container;
@@ -303,22 +560,23 @@ public class CSDGeneratorDialog extends Dialog {
 
 		boolean isCreateControllerFolder = propertiesItem.getCreateControllerFolder();
 		boolean isAddPrefixControllerFolder = propertiesItem.getAddPrefixControllerFolder();
+		boolean isCreateControllerSubFolder = propertiesItem.getCreateControllerSubFolder();
 
 		boolean isCreateServiceFolder = propertiesItem.getCreateServiceFolder();
 		boolean isAddPrefixServiceFolder = propertiesItem.getAddPrefixServiceFolder();
+		boolean isCreateServiceSubFolder = propertiesItem.getCreateServiceSubFolder();
 
 		boolean isCreateServiceImpl = propertiesItem.getCreateServiceImpl();
 		boolean isCreateServiceImplFolder = propertiesItem.getCreateServiceImplFolder();
 
 		boolean isCreateDaoFolder = propertiesItem.getCreateDaoFolder();
 		boolean isAddPrefixDaoFolder = propertiesItem.getAddPrefixDaoFolder();
-
-		boolean isCreateMapper = propertiesItem.getCreateMapper();
-		String mapperPath = propertiesItem.getMapperPath();
+		boolean isCreateDaoSubFolder = propertiesItem.getCreateDaoSubFolder();
 
 		IJavaProject javaProject = javaPackageFragment.getJavaProject();
 
 		String javaBuildPath = "";
+		String javaVoBuildPath = "";
 		String resourceBuildPath = "";
 
 		try {
@@ -329,6 +587,10 @@ public class CSDGeneratorDialog extends Dialog {
 					javaBuildPath = path.removeFirstSegments(1).toString();
 				} else if (isCreateMapper && !"".equals(mapperPath) && mapperPath.indexOf(path.toString()) > -1) {
 					resourceBuildPath = path.removeFirstSegments(1).toString();
+				}
+
+				if (isCreateVo && !"".equals(voPath) && voPath.indexOf(path.toString()) > -1) {
+					javaVoBuildPath = path.removeFirstSegments(1).toString();
 				}
 			}
 		} catch (JavaModelException e) {
@@ -362,65 +624,70 @@ public class CSDGeneratorDialog extends Dialog {
 
 		TreeItem javaRootTreeItem = null;
 
-		/*if("A".equals(type)) {*/
+		if(databaseTables == null || databaseTables.length < 2) databaseTables = new String[]{prefix};
 
-			if(databaseTables == null || databaseTables.length == 0) databaseTables = new String[]{prefix};
+		TreeItem controllerFolderTreeItem = null;
+		TreeItem serviceFolderTreeItem = null;
+		TreeItem serviceImplFolderTreeItem = null;
+		TreeItem daoFolderTreeItem = null;
 
-			TreeItem controllerFolderTreeItem = null;
-			TreeItem serviceFolderTreeItem = null;
-			TreeItem serviceImplFolderTreeItem = null;
-			TreeItem daoFolderTreeItem = null;
+		Pattern pattern = null;
 
-			for(String prefix : databaseTables) {
+		try {
+			if(!"".equals(prefix) && databaseTables.length > 1) {
+				pattern =Pattern.compile(prefix);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
-				prefix = StringUtils.toCamelCase(prefix);
+		for(String name : databaseTables) {
 
-				String capitalizePrefix = "";
-
-				if (prefix.length() > 1)
-					capitalizePrefix = prefix.substring(0, 1).toUpperCase() + prefix.substring(1, prefix.length());
-				else if (prefix.length() == 1)
-					capitalizePrefix = prefix.substring(0, 1).toUpperCase();
-
-				if ("A".equals(type) && isCreateFolder && !"".equals(prefix)) {
-					javaRootTreeItem = new TreeItem(javaPackageTreeItem, 1);
-					javaRootTreeItem.setText(prefix);
-					javaRootTreeItem.setImage(packageIcon);
-				} else {
-					javaRootTreeItem = javaPackageTreeItem;
+			if(pattern != null) {
+				Matcher matcher = pattern.matcher(name);
+				if(matcher.matches() && matcher.groupCount() > 0) {
+					name = matcher.group(1);
 				}
+			}
 
-				if ("A".equals(type) && isCreateControllerFolder) {
+			name = StringUtils.toCamelCase(name);
+
+			String capitalizePrefix = "";
+
+			if (name.length() > 1)
+				capitalizePrefix = name.substring(0, 1).toUpperCase() + name.substring(1, name.length());
+			else if (name.length() == 1)
+				capitalizePrefix = name.substring(0, 1).toUpperCase();
+
+			if (isCreateFolder && !"".equals(name)
+					&& (isCreateController || isCreateService || isCreateDao)) {
+				javaRootTreeItem = new TreeItem(javaPackageTreeItem, 1);
+				javaRootTreeItem.setText(name);
+				javaRootTreeItem.setImage(packageIcon);
+			} else {
+				javaRootTreeItem = javaPackageTreeItem;
+			}
+
+			if(isCreateController && createControllerButton.isEnabled()) {
+				if (isCreateControllerFolder) {
 
 					String controllerFolder = "";
 
 					if (isAddPrefixControllerFolder) {
-						controllerFolder += capitalizePrefix;
+						controllerFolder = name + "Controller";
+					} else {
+						controllerFolder = "controller";
 					}
 
-					controllerFolder += "Controller";
-
-					controllerFolderTreeItem = new TreeItem(javaRootTreeItem, 1);
-					controllerFolderTreeItem.setText(controllerFolder);
-
-					TreeItem controllerJavaTreeItem = new TreeItem(controllerFolderTreeItem, SWT.NONE);
-					controllerJavaTreeItem.setText(capitalizePrefix + "Controller.java");
-					controllerJavaTreeItem.setImage(javaIcon);
-
-					controllerFolderTreeItem.setExpanded(true);
-					controllerFolderTreeItem.setImage(packageIcon);
-
-				} else if ("B".equals(type)) {
-
-					if(controllerFolderTreeItem == null) {
+					if(isCreateFolder || controllerFolderTreeItem == null) {
 						controllerFolderTreeItem = new TreeItem(javaRootTreeItem, 1);
-						controllerFolderTreeItem.setText("controller");
+						controllerFolderTreeItem.setText(controllerFolder);
 					}
 
 					TreeItem controllerSubFolderTreeItem = new TreeItem(controllerFolderTreeItem, 1);
-					controllerSubFolderTreeItem.setText(capitalizePrefix);
+					controllerSubFolderTreeItem.setText(name);
 
-					if ("".equals(capitalizePrefix) || !isCreateControllerFolder) {
+					if ("".equals(name) || !isCreateControllerSubFolder) {
 						controllerSubFolderTreeItem.dispose();
 					}
 
@@ -428,7 +695,7 @@ public class CSDGeneratorDialog extends Dialog {
 					controllerJavaTreeItem.setText(capitalizePrefix + "Controller.java");
 					controllerJavaTreeItem.setImage(javaIcon);
 
-					if (!"".equals(capitalizePrefix) && isCreateControllerFolder) {
+					if (!"".equals(name) && isCreateControllerSubFolder) {
 						controllerSubFolderTreeItem.setExpanded(true);
 						controllerSubFolderTreeItem.setImage(packageIcon);
 					}
@@ -440,59 +707,34 @@ public class CSDGeneratorDialog extends Dialog {
 					controllerJavaTreeItem.setText(capitalizePrefix + "Controller.java");
 					controllerJavaTreeItem.setImage(javaIcon);
 				}
+			}
 
-				if ("A".equals(type) && isCreateServiceFolder) {
+			if(isCreateService && createServiceButton.isEnabled()) {
+				if (isCreateServiceFolder) {
 
 					String serviceFolder = "";
 
 					if (isAddPrefixServiceFolder) {
-						serviceFolder += capitalizePrefix;
+						serviceFolder = name + "Service";
+					} else {
+						serviceFolder = "service";
 					}
 
-					serviceFolder += "Service";
-
-					serviceFolderTreeItem = new TreeItem(javaRootTreeItem, 1);
-					serviceFolderTreeItem.setText(serviceFolder);
-					serviceFolderTreeItem.setImage(packageIcon);
-
-					if (isCreateServiceImpl) {
-						if (isCreateServiceImplFolder) {
-							String serviceImplFolder = "Impl";
-
-							serviceImplFolderTreeItem = new TreeItem(serviceFolderTreeItem, 1);
-							serviceImplFolderTreeItem.setText(serviceImplFolder);
-							serviceImplFolderTreeItem.setImage(packageIcon);
-						} else {
-							serviceImplFolderTreeItem = serviceFolderTreeItem;
-						}
-						TreeItem serviceImplJavaTreeItem = new TreeItem(serviceImplFolderTreeItem, SWT.NONE);
-						serviceImplJavaTreeItem.setText(capitalizePrefix + "ServiceImpl.java");
-						serviceImplJavaTreeItem.setImage(javaIcon);
-						serviceImplFolderTreeItem.setExpanded(true);
-					}
-
-					TreeItem serviceJavaTreeItem = new TreeItem(serviceFolderTreeItem, SWT.NONE);
-					serviceJavaTreeItem.setText(capitalizePrefix + "Service.java");
-					serviceJavaTreeItem.setImage(javaIcon);
-
-					serviceFolderTreeItem.setExpanded(true);
-				} else if ("B".equals(type)) {
-
-					if(serviceFolderTreeItem == null) {
+					if(isCreateFolder || serviceFolderTreeItem == null) {
 						serviceFolderTreeItem = new TreeItem(javaRootTreeItem, 1);
-						serviceFolderTreeItem.setText("service");
+						serviceFolderTreeItem.setText(serviceFolder);
 					}
 
 					TreeItem serviceSubFolderTreeItem = new TreeItem(serviceFolderTreeItem, 1);
-					serviceSubFolderTreeItem.setText(capitalizePrefix);
+					serviceSubFolderTreeItem.setText(name);
 
-					if ("".equals(capitalizePrefix) || !isCreateServiceFolder) {
+					if ("".equals(name) || !isCreateServiceSubFolder) {
 						serviceSubFolderTreeItem.dispose();
 					}
 
 					if (isCreateServiceImpl) {
 						if (isCreateServiceImplFolder) {
-							if(serviceImplFolderTreeItem == null || isCreateServiceFolder) {
+							if(serviceImplFolderTreeItem == null || isCreateServiceSubFolder) {
 								String serviceImplFolder = "Impl";
 
 								serviceImplFolderTreeItem = new TreeItem(serviceSubFolderTreeItem.isDisposed() ? serviceFolderTreeItem : serviceSubFolderTreeItem, 1);
@@ -512,7 +754,7 @@ public class CSDGeneratorDialog extends Dialog {
 					serviceJavaTreeItem.setText(capitalizePrefix + "Service.java");
 					serviceJavaTreeItem.setImage(javaIcon);
 
-					if (!"".equals(capitalizePrefix) && isCreateServiceFolder) {
+					if (!"".equals(name) && isCreateServiceSubFolder) {
 						serviceSubFolderTreeItem.setExpanded(true);
 						serviceSubFolderTreeItem.setImage(packageIcon);
 					}
@@ -520,41 +762,51 @@ public class CSDGeneratorDialog extends Dialog {
 					serviceFolderTreeItem.setExpanded(true);
 					serviceFolderTreeItem.setImage(packageIcon);
 				} else {
+
+					if (isCreateServiceImpl) {
+						if (isCreateServiceImplFolder) {
+							if(serviceImplFolderTreeItem == null || isCreateServiceSubFolder) {
+								String serviceImplFolder = "Impl";
+
+								serviceImplFolderTreeItem = new TreeItem(javaRootTreeItem, 1);
+								serviceImplFolderTreeItem.setText(serviceImplFolder);
+								serviceImplFolderTreeItem.setImage(packageIcon);
+							}
+						} else {
+							serviceImplFolderTreeItem = javaRootTreeItem;
+						}
+						TreeItem serviceImplJavaTreeItem = new TreeItem(serviceImplFolderTreeItem, SWT.NONE);
+						serviceImplJavaTreeItem.setText(capitalizePrefix + "ServiceImpl.java");
+						serviceImplJavaTreeItem.setImage(javaIcon);
+						serviceImplFolderTreeItem.setExpanded(true);
+					}
+
 					TreeItem serviceJavaTreeItem = new TreeItem(javaRootTreeItem, SWT.NONE);
 					serviceJavaTreeItem.setText(capitalizePrefix + "Service.java");
-					serviceJavaTreeItem.setImage(packageIcon);
+					serviceJavaTreeItem.setImage(javaIcon);
 				}
+			}
 
-				if ("A".equals(type) && isCreateDaoFolder) {
+			if(isCreateDao && createDaoButton.isEnabled()) {
+				if (isCreateDaoFolder) {
 
 					String daoFolder = "";
 
 					if (isAddPrefixDaoFolder) {
-						daoFolder += capitalizePrefix;
+						daoFolder = capitalizePrefix + "Dao";
+					} else {
+						daoFolder = "dao";
 					}
 
-					daoFolder += "Dao";
-
-					daoFolderTreeItem = new TreeItem(javaRootTreeItem, 1);
-					daoFolderTreeItem.setText(daoFolder);
-					daoFolderTreeItem.setImage(packageIcon);
-
-					TreeItem daoJavaTreeItem = new TreeItem(daoFolderTreeItem, SWT.NONE);
-					daoJavaTreeItem.setText(capitalizePrefix + "Dao.java");
-					daoJavaTreeItem.setImage(javaIcon);
-
-					daoFolderTreeItem.setExpanded(true);
-				} else if ("B".equals(type)) {
-
-					if(daoFolderTreeItem == null) {
+					if(isCreateFolder || daoFolderTreeItem == null) {
 						daoFolderTreeItem = new TreeItem(javaRootTreeItem, 1);
-						daoFolderTreeItem.setText("dao");
+						daoFolderTreeItem.setText(daoFolder);
 					}
 
 					TreeItem daoSubFolderTreeItem = new TreeItem(daoFolderTreeItem, 1);
-					daoSubFolderTreeItem.setText(capitalizePrefix);
+					daoSubFolderTreeItem.setText(name);
 
-					if ("".equals(capitalizePrefix) || !isCreateDaoFolder) {
+					if ("".equals(name) || !isCreateDaoSubFolder) {
 						daoSubFolderTreeItem.dispose();
 					}
 
@@ -562,7 +814,7 @@ public class CSDGeneratorDialog extends Dialog {
 					daoJavaTreeItem.setText(capitalizePrefix + "Dao.java");
 					daoJavaTreeItem.setImage(javaIcon);
 
-					if (!"".equals(capitalizePrefix) && isCreateDaoFolder) {
+					if (!"".equals(name) && isCreateDaoSubFolder) {
 						daoSubFolderTreeItem.setExpanded(true);
 						daoSubFolderTreeItem.setImage(packageIcon);
 					}
@@ -574,118 +826,72 @@ public class CSDGeneratorDialog extends Dialog {
 					daoJavaTreeItem.setText(capitalizePrefix + "Dao.java");
 					daoJavaTreeItem.setImage(javaIcon);
 				}
-
-				javaPackageTreeItem.setExpanded(true);
-				javaRootTreeItem.setExpanded(true);
-			}
-/*
-		} else {
-
-			String capitalizePrefix = "";
-
-			if (prefix.length() > 1)
-				capitalizePrefix = prefix.substring(0, 1).toUpperCase() + prefix.substring(1, prefix.length());
-			else if (prefix.length() == 1)
-				capitalizePrefix = prefix.substring(0, 1).toUpperCase();
-
-			javaRootTreeItem = javaPackageTreeItem;
-
-			if (isCreateControllerFolder) {
-
-				String controllerFolder = "";
-
-				if (isAddPrefixControllerFolder) {
-					controllerFolder += capitalizePrefix;
-				}
-
-				controllerFolder += "Controller";
-
-				TreeItem controllerFolderTreeItem = new TreeItem(javaRootTreeItem, 1);
-				controllerFolderTreeItem.setText(controllerFolder);
-
-				TreeItem controllerJavaTreeItem = new TreeItem(controllerFolderTreeItem, SWT.NONE);
-				controllerJavaTreeItem.setText(capitalizePrefix + "Controller.java");
-				controllerJavaTreeItem.setImage(javaIcon);
-
-				controllerFolderTreeItem.setExpanded(true);
-				controllerFolderTreeItem.setImage(packageIcon);
-
-			} else {
-				TreeItem controllerJavaTreeItem = new TreeItem(javaRootTreeItem, SWT.NONE);
-				controllerJavaTreeItem.setText(capitalizePrefix + "Controller.java");
-				controllerJavaTreeItem.setImage(javaIcon);
 			}
 
-			if (isCreateServiceFolder) {
+			if(isCreateVo && !"".equals(voPath)) {
 
-				String serviceFolder = "";
+				String voPackage = voPath.replace("/", ".").substring(voPath.lastIndexOf(javaBuildPath) + javaBuildPath.length() + 1);
+				String[] voPackagePath = voPackage.split("\\.");
 
-				if (isAddPrefixServiceFolder) {
-					serviceFolder += capitalizePrefix;
-				}
+				TreeItem parentVoFolderTreeItem = null;
 
-				serviceFolder += "Service";
+				if(javaVoBuildPath.equals(javaVoBuildPath)) {
+					parentVoFolderTreeItem = javaBuildTreeItem;
 
-				TreeItem serviceFolderTreeItem = new TreeItem(javaRootTreeItem, 1);
-				serviceFolderTreeItem.setText(serviceFolder);
-				serviceFolderTreeItem.setImage(packageIcon);
+					for (int i = 0; i < voPackagePath.length; i++) {
+						TreeItem voFolderTreeItem = null;
+						TreeItem[] treeItems = parentVoFolderTreeItem.getItems();
+						for(TreeItem treeItem : treeItems) {
+							if(treeItem.getText().equals(voPackagePath[i])) {
+								voFolderTreeItem = treeItem;
+								break;
+							}
+						}
 
-				if (isCreateServiceImpl) {
-					TreeItem serviceImplFolderTreeItem = null;
-					if (isCreateServiceImplFolder) {
-						String serviceImplFolder = "Impl";
+						if(voFolderTreeItem == null) {
+							voFolderTreeItem = new TreeItem(parentVoFolderTreeItem, 0);
+							voFolderTreeItem.setText(voPackagePath[i]);
+							voFolderTreeItem.setImage(packageIcon);
+						}
 
-						serviceImplFolderTreeItem = new TreeItem(serviceFolderTreeItem, 1);
-						serviceImplFolderTreeItem.setText(serviceImplFolder);
-						serviceImplFolderTreeItem.setImage(packageIcon);
-					} else {
-						serviceImplFolderTreeItem = serviceFolderTreeItem;
+						parentVoFolderTreeItem.setExpanded(true);
+						parentVoFolderTreeItem = voFolderTreeItem;
 					}
-					TreeItem serviceImplJavaTreeItem = new TreeItem(serviceImplFolderTreeItem, SWT.NONE);
-					serviceImplJavaTreeItem.setText(capitalizePrefix + "ServiceImpl.java");
-					serviceImplJavaTreeItem.setImage(javaIcon);
-					serviceImplFolderTreeItem.setExpanded(true);
+
+				} else {
+					TreeItem javaVoBuildTreeItem = new TreeItem(previewTree, 0);
+					javaVoBuildTreeItem.setText(javaVoBuildPath);
+					javaVoBuildTreeItem.setImage(packageRootIcon);
+
+					parentVoFolderTreeItem = javaVoBuildTreeItem;
+
+					for (int i = 0; i < voPackagePath.length; i++) {
+						TreeItem voFolderTreeItem = new TreeItem(parentVoFolderTreeItem, 0);
+						voFolderTreeItem.setText(voPackagePath[i]);
+						voFolderTreeItem.setImage(folderIcon);
+
+						parentVoFolderTreeItem.setExpanded(true);
+						parentVoFolderTreeItem = voFolderTreeItem;
+					}
 				}
 
-				TreeItem serviceJavaTreeItem = new TreeItem(serviceFolderTreeItem, SWT.NONE);
-				serviceJavaTreeItem.setText(capitalizePrefix + "Service.java");
-				serviceJavaTreeItem.setImage(javaIcon);
-
-				serviceFolderTreeItem.setExpanded(true);
-
-			} else {
-				TreeItem serviceJavaTreeItem = new TreeItem(javaRootTreeItem, SWT.NONE);
-				serviceJavaTreeItem.setText(capitalizePrefix + "Service.java");
-				serviceJavaTreeItem.setImage(packageIcon);
-			}
-
-			if (isCreateDaoFolder) {
-
-				String daoFolder = "";
-
-				if (isAddPrefixDaoFolder) {
-					daoFolder += capitalizePrefix;
+				if(isCreateSearchVo) {
+					TreeItem daoJavaTreeItem = new TreeItem(parentVoFolderTreeItem, SWT.NONE);
+					daoJavaTreeItem.setText("Search" + capitalizePrefix + "Vo.java");
+					daoJavaTreeItem.setImage(javaIcon);
 				}
 
-				daoFolder += "Dao";
+				TreeItem voJavaTreeItem = new TreeItem(parentVoFolderTreeItem, SWT.NONE);
+				voJavaTreeItem.setText(capitalizePrefix + "Vo.java");
+				voJavaTreeItem.setImage(javaIcon);
 
-				TreeItem daoFolderTreeItem = new TreeItem(javaRootTreeItem, 1);
-				daoFolderTreeItem.setText(daoFolder);
-				daoFolderTreeItem.setImage(packageIcon);
-
-				TreeItem daoJavaTreeItem = new TreeItem(daoFolderTreeItem, SWT.NONE);
-				daoJavaTreeItem.setText(capitalizePrefix + "Dao.java");
-				daoJavaTreeItem.setImage(javaIcon);
-
-				daoFolderTreeItem.setExpanded(true);
-
-			} else {
-				TreeItem daoJavaTreeItem = new TreeItem(javaRootTreeItem, SWT.NONE);
-				daoJavaTreeItem.setText(capitalizePrefix + "Dao.java");
-				daoJavaTreeItem.setImage(javaIcon);
+				parentVoFolderTreeItem.setExpanded(true);
 			}
+
+			javaPackageTreeItem.setExpanded(true);
+			javaRootTreeItem.setExpanded(true);
 		}
-*/
+
 		javaPackageTreeItem.setExpanded(true);
 		javaRootTreeItem.setExpanded(true);
 		javaBuildTreeItem.setExpanded(true);
@@ -694,13 +900,12 @@ public class CSDGeneratorDialog extends Dialog {
 
 		/* S : Create Resource File */
 
-		if (isCreateMapper && !"".equals(resourceBuildPath)) {
+		if (isCreateMapper &&  createMapperButton.isEnabled() && !"".equals(resourceBuildPath)) {
 			TreeItem resourceBuildTreeItem = new TreeItem(previewTree, 0);
 			resourceBuildTreeItem.setText(resourceBuildPath);
 			resourceBuildTreeItem.setImage(packageRootIcon);
 
-			String mapperPackage = mapperPath.replace("/", ".")
-					.substring(mapperPath.lastIndexOf(resourceBuildPath) + resourceBuildPath.length() + 1);
+			String mapperPackage = mapperPath.replace("/", ".").substring(mapperPath.lastIndexOf(resourceBuildPath) + resourceBuildPath.length() + 1);
 			String[] mapperPackagePath = mapperPackage.split("\\.");
 
 			TreeItem parentMapperFolderTreeItem = resourceBuildTreeItem;
@@ -714,16 +919,32 @@ public class CSDGeneratorDialog extends Dialog {
 				parentMapperFolderTreeItem = mapperFolderTreeItem;
 			}
 
-			if (!"".equals(prefix)) {
-				TreeItem mapperFolderTreeItem = new TreeItem(parentMapperFolderTreeItem, 0);
-				mapperFolderTreeItem.setText(prefix);
-				mapperFolderTreeItem.setImage(folderIcon);
+			for(String name : databaseTables) {
 
-				TreeItem mapperFileTreeItem = new TreeItem(mapperFolderTreeItem, 0);
-				mapperFileTreeItem.setText(prefix + "Mapper.xml");
-				mapperFileTreeItem.setImage(fileIcon);
+				if(pattern != null) {
+					Matcher matcher = pattern.matcher(name);
+					if(matcher.matches() && matcher.groupCount() > 0) {
+						name = matcher.group(1);
+					}
+				}
 
-				mapperFolderTreeItem.setExpanded(true);
+				name = StringUtils.toCamelCase(name);
+
+				if (!"".equals(name)) {
+					TreeItem mapperFolderTreeItem = new TreeItem(parentMapperFolderTreeItem, 0);
+					mapperFolderTreeItem.setText(name);
+					mapperFolderTreeItem.setImage(folderIcon);
+
+					TreeItem mapperFileTreeItem = new TreeItem(mapperFolderTreeItem, 0);
+					mapperFileTreeItem.setText(name + "Mapper.xml");
+					mapperFileTreeItem.setImage(fileIcon);
+
+					mapperFolderTreeItem.setExpanded(true);
+				} else {
+					TreeItem mapperFileTreeItem = new TreeItem(parentMapperFolderTreeItem, 0);
+					mapperFileTreeItem.setText(name + "Mapper.xml");
+					mapperFileTreeItem.setImage(fileIcon);
+				}
 			}
 
 			parentMapperFolderTreeItem.setExpanded(true);
@@ -731,6 +952,53 @@ public class CSDGeneratorDialog extends Dialog {
 		}
 
 		/* E : Create Resource File */
+
+		/* S : Create JSP File */
+
+		if (isCreateJsp && createJspButton.isEnabled()) {
+			TreeItem jspBuildTreeItem = new TreeItem(previewTree, 0);
+			jspBuildTreeItem.setText(jspPath.substring(javaProject.getProject().getName().length() + 2));
+			jspBuildTreeItem.setImage(folderIcon);
+
+			for(String name : databaseTables) {
+
+				if(pattern != null) {
+					Matcher matcher = pattern.matcher(name);
+					if(matcher.matches() && matcher.groupCount() > 0) {
+						name = matcher.group(1);
+					}
+				}
+
+				name = StringUtils.toCamelCase(name);
+
+				TreeItem jspFolderTreeItem = null;
+
+				if (!"".equals(name)) {
+					jspFolderTreeItem = new TreeItem(jspBuildTreeItem, 0);
+					jspFolderTreeItem.setText(name);
+					jspFolderTreeItem.setImage(folderIcon);
+				}
+
+				TreeItem jspListFileTreeItem = new TreeItem(jspFolderTreeItem == null ? jspBuildTreeItem : jspFolderTreeItem, 0);
+				jspListFileTreeItem.setText(name + "List.jsp");
+				jspListFileTreeItem.setImage(fileIcon);
+
+				TreeItem jspPostFileTreeItem = new TreeItem(jspFolderTreeItem == null ? jspBuildTreeItem : jspFolderTreeItem, 0);
+				jspPostFileTreeItem.setText(name + "Post.jsp");
+				jspPostFileTreeItem.setImage(fileIcon);
+
+				TreeItem jspViewFileTreeItem = new TreeItem(jspFolderTreeItem == null ? jspBuildTreeItem : jspFolderTreeItem, 0);
+				jspViewFileTreeItem.setText(name + "View.jsp");
+				jspViewFileTreeItem.setImage(fileIcon);
+
+				if(jspFolderTreeItem != null) jspFolderTreeItem.setExpanded(true);
+
+			}
+
+			jspBuildTreeItem.setExpanded(true);
+		}
+
+		/* E : Create JSP File */
 
 	}
 
@@ -742,7 +1010,7 @@ public class CSDGeneratorDialog extends Dialog {
 
 	@Override
 	protected Point getInitialSize() {
-		return new Point(660, 700);
+		return new Point(660, 670);
 	}
 
 	@Override
@@ -767,6 +1035,14 @@ public class CSDGeneratorDialog extends Dialog {
 		}
 	}
 
+	public String getTemplateGroupName() {
+		return templateGroupName;
+	}
+
+	public void setTemplateGroupName(String templateGroupName) {
+		this.templateGroupName = templateGroupName;
+	}
+
 	public String getPrefix() {
 		return prefix;
 	}
@@ -787,12 +1063,52 @@ public class CSDGeneratorDialog extends Dialog {
 		this.isParentLocation = parentLocation;
 	}
 
-	public String getTargetTable() {
-		return targetTable;
+	public boolean isCreateService() {
+		return isCreateService;
 	}
 
-	public void setTargetTable(String targetTable) {
-		this.targetTable = targetTable;
+	public void setCreateService(boolean isCreateService) {
+		this.isCreateService = isCreateService;
+	}
+
+	public boolean isCreateDao() {
+		return isCreateDao;
+	}
+
+	public void setCreateDao(boolean isCreateDao) {
+		this.isCreateDao = isCreateDao;
+	}
+
+	public boolean isCreateMapper() {
+		return isCreateMapper;
+	}
+
+	public void setCreateMapper(boolean isCreateMapper) {
+		this.isCreateMapper = isCreateMapper;
+	}
+
+	public boolean isCreateJsp() {
+		return isCreateJsp;
+	}
+
+	public void setCreateJsp(boolean isCreateJsp) {
+		this.isCreateJsp = isCreateJsp;
+	}
+
+	public boolean isCreateVo() {
+		return isCreateVo;
+	}
+
+	public void setCreateVo(boolean isCreateVo) {
+		this.isCreateVo = isCreateVo;
+	}
+
+	public boolean isCreateController() {
+		return isCreateController;
+	}
+
+	public void setCreateController(boolean isCreateController) {
+		this.isCreateController = isCreateController;
 	}
 
 	public IConnectionProfile getConnectionProfile() {
@@ -802,31 +1118,16 @@ public class CSDGeneratorDialog extends Dialog {
 	public void setConnectionProfile(IConnectionProfile connectionProfile) {
 		this.connectionProfile = connectionProfile;
 	}
-/*
-	private void getDatabaseTables() {
-		targetTable = null;
-		tablesCombo.removeAll();
-		tablesCombo.setEnabled(false);
-		connectionProfile = null;
-		for (IConnectionProfile profile : connectionProfiles) {
-			if (profile.getName().equals(connectionProfileCombo.getText())) {
-				connectionProfile = profile;
-				break;
-			}
-		}
-		if (connectionProfile != null) {
-			List<String> tables = databaseResource.getTables(connectionProfile);
-			if (tables != null) {
-				for (String table : tables) {
-					tablesCombo.add(table);
-				}
-				tablesCombo.setEnabled(true);
-			}
-		}
+
+	public String[] getDatabaseTables() {
+		return databaseTables;
 	}
-*/
-	private void getDatabaseTables() {
-		targetTable = null;
+
+	public void setDatabaseTables(String[] databaseTables) {
+		this.databaseTables = databaseTables;
+	}
+
+	private void getDatabaseTrees() {
 		databaseTablesTree.removeAll();
 		connectionProfile = null;
 		for (IConnectionProfile profile : connectionProfiles) {
@@ -843,4 +1144,15 @@ public class CSDGeneratorDialog extends Dialog {
 			}
 		}
 	}
+
+	@Override
+	protected void okPressed() {
+		isCreateController = isCreateController && createControllerButton.isEnabled();
+		isCreateService = isCreateService && createServiceButton.isEnabled();
+		isCreateDao = isCreateDao && createDaoButton.isEnabled();
+		isCreateMapper = isCreateMapper && createMapperButton.isEnabled();
+		isCreateJsp = isCreateJsp && createJspButton.isEnabled();
+		super.okPressed();
+	}
+
 }

@@ -21,11 +21,17 @@ public interface ICSDGeneratorPropertiesItem {
 	boolean getAddPrefixControllerFolder();
 	void setAddPrefixControllerFolder(boolean addPrefixControllerFolder);
 
+	boolean getCreateControllerSubFolder();
+	void setCreateControllerSubFolder(boolean createControllerSubFolder);
+
 	boolean getCreateServiceFolder();
 	void setCreateServiceFolder(boolean createServiceFolder);
 
 	boolean getAddPrefixServiceFolder();
 	void setAddPrefixServiceFolder(boolean addPrefixServiceFolder);
+
+	boolean getCreateServiceSubFolder();
+	void setCreateServiceSubFolder(boolean createServiceSubFolder);
 
 	boolean getCreateServiceImpl();
 	void setCreateServiceImpl(boolean createServiceImpl);
@@ -36,6 +42,9 @@ public interface ICSDGeneratorPropertiesItem {
 	boolean getCreateDaoFolder();
 	void setCreateDaoFolder(boolean createDaoFolder);
 
+	boolean getCreateDaoSubFolder();
+	void setCreateDaoSubFolder(boolean createDaoSubFolder);
+
 	boolean getAddPrefixDaoFolder();
 	void setAddPrefixDaoFolder(boolean addPrefixDaoFolder);
 
@@ -44,6 +53,15 @@ public interface ICSDGeneratorPropertiesItem {
 
 	String getMapperPath();
 	void setMapperPath(String mapperPath);
+
+	boolean getCreateVo();
+	void setCreateVo(boolean createVo);
+
+	boolean getCreateSearchVo();
+	void setCreateSearchVo(boolean createSearchVo);
+
+	String getVoPath();
+	void setVoPath(String voPath);
 
 	boolean getCreateJsp();
 	void setCreateJsp(boolean createJsp);

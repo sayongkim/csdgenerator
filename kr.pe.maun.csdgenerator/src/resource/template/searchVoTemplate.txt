@@ -1,0 +1,8 @@
+package [packagePath];
+
+import java.io.Serializable;
+
+public class [capitalizePrefix]Vo implements Serializable {
+
+[value]
+[GettersAndSetters]}

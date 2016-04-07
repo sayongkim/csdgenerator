@@ -449,7 +449,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 						String jspTemplateViewFile = "";
 
 						try {
-							IFolder templateFolder = project.getParent().getFolder(templatePath);
+							IFolder templateFolder = project.getWorkspace().getRoot().getFolder(templatePath);
 							IResource[] members = templateFolder.members();
 
 							for(IResource member : members) {

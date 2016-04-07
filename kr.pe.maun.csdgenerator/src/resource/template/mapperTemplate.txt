@@ -41,7 +41,8 @@
 		SELECT
 			[columns]
 		FROM [table]
-		WHERE
+		WHERE 1=1
+			[indexColumns]
 	</select>
 
 	<!--
@@ -65,8 +66,8 @@
 	<update id="update[capitalizePrefix]" parameterType="hashMap">
 		UPDATE [table] SET
 			[columns]
-		WHERE
-
+		WHERE 1=1
+			[indexColumns]
 	</update>
 
 </mapper>

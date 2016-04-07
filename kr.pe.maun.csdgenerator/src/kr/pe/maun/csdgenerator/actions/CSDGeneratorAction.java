@@ -15,7 +15,9 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,13 +39,18 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.datatools.connectivity.IConnectionProfile;
+import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IImportDeclaration;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.InputDialog;
@@ -146,8 +153,8 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 			IConnectionProfile connectionProfile = dialog.getConnectionProfile();
 			DatabaseResource databaseResource = connectionProfile == null ? null : new DatabaseResource(connectionProfile);
 
-			String company = propertiesItem.getCompany();
-			String author = !"".equals(propertiesItem.getAuthor()) ? propertiesItem.getAuthor() : System.getProperty("user.name");
+			String company = propertiesItem.getCompany() != null ? propertiesItem.getCompany() : "";
+			String author = propertiesItem.getAuthor() != null ? propertiesItem.getAuthor() : System.getProperty("user.name");
 
 			String generalTemplateController = propertiesHelper.getGeneralTemplateController(dialog.getTemplateGroupName());
 			String generalTemplateService = propertiesHelper.getGeneralTemplateService(dialog.getTemplateGroupName());
@@ -181,6 +188,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 			String mapperTemplateFile = generalTemplateMapper == null ? null : propertiesHelper.getMapperTemplateFile(generalTemplateMapper);
 
 			boolean isCreateVo = dialog.isCreateVo();
+			boolean isCreateSearchVo = propertiesItem.getCreateSearchVo();
 			String voPath = propertiesItem.getVoPath();
 
 			boolean isCreateJsp = dialog.isCreateJsp();
@@ -189,7 +197,26 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 			String jspTemplatePostFile = generalTemplateMapper == null ? null : propertiesHelper.getJspTemplatePostFile(generalTemplateJsp);
 			String jspTemplateViewFile = generalTemplateMapper == null ? null : propertiesHelper.getJspTemplateListFile(generalTemplateJsp);
 
+			String[] dataTypes = propertiesHelper.getDataTypes();
+
 			String rootPackagePath = packageFragment.getElementName();
+
+			IJavaProject javaProject = packageFragment.getJavaProject();
+
+			String javaVoBuildPath = "";
+
+			try {
+				IClasspathEntry[] classpaths = javaProject.getRawClasspath();
+				for (IClasspathEntry classpath : classpaths) {
+					IPath path = classpath.getPath();
+					if (isCreateVo && voPath != null && voPath.indexOf(path.toString()) > -1) {
+						javaVoBuildPath = path.removeFirstSegments(1).toString();
+					}
+				}
+			} catch (JavaModelException e) {
+				e.printStackTrace();
+			}
+
 			folder = (IFolder) packageFragment.getResource().getAdapter(IFolder.class);
 
 			if(isParentLocation) {
@@ -201,12 +228,6 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 			String date = dateFormat.format(new Date());
 
 			String[] databaseTables = dialog.getDatabaseTables();
-
-			/* S : Jsp 폴더를 생성한다. */
-
-			IFolder jspFolder = null;
-
-			/* E : Jsp 폴더를 생성한다. */
 
 			if(databaseTables == null || databaseTables.length < 2) databaseTables = new String[]{prefix};
 
@@ -469,10 +490,8 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 						IFolder mapperFolder = null;
 
-						if(isCreateMapper) {
-							mapperFolder = newFolder.getWorkspace().getRoot().getFolder(new Path(mapperPath + "/" + prefix));
-							if(!mapperFolder.exists()) mapperFolder.create(true ,true, new NullProgressMonitor());
-						}
+						mapperFolder = newFolder.getWorkspace().getRoot().getFolder(new Path(mapperPath + "/" + prefix));
+						if(!mapperFolder.exists()) mapperFolder.create(true ,true, new NullProgressMonitor());
 
 						/* E : Mapper 폴더를 생성한다. */
 
@@ -499,7 +518,8 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 						if(connectionProfile != null) {
 
-							List<ColumnItem> columns = databaseResource.getColumn(databaseTableName);
+							List<ColumnItem> columns = databaseResource.getColumns(databaseTableName);
+							List<String> indexColumns = databaseResource.getIndexColumns(databaseTableName);
 
 							DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 							try {
@@ -514,11 +534,13 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 									String content = item.getTextContent();
 									if("select".equals(item.getNodeName())) {
 										content = content.replaceAll("\\[columns\\]", selecColumn(columns));
+										content = content.replaceAll("\\[indexColumns\\]", indexColumn(indexColumns));
 									} else if("insert".equals(item.getNodeName())) {
 										content = content.replaceAll("\\[columns\\]", insertColumn(columns));
 										content = content.replaceAll("\\[values\\]", insertValue(columns));
 									} else if("update".equals(item.getNodeName())) {
 										content = content.replaceAll("\\[columns\\]", updateColumn(columns));
+										content = content.replaceAll("\\[indexColumns\\]", indexColumn(indexColumns));
 									}
 									item.setTextContent(content);
 								}
@@ -546,6 +568,15 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 	/* S : Jsp 생성 */
 					if(isCreateJsp) {
+
+						/* S : Jsp 폴더를 생성한다. */
+
+						IFolder jspFolder = null;
+
+						jspFolder = newFolder.getWorkspace().getRoot().getFolder(new Path(jspPath + "/" + prefix));
+						if(!jspFolder.exists()) jspFolder.create(true ,true, new NullProgressMonitor());
+
+						/* E : Jsp 폴더를 생성한다. */
 
 						if(jspTemplateListFile == null || "".equals(jspTemplateListFile)) {
 							jspTemplateListFile = "platform:/plugin/kr.pe.maun.csdgenerator/resource/template/jspTemplate.txt";
@@ -583,23 +614,27 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 					}
 	/* E : Jsp 생성 */
 
-	/* S : VO 생성 */
+	/* S : Vo 생성 */
 
 					if(isCreateVo) {
 						if(connectionProfile != null) {
 
-							List<ColumnItem> columns = databaseResource.getColumn(databaseTableName);
+							String voPackage = voPath.replace("/", ".").substring(voPath.lastIndexOf(javaVoBuildPath) + javaVoBuildPath.length() + 1);
 
-							jspFolder = newFolder.getWorkspace().getRoot().getFolder(new Path(jspPath + "/" + prefix));
-							if(!jspFolder.exists()) jspFolder.create(true ,true, new NullProgressMonitor());
+							List<ColumnItem> columns = databaseResource.getColumns(databaseTableName);
+
+							IFolder voFolder = newFolder.getWorkspace().getRoot().getFolder(new Path(voPath + "/"));
+							if(!voFolder.exists()) voFolder.create(true ,true, new NullProgressMonitor());
 
 							String voContent = getSource("platform:/plugin/kr.pe.maun.csdgenerator/resource/template/voTemplate.txt");
 
-							voContent = voContent.replaceAll("\\[packagePath\\]", "vo");
+							voContent = voContent.replaceAll("\\[packagePath\\]", voPackage);
 							voContent = voContent.replaceAll("\\[capitalizePrefix\\]", capitalizePrefix);
 
 							StringBuffer valueBuffer = new StringBuffer();
 							StringBuffer gettersAndSetters = new StringBuffer();
+
+							HashMap<String, String> importDeclaration = new HashMap<String, String>();
 
 							int columnsSize = columns.size();
 
@@ -608,13 +643,41 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 								ColumnItem column = columns.get(i);
 								String columnName = StringUtils.toCamelCase(column.getColumnName());
 
-								valueBuffer.append("\tprivate String ");
+								String dataType = "String";
+
+								if(dataTypes != null) {
+									for(String _dataType : dataTypes) {
+										if(column.getDataType().toLowerCase().indexOf(_dataType.toLowerCase()) > -1) {
+											dataType = propertiesHelper.getJavaObject(_dataType);
+											switch (dataType) {
+											case "BigDecimal":
+												importDeclaration.put("BigDecimal", "java.math.BigDecimal");
+												break;
+											case "Date":
+												importDeclaration.put("Date", "java.util.Date");
+												break;
+											case "Timestamp":
+												importDeclaration.put("Timestamp", "java.sql.Timestamp");
+												break;
+											}
+										}
+									}
+								}
+
+								valueBuffer.append("\tprivate ");
+								valueBuffer.append(dataType);
+								valueBuffer.append(" ");
 								valueBuffer.append(columnName);
-								valueBuffer.append("; // ");
-								valueBuffer.append(column.getComments());
+								valueBuffer.append(";");
+								if(!"".equals(column.getComments().trim())) {
+									valueBuffer.append(" // ");
+									valueBuffer.append(column.getComments());
+								}
 								valueBuffer.append("\n");
 
-								gettersAndSetters.append("\tpublic String ");
+								gettersAndSetters.append("\tpublic ");
+								gettersAndSetters.append(dataType);
+								gettersAndSetters.append(" ");
 								gettersAndSetters.append(StringUtils.toCamelCase("get_" + column.getColumnName()));
 								gettersAndSetters.append("() {\n");
 								gettersAndSetters.append("\t\treturn this.");
@@ -622,12 +685,14 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 								gettersAndSetters.append(";\n");
 								gettersAndSetters.append("\t}\n\n");
 
-								gettersAndSetters.append("\tpublic String ");
+								gettersAndSetters.append("\tpublic void ");
 								gettersAndSetters.append(StringUtils.toCamelCase("set_" + column.getColumnName()));
-								gettersAndSetters.append("(String ");
+								gettersAndSetters.append("( ");
+								gettersAndSetters.append(dataType);
+								gettersAndSetters.append(" ");
 								gettersAndSetters.append(columnName);
 								gettersAndSetters.append(") {\n");
-								gettersAndSetters.append("\t\treturn this.");
+								gettersAndSetters.append("\t\tthis.");
 								gettersAndSetters.append(columnName);
 								gettersAndSetters.append(" = ");
 								gettersAndSetters.append(columnName);
@@ -640,12 +705,45 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 							ByteArrayInputStream voFileStream = new ByteArrayInputStream(voContent.getBytes());
 
-							IFolder voFolder = newFolder.getWorkspace().getRoot().getFolder(new Path(voPath));
 							IFile voFile = voFolder.getFile(new Path(capitalizePrefix + "Vo.java"));
 							if(!voFile.exists()) voFile.create(voFileStream ,true, new NullProgressMonitor());
 
+							IFile searchVoFile = null;
+
+							if(isCreateSearchVo) {
+								String searchVoContent = getSource("platform:/plugin/kr.pe.maun.csdgenerator/resource/template/voTemplate.txt");
+
+								searchVoContent = searchVoContent.replaceAll("\\[packagePath\\]", voPackage);
+								searchVoContent = searchVoContent.replaceAll("\\[capitalizePrefix\\]", "Search" + capitalizePrefix);
+								searchVoContent = searchVoContent.replaceAll("\\[value\\]", valueBuffer.toString());
+								searchVoContent = searchVoContent.replaceAll("\\[GettersAndSetters\\]", "");
+
+								ByteArrayInputStream searchVoFileStream = new ByteArrayInputStream(searchVoContent.getBytes());
+
+								searchVoFile = voFolder.getFile(new Path("Search" + capitalizePrefix + "Vo.java"));
+								if(!searchVoFile.exists()) searchVoFile.create(searchVoFileStream ,true, new NullProgressMonitor());
+							}
+
 							if(columnsSize > 0) {
 								IProject project = packageFragment.getJavaProject().getProject();
+
+								ICompilationUnit compilationUnit = JavaCore.createCompilationUnitFrom(voFile);
+
+								Set<String> keySet = importDeclaration.keySet();
+								for(String key : keySet) {
+									compilationUnit.createImport(importDeclaration.get(key), null, new NullProgressMonitor());
+								}
+
+								compilationUnit.save(null, true);
+
+								if(isCreateSearchVo && searchVoFile != null) {
+									ICompilationUnit compilationSearchUnit = JavaCore.createCompilationUnitFrom(searchVoFile);
+									for(String key : keySet) {
+										compilationSearchUnit.createImport(importDeclaration.get(key), null, new NullProgressMonitor());
+									}
+
+									compilationSearchUnit.save(null, true);
+								}
 
 								project.build(IncrementalProjectBuilder.INCREMENTAL_BUILD, new NullProgressMonitor());
 
@@ -658,15 +756,13 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 									}
 
 									URLClassLoader loader = new URLClassLoader(urls);
-									Class<?> clazz = loader.loadClass("vo." + capitalizePrefix + "Vo");
+									Class<?> clazz = loader.loadClass(voPackage + "." + capitalizePrefix + "Vo");
 									ObjectStreamClass streamClass = ObjectStreamClass.lookup(clazz);
 									loader.close();
 
-									ICompilationUnit compilationUnit = JavaCore.createCompilationUnitFrom(voFile);
-
 									IType[] types = compilationUnit.getTypes();
 									IType type = types[0];
-									type.createField("\tstatic final long serialVersionUID = " + streamClass.getSerialVersionUID() + "L;\n\n", type.getFields()[0], false, null);
+									type.createField("\tstatic final long serialVersionUID = " + streamClass.getSerialVersionUID() + "L;\n\n", type.getFields()[0], false, new NullProgressMonitor());
 
 									compilationUnit.save(null, true);
 
@@ -678,7 +774,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 						}
 					}
 
-	/* E : VO 생성 */
+	/* E : Vo 생성 */
 				} catch (CoreException | UnsupportedEncodingException e) {
 					e.printStackTrace();
 				}
@@ -779,15 +875,34 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 	private String updateColumn(List<ColumnItem> columnItems) {
 		StringBuffer result = new StringBuffer();
-		if(columnItems.size() > 0) {
-			for (int i = 0; i < columnItems.size(); i++) {
+		int size = columnItems.size();
+		if(size > 0) {
+			for (int i = 0; i < size; i++) {
 				ColumnItem columnItem = columnItems.get(i);
 				if(i > 0) result.append("\t\t\t,");
 				result.append(columnItem.getColumnName());
 				result.append(" = #{");
 				result.append(StringUtils.toCamelCase(columnItem.getColumnName()));
 				result.append("}");
-				if(i < (columnItems.size() - 1)) result.append("\n");
+				if(i < (size - 1)) result.append("\n");
+			}
+		}
+		return result.toString();
+	}
+
+	private String indexColumn(List<String> indexColumns) {
+		StringBuffer result = new StringBuffer();
+		int size = indexColumns.size();
+		if(size > 0) {
+			for (int i = 0; i < size; i++) {
+				String column = indexColumns.get(i);
+				if(i > 0) result.append("\t\t\t");
+				result.append("AND ");
+				result.append(column);
+				result.append(" = #{");
+				result.append(StringUtils.toCamelCase(column));
+				result.append("}");
+				if(i < (size - 1)) result.append("\n");
 			}
 		}
 		return result.toString();

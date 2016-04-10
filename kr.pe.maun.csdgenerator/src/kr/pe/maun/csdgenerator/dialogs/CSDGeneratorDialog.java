@@ -303,7 +303,7 @@ public class CSDGeneratorDialog extends Dialog {
 				widgetSelected(e);
 			}
 		});
-		createParentLocationButton.setEnabled(false);
+		/*createParentLocationButton.setEnabled(false);*/
 
 		new Label(container, SWT.NONE);
 		createFolderButton = new Button(container, SWT.CHECK);
@@ -565,11 +565,11 @@ public class CSDGeneratorDialog extends Dialog {
 				}
 				databaseTables = databaseTableList.toArray(new String[databaseTableList.size()]);
 
-				if(databaseTables.length > 1) {
+				if(databaseTables.length > 0) {
 					regExButton.setEnabled(true);
 				} else {
 					regExButton.setEnabled(false);
-					if(regExButton.getSelection()) prefixField.setText("");
+					if(regExButton.getSelection()) prefixField.setText("[A-Za-z0-9]+_([A-Za-z0-9_]+)");
 				}
 
 				databaseTablesTree.deselectAll();
@@ -682,7 +682,7 @@ public class CSDGeneratorDialog extends Dialog {
 
 		TreeItem javaRootTreeItem = null;
 
-		if(databaseTables == null || databaseTables.length < 2) databaseTables = new String[]{prefix};
+		if(databaseTables == null || databaseTables.length == 0) databaseTables = new String[]{prefix};
 
 		TreeItem controllerFolderTreeItem = null;
 		TreeItem serviceFolderTreeItem = null;
@@ -692,7 +692,7 @@ public class CSDGeneratorDialog extends Dialog {
 		Pattern pattern = null;
 
 		try {
-			if(!"".equals(prefix) && databaseTables.length > 1) {
+			if(!"".equals(prefix)) {
 				pattern =Pattern.compile(prefix);
 			}
 		} catch (Exception e) {

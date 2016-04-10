@@ -40,7 +40,7 @@ public class [capitalizePrefix]Controller {
 		return modelAndView;
 	}
 
-	/**
+		/**
 	 * Desc : 목록 (Ajax)
 	 * @Method : [lowerPrefix]ListData
 	 * @Company : [company]

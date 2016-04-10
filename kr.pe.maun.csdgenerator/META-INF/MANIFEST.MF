@@ -19,5 +19,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Import-Package: org.eclipse.jdt.core,
  org.eclipse.jdt.internal.core,
+ org.eclipse.jface.text,
+ org.eclipse.text.edits,
  org.eclipse.ui.dialogs,
  org.eclipse.ui.views.properties

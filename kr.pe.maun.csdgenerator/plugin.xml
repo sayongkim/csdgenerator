@@ -38,6 +38,12 @@
             name="CSD Generator"
             objectClass="org.eclipse.jdt.core.IJavaProject">
       </page>
+      <page
+            category="kr.pe.maun.csdgenerator.resourcePropertyPage"
+            class="kr.pe.maun.csdgenerator.properties.CSDGeneratorControllerFunctionTemplate"
+            id="kr.pe.maun.csdgenerator.controller.function.template"
+            name="Controller Function Template">
+      </page>
    </extension>
 
 </plugin>

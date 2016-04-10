@@ -63,6 +63,9 @@ public interface ICSDGeneratorPropertiesItem {
 	String getVoPath();
 	void setVoPath(String voPath);
 
+	String getMyBatisSettingFile();
+	void setMyBatisSettingFile(String myBatisSettingFile);
+
 	boolean getCreateJsp();
 	void setCreateJsp(boolean createJsp);
 

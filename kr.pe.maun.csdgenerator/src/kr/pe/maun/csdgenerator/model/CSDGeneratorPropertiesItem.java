@@ -40,6 +40,7 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 	public static final QualifiedName CREATE_VO = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_CREATE_VO);
 	public static final QualifiedName CREATE_SEARCH_VO = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_CREATE_SEARCH_VO);
 	public static final QualifiedName VO_PATH = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_VO_PATH);
+	public static final QualifiedName MYBATIS_SETTING_FILE = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_MYBATIS_SETTING_FILE);
 
 	public static final QualifiedName CREATE_JSP = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_CREATE_JSP);
 	public static final QualifiedName JSP_PATH = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_JSP_PATH);
@@ -75,6 +76,7 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 	private boolean createVo;
 	private boolean createSearchVo;
 	private String voPath;
+	private String myBatisSettingFile;
 
 	private boolean createJsp;
 	private String jspPath;
@@ -123,6 +125,7 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 				createVo = "true".equals(resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_VO));
 				createSearchVo = "true".equals(resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_SEARCH_VO));
 				voPath = resource.getPersistentProperty(CSDGeneratorPropertiesItem.VO_PATH);
+				myBatisSettingFile = resource.getPersistentProperty(CSDGeneratorPropertiesItem.MYBATIS_SETTING_FILE);
 
 				createJsp = "true".equals(resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_JSP));
 				jspPath = resource.getPersistentProperty(CSDGeneratorPropertiesItem.JSP_PATH);
@@ -360,6 +363,16 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 	@Override
 	public void setVoPath(String voPath) {
 		this.voPath = voPath;
+	}
+
+	@Override
+	public String getMyBatisSettingFile() {
+		return myBatisSettingFile;
+	}
+
+	@Override
+	public void setMyBatisSettingFile(String myBatisSettingFilev) {
+		this.myBatisSettingFile = myBatisSettingFile;
 	}
 
 	@Override

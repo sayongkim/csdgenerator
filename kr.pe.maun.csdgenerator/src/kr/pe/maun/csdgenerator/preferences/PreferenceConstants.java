@@ -37,6 +37,7 @@ public class PreferenceConstants {
 	public static final String CSDGENERATOR_CREATE_VO = "csdgenerator.create.vo";
 	public static final String CSDGENERATOR_CREATE_SEARCH_VO = "csdgenerator.create.search.vo";
 	public static final String CSDGENERATOR_VO_PATH = "csdgenerator.vo.path";
+	public static final String CSDGENERATOR_MYBATIS_SETTING_FILE = "csdgenerator.mybatis.setting.file";
 
 	public static final String CSDGENERATOR_CREATE_JSP = "csdgenerator.create.jsp";
 	public static final String CSDGENERATOR_JSP_PATH = "csdgenerator.jsp.path";

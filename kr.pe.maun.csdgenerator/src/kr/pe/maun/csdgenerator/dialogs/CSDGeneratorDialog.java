@@ -113,6 +113,7 @@ public class CSDGeneratorDialog extends Dialog {
 	private String[] databaseTables;
 
 	private IPackageFragment javaPackageFragment;
+	private IPackageFragmentRoot javaPackageFragmentRoot;
 
 	private Button okButton;
 
@@ -682,7 +683,13 @@ public class CSDGeneratorDialog extends Dialog {
 
 		TreeItem javaRootTreeItem = null;
 
-		if(databaseTables == null || databaseTables.length == 0) databaseTables = new String[]{prefix};
+		String[] names = null;
+
+		if(databaseTables == null || databaseTables.length == 0) {
+			names = new String[]{prefix};
+		} else {
+			names = databaseTables;
+		}
 
 		TreeItem controllerFolderTreeItem = null;
 		TreeItem serviceFolderTreeItem = null;
@@ -699,7 +706,7 @@ public class CSDGeneratorDialog extends Dialog {
 			e.printStackTrace();
 		}
 
-		for(String name : databaseTables) {
+		for(String name : names) {
 
 			if(pattern != null) {
 				Matcher matcher = pattern.matcher(name);
@@ -903,7 +910,7 @@ public class CSDGeneratorDialog extends Dialog {
 
 		/* E : Create Java File */
 		if(isCreateVo && !"".equals(voPath)) {
-			for(String name : databaseTables) {
+			for(String name : names) {
 
 				if(pattern != null) {
 					Matcher matcher = pattern.matcher(name);
@@ -945,26 +952,28 @@ public class CSDGeneratorDialog extends Dialog {
 					parentVoFolderTreeItem = javaVoBuildTreeItem;
 				}
 
-				for (; i < voPackagePath.length; i++) {
-					TreeItem voFolderTreeItem = new TreeItem(parentVoFolderTreeItem, 0);
-					voFolderTreeItem.setText(voPackagePath[i]);
-					voFolderTreeItem.setImage(packageIcon);
+				if(parentVoFolderTreeItem != null) {
+					for (; i < voPackagePath.length; i++) {
+						TreeItem voFolderTreeItem = new TreeItem(parentVoFolderTreeItem, 0);
+						voFolderTreeItem.setText(voPackagePath[i]);
+						voFolderTreeItem.setImage(packageIcon);
+
+						parentVoFolderTreeItem.setExpanded(true);
+						parentVoFolderTreeItem = voFolderTreeItem;
+					}
+
+					if(isCreateSearchVo) {
+						TreeItem daoJavaTreeItem = new TreeItem(parentVoFolderTreeItem, SWT.NONE);
+						daoJavaTreeItem.setText("Search" + capitalizePrefix + "Vo.java");
+						daoJavaTreeItem.setImage(javaIcon);
+					}
+
+					TreeItem voJavaTreeItem = new TreeItem(parentVoFolderTreeItem, SWT.NONE);
+					voJavaTreeItem.setText(capitalizePrefix + "Vo.java");
+					voJavaTreeItem.setImage(javaIcon);
 
 					parentVoFolderTreeItem.setExpanded(true);
-					parentVoFolderTreeItem = voFolderTreeItem;
 				}
-
-				if(isCreateSearchVo) {
-					TreeItem daoJavaTreeItem = new TreeItem(parentVoFolderTreeItem, SWT.NONE);
-					daoJavaTreeItem.setText("Search" + capitalizePrefix + "Vo.java");
-					daoJavaTreeItem.setImage(javaIcon);
-				}
-
-				TreeItem voJavaTreeItem = new TreeItem(parentVoFolderTreeItem, SWT.NONE);
-				voJavaTreeItem.setText(capitalizePrefix + "Vo.java");
-				voJavaTreeItem.setImage(javaIcon);
-
-				parentVoFolderTreeItem.setExpanded(true);
 			}
 		}
 
@@ -989,7 +998,7 @@ public class CSDGeneratorDialog extends Dialog {
 				parentMapperFolderTreeItem = mapperFolderTreeItem;
 			}
 
-			for(String name : databaseTables) {
+			for(String name : names) {
 
 				if(pattern != null) {
 					Matcher matcher = pattern.matcher(name);
@@ -1030,7 +1039,7 @@ public class CSDGeneratorDialog extends Dialog {
 			jspBuildTreeItem.setText(jspPath.substring(javaProject.getProject().getName().length() + 2));
 			jspBuildTreeItem.setImage(folderIcon);
 
-			for(String name : databaseTables) {
+			for(String name : names) {
 
 				if(pattern != null) {
 					Matcher matcher = pattern.matcher(name);
@@ -1073,7 +1082,6 @@ public class CSDGeneratorDialog extends Dialog {
 
 			jspBuildTreeItem.setExpanded(true);
 		}
-
 		/* E : Create JSP File */
 
 	}

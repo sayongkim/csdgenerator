@@ -15,6 +15,19 @@
                menubarPath="kr.pe.maun.csdgenerator.popupMenu">
          </action>
       </objectContribution>
+      <objectContribution
+            adaptable="true"
+            id="kr.pe.maun.csdgenerator.function.popupMenu"
+            nameFilter="*Service.java"
+            objectClass="org.eclipse.core.resources.IFile">
+         <action
+               class="kr.pe.maun.csdgenerator.actions.CSDFunctionGeneratorAction"
+               enablesFor="+"
+               id="kr.pe.maun.csdgenerator.CSDFunctionGeneratorAction"
+               label="CSD Function Generator"
+               menubarPath="kr.pe.maun.csdgenerator.function.popupMenu">
+         </action>
+      </objectContribution>
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">
@@ -40,9 +53,24 @@
       </page>
       <page
             category="kr.pe.maun.csdgenerator.resourcePropertyPage"
-            class="kr.pe.maun.csdgenerator.properties.CSDGeneratorControllerFunctionTemplate"
-            id="kr.pe.maun.csdgenerator.controller.function.template"
-            name="Controller Function Template">
+            class="kr.pe.maun.csdgenerator.properties.CSDGeneratorMapperFunctionTemplates"
+            id="kr.pe.maun.csdgenerator.mapper.function.template"
+            name="Mapper Function Templates"
+            objectClass="org.eclipse.jdt.core.IJavaProject">
+      </page>
+      <page
+            category="kr.pe.maun.csdgenerator.resourcePropertyPage"
+            class="kr.pe.maun.csdgenerator.properties.CSDGeneratorServiceFunctionTemplates"
+            id="kr.pe.maun.csdgenerator.service.function.template"
+            name="Service Function Templates"
+            objectClass="org.eclipse.jdt.core.IJavaProject">
+      </page>
+      <page
+            category="kr.pe.maun.csdgenerator.resourcePropertyPage"
+            class="kr.pe.maun.csdgenerator.properties.CSDGeneratorDaoFunctionTemplates"
+            id="kr.pe.maun.csdgenerator.dao.function.template"
+            name="Dao Function Templates"
+            objectClass="org.eclipse.jdt.core.IJavaProject">
       </page>
    </extension>
 

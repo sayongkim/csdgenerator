@@ -206,6 +206,9 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 	    generalComposite.setLayout(new GridLayout(3, false));
 	    generalComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
+	    GridData defaultLayoutData = new GridData(SWT.FILL, SWT.FILL, false, false);
+	    defaultLayoutData.widthHint = 100;
+
 	    /*
 
 	    Composite typeComposite = new Composite(generalComposite, SWT.NULL);
@@ -1177,7 +1180,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 		mapperPathLabel.setLayoutData(new GridData(GridData.END, GridData.CENTER, false, false));
 
 		mapperPathName=new Text(mapperComposite, SWT.SINGLE | SWT.BORDER);
-		mapperPathName.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
+		mapperPathName.setLayoutData(defaultLayoutData);
 		if(!isSpecificSettings || !isCreateMapper()) mapperPathName.setEnabled(false);
 		mapperPathName.setText(getMapperPath());
 
@@ -1351,7 +1354,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 		voPathLabel.setLayoutData(new GridData(GridData.END, GridData.CENTER, false, false));
 
 		voPathName=new Text(voComposite, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
-		voPathName.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
+		voPathName.setLayoutData(defaultLayoutData);
 		voPathName.setText(getVoPath());
 		if(!isSpecificSettings || !isCreateVo()) voPathName.setEnabled(false);
 		voPathName.setBackground(new Color(device, 255, 255, 255));
@@ -1381,7 +1384,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 		myBatisSettingsFileLabel.setLayoutData(new GridData(GridData.END, GridData.CENTER, false, false));
 
 		myBatisSettingsFileName=new Text(voComposite, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
-		myBatisSettingsFileName.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
+		myBatisSettingsFileName.setLayoutData(defaultLayoutData);
 		myBatisSettingsFileName.setText(getMyBatisSettingFile());
 		if(!isSpecificSettings || !isCreateVo()) myBatisSettingsFileName.setEnabled(false);
 		myBatisSettingsFileName.setBackground(new Color(device, 255, 255, 255));
@@ -1532,7 +1535,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 		jspPathLabel.setLayoutData(new GridData(GridData.END, GridData.CENTER, false, false));
 
 		jspPathName=new Text(jspComposite, SWT.SINGLE | SWT.BORDER);
-		jspPathName.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
+		jspPathName.setLayoutData(defaultLayoutData);
 		if(!isSpecificSettings || !isCreateJsp()) jspPathName.setEnabled(false);
 		jspPathName.setText(getJspPath());
 

@@ -35,15 +35,6 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import kr.pe.maun.csdgenerator.CSDGeneratorPlugin;
-import kr.pe.maun.csdgenerator.db.DatabaseResource;
-import kr.pe.maun.csdgenerator.dialogs.CSDGeneratorDialog;
-import kr.pe.maun.csdgenerator.model.CSDGeneratorPropertiesItem;
-import kr.pe.maun.csdgenerator.model.ColumnItem;
-import kr.pe.maun.csdgenerator.model.SerialVersionUIDItem;
-import kr.pe.maun.csdgenerator.properties.CSDGeneratorPropertiesHelper;
-import kr.pe.maun.csdgenerator.utils.StringUtils;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -100,16 +91,21 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import kr.pe.maun.csdgenerator.CSDGeneratorPlugin;
+import kr.pe.maun.csdgenerator.db.DatabaseResource;
+import kr.pe.maun.csdgenerator.dialogs.CSDGeneratorDialog;
+import kr.pe.maun.csdgenerator.model.CSDGeneratorPropertiesItem;
+import kr.pe.maun.csdgenerator.model.ColumnItem;
+import kr.pe.maun.csdgenerator.model.SerialVersionUIDItem;
+import kr.pe.maun.csdgenerator.properties.CSDGeneratorPropertiesHelper;
+import kr.pe.maun.csdgenerator.utils.StringUtils;
+
 public class CSDGeneratorAction implements IObjectActionDelegate {
 
 	CSDGeneratorDialog dialog;
 
 	private ISelection selection;
 	private Shell shell;
-
-	public CSDGeneratorAction() {
-		super();
-	}
 
 	@Override
 	public void run(IAction action) {

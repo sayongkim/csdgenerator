@@ -2,25 +2,17 @@ package kr.pe.maun.csdgenerator.dialogs;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.datatools.connectivity.IConnectionProfile;
 import org.eclipse.datatools.connectivity.ProfileManager;
-import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.viewers.ISelection;
@@ -31,7 +23,6 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -42,17 +33,11 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.Tree;
-import org.eclipse.swt.widgets.TreeItem;
-import org.eclipse.ui.PlatformUI;
 
 import kr.pe.maun.csdgenerator.CSDGeneratorPlugin;
-import kr.pe.maun.csdgenerator.GeneratorItemConstants;
 import kr.pe.maun.csdgenerator.db.DatabaseResource;
 import kr.pe.maun.csdgenerator.model.CSDGeneratorPropertiesItem;
-import kr.pe.maun.csdgenerator.model.GeneratorItem;
 import kr.pe.maun.csdgenerator.properties.CSDGeneratorPropertiesHelper;
-import kr.pe.maun.csdgenerator.utils.StringUtils;
 
 public class CSDFunctionGeneratorDialog extends Dialog {
 
@@ -78,13 +63,8 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 	private boolean isCreateUpdate = true;
 	private boolean isCreateDelete = true;
 
-	private boolean existsJspTemplateListFile = true;
-	private boolean existsJspTemplatePostFile = true;
-	private boolean existsJspTemplateViewFile = true;
-
 	String mapperPath;
 	String voPath;
-	String jspPath;
 
 	private IConnectionProfile connectionProfile;
 
@@ -148,15 +128,10 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 
 		mapperPath = propertiesItem.getMapperPath();
 		voPath = propertiesItem.getVoPath();
-		jspPath = propertiesItem.getJspPath();
 
 		isCreateMapper = propertiesItem.getCreateMapper() && mapperPath != null && !"".equals(mapperPath);
 		isCreateVo = propertiesItem.getCreateVo() && voPath != null && !"".equals(voPath);
 		isCreateSearchVo = propertiesItem.getCreateSearchVo();
-
-		String databaseConnectionProfileName = propertiesItem.getDatabaseConnectionProfileName();
-
-		String[] templateGroupNames = propertiesHelper.getGeneralTemplateGroupNames();
 
 		container.setLayout(new GridLayout(4, false));
 
@@ -179,7 +154,25 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 		connectionProfileCombo.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-
+				databaseTable = null;
+				databaseTablesCombo.removeAll();
+				databaseTablesCombo.setEnabled(false);
+				connectionProfile = null;
+				for (IConnectionProfile profile : connectionProfiles) {
+					if (profile.getName().equals(connectionProfileCombo.getText())) {
+						connectionProfile = profile;
+						break;
+					}
+				}
+				if (connectionProfile != null) {
+					List<String> tables = databaseResource.getDatabaseTables(connectionProfile);
+					if (tables != null) {
+						for (String table : tables) {
+							databaseTablesCombo.add(table);
+						}
+						databaseTablesCombo.setEnabled(true);
+					}
+				}
 			}
 
 			@Override
@@ -194,15 +187,10 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 
 		databaseTablesCombo = new Combo(container, SWT.READ_ONLY);
 		databaseTablesCombo.setLayoutData(comboGridData);
-		databaseTablesCombo.setItems(templateGroupNames);
-
 		databaseTablesCombo.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-
 				databaseTable = databaseTablesCombo.getText();
-
-				okButtonEnabled();
 			}
 
 			@Override
@@ -321,10 +309,10 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 				widgetSelected(e);
 			}
 		});
-		createSelectCountButton.setSelection(isCreateService);
+		createSelectCountButton.setSelection(isCreateSelectCount);
 
 		createSelectListButton = new Button(createFunctionButtonComposite, SWT.CHECK);
-		createSelectListButton.setText("SelectList");
+		createSelectListButton.setText("Select List");
 		createSelectListButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -341,7 +329,7 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 		createSelectListButton.setSelection(isCreateSelectList);
 
 		createSelectOneButton = new Button(createFunctionButtonComposite, SWT.CHECK);
-		createSelectOneButton.setText("SelectOne");
+		createSelectOneButton.setText("Select One");
 		createSelectOneButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -488,6 +476,7 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 			@Override
 			public void modifyText(ModifyEvent e) {
 				prefix = prefixField.getText();
+				okButtonEnabled();
 
 			}
 		});
@@ -521,7 +510,7 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 		if (okButton == null)
 			return;
 
-		if (!"".equals(databaseTablesCombo.getText())) {
+		if (!"".equals(prefix)) {
 			okButton.setEnabled(true);
 		} else {
 			okButton.setEnabled(false);

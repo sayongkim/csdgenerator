@@ -1,109 +1,70 @@
 package kr.pe.maun.csdgenerator.actions;
 
-
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.ObjectStreamClass;
-import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.TransformerFactoryConfigurationError;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.datatools.connectivity.IConnectionProfile;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.ToolFactory;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTParser;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.FieldDeclaration;
-import org.eclipse.jdt.core.dom.MarkerAnnotation;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.NormalAnnotation;
-import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.formatter.CodeFormatter;
-import org.eclipse.jdt.launching.JavaRuntime;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
+import org.eclipse.jdt.core.search.SearchEngine;
+import org.eclipse.jdt.core.search.SearchMatch;
+import org.eclipse.jdt.core.search.SearchParticipant;
+import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.core.search.SearchRequestor;
+import org.eclipse.jdt.internal.core.ResolvedSourceType;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.Document;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.text.edits.MalformedTreeException;
-import org.eclipse.text.edits.TextEdit;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
-import org.w3c.dom.DocumentType;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import kr.pe.maun.csdgenerator.CSDGeneratorPlugin;
 import kr.pe.maun.csdgenerator.db.DatabaseResource;
 import kr.pe.maun.csdgenerator.dialogs.CSDFunctionGeneratorDialog;
-import kr.pe.maun.csdgenerator.dialogs.CSDGeneratorDialog;
 import kr.pe.maun.csdgenerator.model.CSDGeneratorPropertiesItem;
 import kr.pe.maun.csdgenerator.model.ColumnItem;
-import kr.pe.maun.csdgenerator.model.SerialVersionUIDItem;
 import kr.pe.maun.csdgenerator.properties.CSDGeneratorPropertiesHelper;
 import kr.pe.maun.csdgenerator.utils.StringUtils;
 
 public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 
 	CSDFunctionGeneratorDialog dialog;
+
+	ICompilationUnit serviceImplCompilationUnit;
 
 	private ISelection selection;
 	private Shell shell;
@@ -124,59 +85,26 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 
 				subMonitor.setWorkRemaining(70);
 
-				IFolder folder = null;
-				IPackageFragment packageFragment = null;
+				ICompilationUnit compilationUnit = null;
+
 				String prefix  = dialog.getPrefix();
+				String capitalizePrefix = prefix.substring(0, 1).toUpperCase() + prefix.substring(1, prefix.length());
+				String upperPrefix = prefix.toUpperCase();
+				String lowerPrefix = prefix.toLowerCase();
 
 				if(selection instanceof TreeSelection) {
 					TreeSelection treeSelection = (TreeSelection) selection;
 					TreePath[] treePaths = treeSelection.getPaths();
 					for(TreePath treePath : treePaths) {
-						if(treePath.getLastSegment() instanceof IFolder) {
-							folder = (IFolder) treePath.getLastSegment();
-							/*System.out.println("path 1 : "+ folder. getLocation().toOSString());*/
-						} else if(treePath.getLastSegment() instanceof IPackageFragment) {
-							packageFragment = (IPackageFragment) treePath.getLastSegment();
+						if(treePath.getLastSegment() instanceof ICompilationUnit) {
+							compilationUnit = (ICompilationUnit) treePath.getLastSegment();
 						}
 					}
 				}
 
-				IProject project = packageFragment.getJavaProject().getProject();
+				IProject project = compilationUnit.getJavaProject().getProject();
 
-				if(folder != null && prefix != null) {
-
-					IFolder newFolder = folder.getFolder(new Path(prefix));
-
-					String controllerPath = prefix + "Controller";
-					String servicePath = prefix + "Service";
-					String daoPath = prefix + "Dao";
-
-					try {
-
-						newFolder.create(true ,true, new NullProgressMonitor());
-
-						IFolder controllerFolder = newFolder.getFolder(new Path(controllerPath));
-						controllerFolder.create(true ,true, new NullProgressMonitor());
-
-						String controllerContent = new String();
-						controllerContent = "package " + controllerFolder.getFullPath().toString().replace("/", ".");
-						controllerContent += "\n";
-
-						ByteArrayInputStream controllerFileStream = new ByteArrayInputStream(controllerContent.getBytes("UTF-8"));
-
-						IFile controllerFile = controllerFolder.getFile(new Path(controllerPath + ".java"));
-						controllerFile.create(controllerFileStream ,true, new NullProgressMonitor());
-
-						IFolder serviceFolder = newFolder.getFolder(new Path(servicePath));
-						serviceFolder.create(true ,true, new NullProgressMonitor());
-
-						IFolder daoFolder = newFolder.getFolder(new Path(daoPath));
-						daoFolder.create(true ,true, new NullProgressMonitor());
-
-					} catch (CoreException | UnsupportedEncodingException e) {
-						e.printStackTrace();
-					}
-				} else if(packageFragment != null && prefix != null) {
+				if(prefix != null) {
 
 					DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 					factory.setValidating(true);
@@ -184,10 +112,10 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 
 					long startTime = System.currentTimeMillis();
 
-					IResource resource = (IResource) packageFragment.getJavaProject().getProject().getAdapter(IResource.class);
+					IResource resource = (IResource) project.getAdapter(IResource.class);
 
 					CSDGeneratorPropertiesItem propertiesItem = new CSDGeneratorPropertiesItem(resource);
-					CSDGeneratorPropertiesHelper propertiesHelper = new CSDGeneratorPropertiesHelper(new ProjectScope(packageFragment.getJavaProject().getProject()).getNode(CSDGeneratorPlugin.PLUGIN_ID));
+					CSDGeneratorPropertiesHelper propertiesHelper = new CSDGeneratorPropertiesHelper(new ProjectScope(project).getNode(CSDGeneratorPlugin.PLUGIN_ID));
 
 					IConnectionProfile connectionProfile = dialog.getConnectionProfile();
 					DatabaseResource databaseResource = connectionProfile == null ? null : new DatabaseResource(connectionProfile);
@@ -197,11 +125,6 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 					String author = propertiesItem.getAuthor() != null ? propertiesItem.getAuthor() : System.getProperty("user.name");
 
 					boolean isCreateService = dialog.isCreateService();
-					boolean isCreateServiceSubFolder = propertiesItem.getCreateServiceSubFolder();
-					boolean isAddPrefixServiceFolder = propertiesItem.getAddPrefixServiceFolder();
-
-					boolean isCreateServiceImpl = propertiesItem.getCreateServiceImpl();
-					boolean isCreateServiceImplFolder = propertiesItem.getCreateServiceImpl();
 
 					boolean isCreateDao = dialog.isCreateDao();
 					boolean isCreateDaoFolder = propertiesItem.getCreateDaoFolder();
@@ -217,15 +140,42 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 					String voPath = propertiesItem.getVoPath();
 
 					String[] dataTypes = propertiesHelper.getDataTypes();
-
+/*
 					String packageFullPath = packageFragment.getElementName();
-
-					IJavaProject javaProject = packageFragment.getJavaProject();
+*/
+					IJavaProject javaProject = compilationUnit.getJavaProject();
 
 					String javaVoBuildPath = "";
 
+					boolean isCreateSelectCount = dialog.isCreateSelectCount();
+					boolean isCreateSelectList = dialog.isCreateSelectList();
+					boolean isCreateSelectOne = dialog.isCreateSelectOne();
+					boolean isCreateInsert = dialog.isCreateInsert();
+					boolean isCreateUpdate = dialog.isCreateUpdate();
+					boolean isCreateDelete = dialog.isCreateDelete();
 
-					List<SerialVersionUIDItem> addSerialVersionUIDList = new ArrayList<SerialVersionUIDItem>();
+					String serviceTemplate = "";
+					String serviceInterfaceTemplate = "";
+					String serviceSelectCountTemplate = propertiesHelper.getServiceFunctionSelectCountTemplate();
+					String serviceSelectListTemplate = propertiesHelper.getServiceFunctionSelectListTemplate();
+					String serviceSelectOneTemplate = propertiesHelper.getServiceFunctionSelectOneTemplate();
+					String serviceInsertTemplate = propertiesHelper.getServiceFunctionInsertTemplate();
+					String serviceUpdateTemplate = propertiesHelper.getServiceFunctionUpdateTemplate();
+					String serviceDeleteTemplate = propertiesHelper.getServiceFunctionDeleteTemplate();
+
+					String daoSelectCountTemplate = propertiesHelper.getDaoFunctionSelectCountTemplate();
+					String daoSelectListTemplate = propertiesHelper.getDaoFunctionSelectListTemplate();
+					String daoSelectOneTemplate = propertiesHelper.getDaoFunctionSelectOneTemplate();
+					String daoInsertTemplate = propertiesHelper.getDaoFunctionInsertTemplate();
+					String daoUpdateTemplate = propertiesHelper.getDaoFunctionUpdateTemplate();
+					String daoDeleteTemplate = propertiesHelper.getDaoFunctionDeleteTemplate();
+
+					String mapperSelectCountTemplate = propertiesHelper.getMapperFunctionSelectCountTemplate();
+					String mapperSelectListTemplate = propertiesHelper.getMapperFunctionSelectListTemplate();
+					String mapperSelectOneTemplate = propertiesHelper.getMapperFunctionSelectOneTemplate();
+					String mapperInsertTemplate = propertiesHelper.getMapperFunctionInsertTemplate();
+					String mapperUpdateTemplate = propertiesHelper.getMapperFunctionUpdateTemplate();
+					String mapperDeleteTemplate = propertiesHelper.getMapperFunctionDeleteTemplate();
 
 					try {
 						IClasspathEntry[] classpaths = javaProject.getRawClasspath();
@@ -239,10 +189,184 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 						e.printStackTrace();
 					}
 
-					folder = (IFolder) packageFragment.getResource().getAdapter(IFolder.class);
+					String namePrefix = compilationUnit.getElementName().replaceAll("Service.java", "");
 
 					SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy. MM. dd");
 					String date = dateFormat.format(new Date());
+
+					if(isCreateService) {
+						try {
+
+							IType serviceType = compilationUnit.getType(namePrefix + "Service");
+							boolean isServiceInterface = serviceType.isInterface();
+
+							if(isCreateSelectCount) {
+								serviceSelectCountTemplate = serviceSelectCountTemplate.replaceAll("\\[prefix\\]", prefix);
+								serviceSelectCountTemplate = serviceSelectCountTemplate.replaceAll("\\[upperPrefix\\]", upperPrefix);
+								serviceSelectCountTemplate = serviceSelectCountTemplate.replaceAll("\\[lowerPrefix\\]", lowerPrefix);
+								serviceSelectCountTemplate = serviceSelectCountTemplate.replaceAll("\\[capitalizePrefix\\]", capitalizePrefix);
+								serviceSelectCountTemplate = serviceSelectCountTemplate.replaceAll("\\[company\\]", company);
+								serviceSelectCountTemplate = serviceSelectCountTemplate.replaceAll("\\[author\\]", author);
+								serviceSelectCountTemplate = serviceSelectCountTemplate.replaceAll("\\[date\\]", date);
+								serviceTemplate += serviceSelectCountTemplate;
+								int endIndex = 0;
+								if(serviceSelectCountTemplate.indexOf(") {") > -1) {
+									endIndex = serviceSelectCountTemplate.indexOf(") {");
+								} else {
+									endIndex = serviceSelectCountTemplate.indexOf("){");
+								}
+								serviceInterfaceTemplate += serviceSelectCountTemplate.substring(0, endIndex + 1);
+								serviceInterfaceTemplate += ";";
+							}
+
+							if(isCreateSelectList) {
+								serviceSelectListTemplate = serviceSelectListTemplate.replaceAll("\\[prefix\\]", prefix);
+								serviceSelectListTemplate = serviceSelectListTemplate.replaceAll("\\[upperPrefix\\]", upperPrefix);
+								serviceSelectListTemplate = serviceSelectListTemplate.replaceAll("\\[lowerPrefix\\]", lowerPrefix);
+								serviceSelectListTemplate = serviceSelectListTemplate.replaceAll("\\[capitalizePrefix\\]", capitalizePrefix);
+								serviceSelectListTemplate = serviceSelectListTemplate.replaceAll("\\[company\\]", company);
+								serviceSelectListTemplate = serviceSelectListTemplate.replaceAll("\\[author\\]", author);
+								serviceSelectListTemplate = serviceSelectListTemplate.replaceAll("\\[date\\]", date);
+								serviceTemplate += serviceSelectListTemplate;
+								int endIndex = 0;
+								if(serviceSelectListTemplate.indexOf(") {") > -1) {
+									endIndex = serviceSelectListTemplate.indexOf(") {");
+								} else {
+									endIndex = serviceSelectListTemplate.indexOf("){");
+								}
+								serviceInterfaceTemplate += serviceSelectListTemplate.substring(0, endIndex + 1);
+								serviceInterfaceTemplate += ";";
+							}
+
+							if(isCreateSelectOne) {
+								serviceSelectOneTemplate = serviceSelectOneTemplate.replaceAll("\\[prefix\\]", prefix);
+								serviceSelectOneTemplate = serviceSelectOneTemplate.replaceAll("\\[upperPrefix\\]", upperPrefix);
+								serviceSelectOneTemplate = serviceSelectOneTemplate.replaceAll("\\[lowerPrefix\\]", lowerPrefix);
+								serviceSelectOneTemplate = serviceSelectOneTemplate.replaceAll("\\[capitalizePrefix\\]", capitalizePrefix);
+								serviceSelectOneTemplate = serviceSelectOneTemplate.replaceAll("\\[company\\]", company);
+								serviceSelectOneTemplate = serviceSelectOneTemplate.replaceAll("\\[author\\]", author);
+								serviceSelectOneTemplate = serviceSelectOneTemplate.replaceAll("\\[date\\]", date);
+								serviceTemplate += serviceSelectOneTemplate;
+								int endIndex = 0;
+								if(serviceSelectOneTemplate.indexOf(") {") > -1) {
+									endIndex = serviceSelectOneTemplate.indexOf(") {");
+								} else {
+									endIndex = serviceSelectOneTemplate.indexOf("){");
+								}
+								serviceInterfaceTemplate += serviceSelectOneTemplate.substring(0, endIndex + 1);
+								serviceInterfaceTemplate += ";";
+							}
+
+							if(isCreateInsert) {
+								serviceInsertTemplate = serviceInsertTemplate.replaceAll("\\[prefix\\]", prefix);
+								serviceInsertTemplate = serviceInsertTemplate.replaceAll("\\[upperPrefix\\]", upperPrefix);
+								serviceInsertTemplate = serviceInsertTemplate.replaceAll("\\[lowerPrefix\\]", lowerPrefix);
+								serviceInsertTemplate = serviceInsertTemplate.replaceAll("\\[capitalizePrefix\\]", capitalizePrefix);
+								serviceInsertTemplate = serviceInsertTemplate.replaceAll("\\[company\\]", company);
+								serviceInsertTemplate = serviceInsertTemplate.replaceAll("\\[author\\]", author);
+								serviceInsertTemplate = serviceInsertTemplate.replaceAll("\\[date\\]", date);
+								serviceTemplate += serviceInsertTemplate;
+								int endIndex = 0;
+								if(serviceSelectCountTemplate.indexOf(") {") > -1) {
+									endIndex = serviceSelectCountTemplate.indexOf(") {");
+								} else {
+									endIndex = serviceSelectCountTemplate.indexOf("){");
+								}
+								serviceInterfaceTemplate += serviceSelectCountTemplate.substring(0, endIndex + 1);
+								serviceInterfaceTemplate += ";";
+							}
+
+							if(isCreateUpdate) {
+								serviceUpdateTemplate = serviceUpdateTemplate.replaceAll("\\[prefix\\]", prefix);
+								serviceUpdateTemplate = serviceUpdateTemplate.replaceAll("\\[upperPrefix\\]", upperPrefix);
+								serviceUpdateTemplate = serviceUpdateTemplate.replaceAll("\\[lowerPrefix\\]", lowerPrefix);
+								serviceUpdateTemplate = serviceUpdateTemplate.replaceAll("\\[capitalizePrefix\\]", capitalizePrefix);
+								serviceUpdateTemplate = serviceUpdateTemplate.replaceAll("\\[company\\]", company);
+								serviceUpdateTemplate = serviceUpdateTemplate.replaceAll("\\[author\\]", author);
+								serviceUpdateTemplate = serviceUpdateTemplate.replaceAll("\\[date\\]", date);
+								serviceTemplate += serviceUpdateTemplate;
+								int endIndex = 0;
+								if(serviceUpdateTemplate.indexOf(") {") > -1) {
+									endIndex = serviceUpdateTemplate.indexOf(") {");
+								} else {
+									endIndex = serviceUpdateTemplate.indexOf("){");
+								}
+								serviceInterfaceTemplate += serviceSelectCountTemplate.substring(0, endIndex + 1);
+								serviceInterfaceTemplate += ";";
+							}
+
+							if(isCreateDelete) {
+								serviceDeleteTemplate = serviceDeleteTemplate.replaceAll("\\[prefix\\]", prefix);
+								serviceDeleteTemplate = serviceDeleteTemplate.replaceAll("\\[upperPrefix\\]", upperPrefix);
+								serviceDeleteTemplate = serviceDeleteTemplate.replaceAll("\\[lowerPrefix\\]", lowerPrefix);
+								serviceDeleteTemplate = serviceDeleteTemplate.replaceAll("\\[capitalizePrefix\\]", capitalizePrefix);
+								serviceDeleteTemplate = serviceDeleteTemplate.replaceAll("\\[company\\]", company);
+								serviceDeleteTemplate = serviceDeleteTemplate.replaceAll("\\[author\\]", author);
+								serviceDeleteTemplate = serviceDeleteTemplate.replaceAll("\\[date\\]", date);
+								serviceTemplate += serviceDeleteTemplate;
+								int endIndex = 0;
+								if(serviceDeleteTemplate.indexOf(") {") > -1) {
+									endIndex = serviceDeleteTemplate.indexOf(") {");
+								} else {
+									endIndex = serviceDeleteTemplate.indexOf("){");
+								}
+								serviceInterfaceTemplate += serviceSelectCountTemplate.substring(0, endIndex + 1);
+								serviceInterfaceTemplate += ";";
+							}
+
+							String serviceContent = compilationUnit.getSource();
+							serviceContent = serviceContent.substring(0, serviceContent.lastIndexOf("}"));
+
+							if(isServiceInterface) {
+								String serviceImplContent = serviceImplCompilationUnit.getSource();
+								serviceImplContent = serviceImplContent.substring(0, serviceImplContent.lastIndexOf("}"));
+								serviceImplContent += serviceTemplate;
+								serviceImplContent += "\n}";
+
+								SearchRequestor requestor = new SearchRequestor() {
+									@Override
+									public void acceptSearchMatch(SearchMatch searchMatch) throws CoreException {
+										if(searchMatch.getElement() instanceof ResolvedSourceType) {
+											ResolvedSourceType resolvedSourceType = (ResolvedSourceType) searchMatch.getElement();
+											if(resolvedSourceType.getParent().getElementType() == IJavaElement.COMPILATION_UNIT) {
+												serviceImplCompilationUnit = (ICompilationUnit) ((ResolvedSourceType) searchMatch.getElement()).getParent();
+											}
+										}
+									}
+								};
+
+								SearchEngine searchEngine = new SearchEngine();
+								SearchParticipant[] searchParticipants = new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()};
+								SearchPattern createPattern = SearchPattern.createPattern(serviceType, IJavaSearchConstants.IMPLEMENTORS);
+								searchEngine.search(createPattern, searchParticipants, SearchEngine.createWorkspaceScope(), requestor, subMonitor);
+
+								IFile serviceImplFile = (IFile) serviceImplCompilationUnit.getResource();
+								serviceImplFile.setContents(new ByteArrayInputStream(serviceImplContent.getBytes("UTF-8")), true ,true, new NullProgressMonitor());
+
+								serviceContent += serviceInterfaceTemplate;
+
+							} else {
+								serviceContent += serviceTemplate;
+							}
+
+							serviceContent += "\n}";
+
+							IFile serviceFile = (IFile) compilationUnit.getResource();
+							serviceFile.setContents(new ByteArrayInputStream(serviceContent.getBytes("UTF-8")), true ,true, new NullProgressMonitor());
+
+						} catch (CoreException | UnsupportedEncodingException e) {
+							e.printStackTrace();
+						}
+					}
+
+					if(isCreateDao) {
+					}
+
+					if(isCreateMapper) {
+					}
+
+					if(isCreateVo && databaseTable != null) {
+					}
 
 				}
 

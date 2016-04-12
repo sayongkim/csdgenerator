@@ -921,8 +921,6 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 									if(myBatisSettingFile != null) {
 
-										String myBatisSettingContent = getSource(myBatisSettingFile);
-
 										try {
 
 											Element documentElement = myBatisSettingDocument.getDocumentElement();

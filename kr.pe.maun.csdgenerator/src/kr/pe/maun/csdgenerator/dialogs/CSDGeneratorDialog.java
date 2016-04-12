@@ -40,6 +40,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
@@ -108,12 +110,11 @@ public class CSDGeneratorDialog extends Dialog {
 	private DatabaseResource databaseResource;
 
 	private Tree previewTree;
-	private Tree databaseTablesTree;
+	private Table databaseTablesTable;
 
 	private String[] databaseTables;
 
 	private IPackageFragment javaPackageFragment;
-	private IPackageFragmentRoot javaPackageFragmentRoot;
 
 	private Button okButton;
 
@@ -535,33 +536,36 @@ public class CSDGeneratorDialog extends Dialog {
 		tablesLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 		tablesLabel.setText("Tables: ");
 
-		previewTree = new Tree(container, SWT.MULTI | SWT.BORDER);
+		previewTree = new Tree(container, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
 		previewTree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 3, 0));
 		createTree();
 
-		databaseTablesTree = new Tree(container, SWT.CHECK | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
-		databaseTablesTree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true));
-		databaseTablesTree.addSelectionListener(new SelectionListener() {
+		GridData databaseTablesTreeGridData = new GridData(SWT.FILL, SWT.FILL, false, true);
+		databaseTablesTreeGridData.widthHint = 200;
+
+		databaseTablesTable = new Table(container, SWT.CHECK | SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+		databaseTablesTable.setLayoutData(databaseTablesTreeGridData);
+		databaseTablesTable.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				databaseTables = null;
-				TreeItem[] treeItems = databaseTablesTree.getItems();
+				TableItem[] tableItems = databaseTablesTable.getItems();
 				List<String> databaseTableList = new ArrayList<String>();
-
-				TreeItem[] selectTreeItems = databaseTablesTree.getSelection();
-				for(TreeItem treeItem : selectTreeItems) {
-					if(databaseTablesTree.indexOf(treeItem) > 0) {
-						if(treeItem.getChecked()) {
-							treeItem.setChecked(false);
+/*
+				TableItem[] selectTableItems = databaseTablesTable.getSelection();
+				for(TableItem tableItem : selectTableItems) {
+					if(databaseTablesTable.indexOf(tableItem) > 0) {
+						if(tableItem.getChecked()) {
+							tableItem.setChecked(false);
 						} else {
-							treeItem.setChecked(true);
+							tableItem.setChecked(true);
 						}
 					}
 				}
-
-				for(TreeItem treeItem : treeItems) {
-					if(treeItem.getChecked()) {
-						databaseTableList.add(treeItem.getText());
+*/
+				for(TableItem tableItem : tableItems) {
+					if(tableItem.getChecked()) {
+						databaseTableList.add(tableItem.getText());
 					}
 				}
 				databaseTables = databaseTableList.toArray(new String[databaseTableList.size()]);
@@ -573,7 +577,7 @@ public class CSDGeneratorDialog extends Dialog {
 					if(regExButton.getSelection()) prefixField.setText("[A-Za-z0-9]+_([A-Za-z0-9_]+)");
 				}
 
-				databaseTablesTree.deselectAll();
+				databaseTablesTable.deselectAll();
 
 				createTree();
 			}
@@ -1212,7 +1216,7 @@ public class CSDGeneratorDialog extends Dialog {
 	}
 
 	private void getDatabaseTrees() {
-		databaseTablesTree.removeAll();
+		databaseTablesTable.removeAll();
 		connectionProfile = null;
 		for (IConnectionProfile profile : connectionProfiles) {
 			if (profile.getName().equals(connectionProfileCombo.getText())) {
@@ -1223,7 +1227,7 @@ public class CSDGeneratorDialog extends Dialog {
 		if (connectionProfile != null) {
 			List<String> databaseTables = databaseResource.getDatabaseTables(connectionProfile);
 			for(String databaseTable : databaseTables) {
-				TreeItem treeItem = new TreeItem(databaseTablesTree, SWT.NONE);
+				TableItem treeItem = new TableItem(databaseTablesTable, SWT.NONE);
 				treeItem.setText(databaseTable);
 			}
 		}

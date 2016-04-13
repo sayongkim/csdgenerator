@@ -15,9 +15,7 @@ import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -26,7 +24,6 @@ import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -34,6 +31,15 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+
+import kr.pe.maun.csdgenerator.CSDGeneratorPlugin;
+import kr.pe.maun.csdgenerator.db.DatabaseResource;
+import kr.pe.maun.csdgenerator.dialogs.CSDGeneratorDialog;
+import kr.pe.maun.csdgenerator.model.CSDGeneratorPropertiesItem;
+import kr.pe.maun.csdgenerator.model.ColumnItem;
+import kr.pe.maun.csdgenerator.model.SerialVersionUIDItem;
+import kr.pe.maun.csdgenerator.properties.CSDGeneratorPropertiesHelper;
+import kr.pe.maun.csdgenerator.utils.StringUtils;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -89,16 +95,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
-import kr.pe.maun.csdgenerator.CSDGeneratorPlugin;
-import kr.pe.maun.csdgenerator.db.DatabaseResource;
-import kr.pe.maun.csdgenerator.dialogs.CSDGeneratorDialog;
-import kr.pe.maun.csdgenerator.model.CSDGeneratorPropertiesItem;
-import kr.pe.maun.csdgenerator.model.ColumnItem;
-import kr.pe.maun.csdgenerator.model.SerialVersionUIDItem;
-import kr.pe.maun.csdgenerator.properties.CSDGeneratorPropertiesHelper;
-import kr.pe.maun.csdgenerator.utils.StringUtils;
 
 public class CSDGeneratorAction implements IObjectActionDelegate {
 
@@ -121,7 +117,6 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 			protected IStatus run(IProgressMonitor monitor) {
 
 				SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
-
 
 				subMonitor.setWorkRemaining(70);
 
@@ -186,6 +181,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 					factory.setNamespaceAware(true);
 
 					long startTime = System.currentTimeMillis();
+					long lapTime = System.currentTimeMillis();
 
 					IResource resource = (IResource) packageFragment.getJavaProject().getProject().getAdapter(IResource.class);
 
@@ -194,9 +190,6 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 					IConnectionProfile connectionProfile = dialog.getConnectionProfile();
 					DatabaseResource databaseResource = connectionProfile == null ? null : new DatabaseResource(connectionProfile);
-
-					String company = propertiesItem.getCompany() != null ? propertiesItem.getCompany() : "";
-					String author = propertiesItem.getAuthor() != null ? propertiesItem.getAuthor() : System.getProperty("user.name");
 
 					String generalTemplateController = propertiesHelper.getGeneralTemplateController(dialog.getTemplateGroupName());
 					String generalTemplateService = propertiesHelper.getGeneralTemplateService(dialog.getTemplateGroupName());
@@ -240,6 +233,9 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 					String jspTemplatePostFile = generalTemplateMapper == null ? null : propertiesHelper.getJspTemplatePostFile(generalTemplateJsp);
 					String jspTemplateViewFile = generalTemplateMapper == null ? null : propertiesHelper.getJspTemplateListFile(generalTemplateJsp);
 
+					String parameterType = dialog.getParameterType();
+					String returnType = dialog.getReturnType();
+
 					String[] dataTypes = propertiesHelper.getDataTypes();
 
 					String packageFullPath = packageFragment.getElementName();
@@ -255,7 +251,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 						IClasspathEntry[] classpaths = javaProject.getRawClasspath();
 						for (IClasspathEntry classpath : classpaths) {
 							IPath path = classpath.getPath();
-							if (isCreateVo && voPath != null && voPath.indexOf(path.toString()) > -1) {
+							if (voPath != null && voPath.indexOf(path.toString()) > -1) {
 								javaVoBuildPath = path.removeFirstSegments(1).toString();
 							}
 						}
@@ -270,8 +266,18 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 						folder = (IFolder) folder.getParent().getAdapter(IFolder.class);
 					}
 
-					SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy. MM. dd");
-					String date = dateFormat.format(new Date());
+					String voPackage = voPath.replace("/", ".").substring(voPath.lastIndexOf(javaVoBuildPath) + javaVoBuildPath.length() + 1);
+
+					String importParameterVo = null;
+					String importReturnVo = null;
+
+					if(parameterType.toLowerCase().indexOf("hashmap") == -1) {
+						importParameterVo = voPackage + "." + parameterType;
+					}
+
+					if(returnType.toLowerCase().indexOf("hashmap") == -1) {
+						importReturnVo = voPackage + "." + returnType;
+					}
 
 					String[] databaseTables = dialog.getDatabaseTables();
 
@@ -318,9 +324,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 						IFolder newFolder = folder.getFolder(new Path(prefix));
 
-						String capitalizePrefix = prefix.substring(0, 1).toUpperCase() + prefix.substring(1, prefix.length());
-						String upperPrefix = prefix.toUpperCase();
-						String lowerPrefix = prefix.toLowerCase();
+						String capitalizePrefix = prefix.substring(0, 1).toUpperCase() + prefix.substring(1);
 
 						try {
 
@@ -333,465 +337,15 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 								newFolder = folder;
 							}
 
-			/* S : Dao 생성 */
-							String daoPackage = null;
-							if(isCreateDao) {
-								/* S : Dao 폴더를 생성한다. */
-								daoPackage = rootPackagePath;
-								String daoFolderName = "";
-								IFolder daoFolder = null;
-
-								if(isCreateDaoFolder) {
-
-									if(isAddPrefixDaoFolder) daoFolderName += capitalizePrefix;
-
-									daoFolderName += "Dao";
-									daoPackage = daoPackage + "." + daoFolderName;
-									daoFolder = newFolder.getFolder(new Path(daoFolderName));
-									if(!daoFolder.exists()) daoFolder.create(true ,true, new NullProgressMonitor());
-								} else {
-									daoFolder = newFolder;
-								}
-								/* E : Dao 폴더를 생성한다. */
-
-								if(isCreateDaoSubFolder) {
-									daoPackage = daoPackage + "." + prefix;
-									daoFolder = daoFolder.getFolder(new Path(prefix));
-									if(!daoFolder.exists()) daoFolder.create(true ,true, new NullProgressMonitor());
-								}
-
-								if(daoTemplateFile == null || "".equals(daoTemplateFile)) {
-									daoTemplateFile = "platform:/plugin/kr.pe.maun.csdgenerator/resource/template/daoClassTemplate.txt";
-								}
-
-								/* Dao 파일내용을 가져온다.. */
-								String daoContent = getSource(daoTemplateFile);
-								daoContent = daoContent.replaceAll("\\[packagePath\\]", daoPackage);
-								daoContent = daoContent.replaceAll("\\[prefix\\]", prefix);
-								daoContent = daoContent.replaceAll("\\[upperPrefix\\]", upperPrefix);
-								daoContent = daoContent.replaceAll("\\[lowerPrefix\\]", lowerPrefix);
-								daoContent = daoContent.replaceAll("\\[capitalizePrefix\\]", capitalizePrefix);
-								daoContent = daoContent.replaceAll("\\[company\\]", company);
-								daoContent = daoContent.replaceAll("\\[author\\]", author);
-								daoContent = daoContent.replaceAll("\\[date\\]", date);
-								/* S: Dao 파일을 생성한다. */
-								ByteArrayInputStream daoFileStream = new ByteArrayInputStream(daoContent.getBytes("UTF-8"));
-
-								IFile daoFile = daoFolder.getFile(new Path(capitalizePrefix + "Dao.java"));
-								if(!daoFile.exists()) daoFile.create(daoFileStream ,true, new NullProgressMonitor());
-
-								System.out.println("Dao 생성 : " + (System.currentTimeMillis() - startTime) + " milliseconds");
-								startTime = System.currentTimeMillis();
-							}
-			/* E : Dao 생성 */
-
-			/* S : Service 생성 */
-							String servicePackage = null;
-
-							if(isCreateService) {
-								/* S : Service 폴더를 생성한다. */
-								servicePackage = rootPackagePath;
-								String serviceFolderName = "";
-								IFolder serviceFolder = null;
-
-								if(isCreateServiceFolder) {
-
-									if(isAddPrefixServiceFolder) serviceFolderName += capitalizePrefix;
-
-									serviceFolderName += "Service";
-									servicePackage = servicePackage + "." + serviceFolderName;
-									serviceFolder = newFolder.getFolder(new Path(serviceFolderName));
-
-									if(!serviceFolder.exists()) serviceFolder.create(true ,true, new NullProgressMonitor());
-								} else {
-									serviceFolder = newFolder;
-								}
-								/* E : Service 폴더를 생성한다. */
-
-								if(isCreateServiceSubFolder) {
-									servicePackage = servicePackage + "." + prefix;
-									serviceFolder = serviceFolder.getFolder(new Path(prefix));
-									if(!serviceFolder.exists()) serviceFolder.create(true ,true, new NullProgressMonitor());
-								}
-
-								/* S : ServiceImpl 폴더를 생성한다. */
-
-								String serviceImplFolderName = "";
-								String serviceImplPackage = servicePackage;
-								IFolder serviceImplFolder = null;
-
-								if(isCreateServiceImplFolder) {
-
-									serviceImplFolderName += "Impl";
-									serviceImplPackage = serviceImplPackage + "." + serviceImplFolderName;
-									serviceImplFolder = serviceFolder.getFolder(new Path(serviceImplFolderName));
-
-									if(!serviceImplFolder.exists()) serviceImplFolder.create(true ,true, new NullProgressMonitor());
-								} else {
-									serviceImplFolder = newFolder;
-								}
-
-								/* E : ServiceImpl 폴더를 생성한다. */
-
-								if(serviceTemplateFile == null || "".equals(serviceTemplateFile)) {
-									if(isCreateServiceImpl) {
-										serviceTemplateFile = "platform:/plugin/kr.pe.maun.csdgenerator/resource/template/serviceInterfaceTemplate.txt";
-									} else {
-										serviceTemplateFile = "platform:/plugin/kr.pe.maun.csdgenerator/resource/template/serviceClassTemplate.txt";
-									}
-								}
-
-								/* Service 파일내용을 가져온다.. */
-								String serviceContent = getSource(serviceTemplateFile);
-								serviceContent = serviceContent.replaceAll("\\[packagePath\\]", servicePackage);
-								if(isCreateDao) {
-									serviceContent = serviceContent.replaceAll("\\[daoFullPath\\]", daoPackage + "." + capitalizePrefix + "Dao");
-								} else {
-									serviceContent = serviceContent.replaceAll("\\[daoFullPath\\]", "");
-								}
-								serviceContent = serviceContent.replaceAll("\\[prefix\\]", prefix);
-								serviceContent = serviceContent.replaceAll("\\[upperPrefix\\]", upperPrefix);
-								serviceContent = serviceContent.replaceAll("\\[lowerPrefix\\]", lowerPrefix);
-								serviceContent = serviceContent.replaceAll("\\[capitalizePrefix\\]", capitalizePrefix);
-								serviceContent = serviceContent.replaceAll("\\[company\\]", company);
-								serviceContent = serviceContent.replaceAll("\\[author\\]", author);
-								serviceContent = serviceContent.replaceAll("\\[date\\]", date);
-
-								/* S: Service 파일을 생성한다. */
-								ByteArrayInputStream serviceFileStream = new ByteArrayInputStream(serviceContent.getBytes("UTF-8"));
-
-								if(isCreateServiceImpl) {
-
-									CodeFormatter codeFormatter = ToolFactory.createCodeFormatter(null);
-
-									IFile serviceFile = serviceFolder.getFile(new Path(capitalizePrefix + "Service.java"));
-									if(!serviceFile.exists()) serviceFile.create(serviceFileStream ,true, new NullProgressMonitor());
-
-									ICompilationUnit serviceCompilationUnit = JavaCore.createCompilationUnitFrom(serviceFile);
-
-									ASTParser serviceParser = ASTParser.newParser(AST.JLS8);
-									serviceParser.setSource(serviceCompilationUnit);
-									serviceParser.setResolveBindings(true);
-
-								    CompilationUnit serviceParserCompilationUnit = (CompilationUnit) serviceParser.createAST(null);
-								    serviceParserCompilationUnit.recordModifications();
-
-								    TypeDeclaration serviceTypeDeclaration = (TypeDeclaration) serviceParserCompilationUnit.types().get(0);
-								    serviceTypeDeclaration.setInterface(true);
-
-								    List<Object> serviceTypeDeclarationModifiers = serviceTypeDeclaration.modifiers();
-								    List<Object> removeServiceTypeDeclarationModifiers = new ArrayList<Object>();
-								    for(Object serviceTypeDeclarationModifier : serviceTypeDeclarationModifiers) {
-								    	if(serviceTypeDeclarationModifier instanceof MarkerAnnotation
-								    			|| serviceTypeDeclarationModifier instanceof NormalAnnotation
-								    			|| serviceTypeDeclarationModifier instanceof SingleMemberAnnotation) {
-								    		removeServiceTypeDeclarationModifiers.add(serviceTypeDeclarationModifier);
-								    	}
-								    }
-									serviceTypeDeclarationModifiers.removeAll(removeServiceTypeDeclarationModifiers);
-
-								    FieldDeclaration[] serviceFieldDeclarations = serviceTypeDeclaration.getFields();
-								    for(FieldDeclaration fieldDeclaration : serviceFieldDeclarations) {
-								    	fieldDeclaration.delete();
-								    }
-
-									for(MethodDeclaration methodDeclaration : serviceTypeDeclaration.getMethods()) {
-									    List<Object> methodDeclarationModifiers = methodDeclaration.modifiers();
-									    List<Object> removeMethodDeclarationModifiers = new ArrayList<Object>();
-									    for(Object methodDeclarationModifier : methodDeclarationModifiers) {
-									    	if(methodDeclarationModifier instanceof MarkerAnnotation
-									    			|| methodDeclarationModifier instanceof NormalAnnotation
-									    			|| methodDeclarationModifier instanceof SingleMemberAnnotation) {
-									    		removeMethodDeclarationModifiers.add(methodDeclarationModifier);
-									    	}
-									    }
-									    methodDeclaration.modifiers().removeAll(removeMethodDeclarationModifiers);
-										if(methodDeclaration.getBody() != null) methodDeclaration.getBody().delete();
-									}
-
-									TextEdit serviceTextEdit = codeFormatter.format(CodeFormatter.K_COMPILATION_UNIT, serviceParserCompilationUnit.toString(), 0, serviceParserCompilationUnit.toString().length(), 0, null);
-									Document serviceDocument = new Document(serviceParserCompilationUnit.toString());
-
-									serviceTextEdit.apply(serviceDocument);
-
-									serviceCompilationUnit.getBuffer().setContents(serviceDocument.get());
-									serviceCompilationUnit.save(null, false);
-
-									 /*Service 파일내용을 가져온다..*/
-									String serviceImplContent = getSource(serviceTemplateFile);
-									serviceImplContent = serviceImplContent.replaceAll("\\[packagePath\\]", serviceImplPackage);
-									if(isCreateDao) {
-										serviceContent = serviceContent.replaceAll("\\[daoFullPath\\]", daoPackage + "." + capitalizePrefix + "Dao");
-									} else {
-										serviceContent = serviceContent.replaceAll("\\[daoFullPath\\]", "");
-									}
-									serviceImplContent = serviceImplContent.replaceAll("\\[prefix\\]", prefix);
-									serviceImplContent = serviceImplContent.replaceAll("\\[upperPrefix\\]", upperPrefix);
-									serviceImplContent = serviceImplContent.replaceAll("\\[lowerPrefix\\]", lowerPrefix);
-									serviceImplContent = serviceImplContent.replaceAll("\\[capitalizePrefix\\]", capitalizePrefix);
-									serviceImplContent = serviceImplContent.replaceAll("\\[company\\]", company);
-									serviceImplContent = serviceImplContent.replaceAll("\\[author\\]", author);
-									serviceImplContent = serviceImplContent.replaceAll("\\[date\\]", date);
-
-									ByteArrayInputStream serviceImplFileStream = new ByteArrayInputStream(serviceImplContent.getBytes("UTF-8"));
-
-									IFile serviceImplFile = serviceImplFolder.getFile(new Path(capitalizePrefix + "ServiceImpl.java"));
-									if(!serviceImplFile.exists())  {
-										serviceImplFile.create(serviceImplFileStream ,true, new NullProgressMonitor());
-
-										ICompilationUnit serviceImplCompilationUnit = JavaCore.createCompilationUnitFrom(serviceImplFile);
-
-										if(isCreateDao) {
-											serviceImplCompilationUnit.createImport(daoPackage + "." + capitalizePrefix + "Dao", null, new NullProgressMonitor());
-										}
-
-										ASTParser serviceImplParser = ASTParser.newParser(AST.JLS8);
-										serviceImplParser.setSource(serviceImplCompilationUnit);
-									    serviceImplParser.setResolveBindings(true);
-
-									    CompilationUnit serviceImplParserCompilationUnit = (CompilationUnit) serviceImplParser.createAST(null);
-
-										AST serviceImplAst = serviceImplParserCompilationUnit.getAST();
-										TypeDeclaration serviceImplTypeDeclaration = (TypeDeclaration) serviceImplParserCompilationUnit.types().get(0);
-										serviceImplTypeDeclaration.setName(serviceImplAst.newSimpleName(serviceImplTypeDeclaration.getName() + "Impl"));
-
-										serviceImplTypeDeclaration.superInterfaceTypes().add(serviceImplAst.newSimpleType(serviceImplAst.newSimpleName(capitalizePrefix + "Service")));
-
-										for(MethodDeclaration methodDeclaration : serviceImplTypeDeclaration.getMethods()) {
-										    MarkerAnnotation markerAnnotation = methodDeclaration.getAST().newMarkerAnnotation();
-										    markerAnnotation.setTypeName(methodDeclaration.getAST().newName("Override"));
-										    methodDeclaration.modifiers().add(0, markerAnnotation);
-										}
-
-										TextEdit serviceImplTextEdit = codeFormatter.format(CodeFormatter.K_COMPILATION_UNIT, serviceImplParserCompilationUnit.toString(), 0, serviceImplParserCompilationUnit.toString().length(), 0, null);
-										Document serviceImplDocument = new Document(serviceImplParserCompilationUnit.toString());
-
-										serviceImplTextEdit.apply(serviceImplDocument);
-
-										serviceImplCompilationUnit.getBuffer().setContents(serviceImplDocument.get());
-										serviceImplCompilationUnit.createImport(servicePackage + "." + capitalizePrefix + "Service",  null, new NullProgressMonitor());
-										serviceImplCompilationUnit.save(null, false);
-									}
-
-								} else {
-									IFile serviceFile = serviceFolder.getFile(new Path(capitalizePrefix + "Service.java"));
-									if(!serviceFile.exists()) serviceFile.create(serviceFileStream ,true, new NullProgressMonitor());
-								}
-
-								System.out.println("Service 생성 : " + (System.currentTimeMillis() - startTime) + " milliseconds");
-								startTime = System.currentTimeMillis();
-							}
-			/* E : Service 생성 */
-
-			/* S : Contoller 생성 */
-
-							if(isCreateController) {
-								/* S : Contoller 폴더를 생성한다. */
-
-								String controllerFolderName = "";
-								String controllerPackage = rootPackagePath;
-								IFolder controllerFolder = null;
-
-								if(isCreateControllerFolder) {
-
-									if(isAddPrefixControllerFolder) controllerFolderName += capitalizePrefix;
-
-									controllerFolderName += "Controller";
-									controllerPackage = controllerPackage + "." + controllerFolderName;
-									controllerFolder = newFolder.getFolder(new Path(controllerFolderName));
-									if(!controllerFolder.exists()) controllerFolder.create(true ,true, new NullProgressMonitor());
-								} else {
-									controllerFolder = newFolder;
-								}
-
-								/* E : Contoller 폴더를 생성한다. */
-
-								if(isCreateControllerSubFolder) {
-									controllerPackage = controllerPackage + "." + prefix;
-									controllerFolder = controllerFolder.getFolder(new Path(prefix));
-									if(!controllerFolder.exists()) controllerFolder.create(true ,true, new NullProgressMonitor());
-								}
-
-								if(controllerTemplateFile == null || "".equals(controllerTemplateFile)) {
-									controllerTemplateFile = "platform:/plugin/kr.pe.maun.csdgenerator/resource/template/controllerClassTemplate.txt";
-								}
-
-								/* Contoller 파일내용을 가져온다.. */
-								String controllerContent = getSource(controllerTemplateFile);
-								controllerContent = controllerContent.replaceAll("\\[packagePath\\]", controllerPackage);
-								if(servicePackage == null) {
-									controllerContent = controllerContent.replaceAll("\\[serviceFullPath\\]", "");
-								} else {
-									controllerContent = controllerContent.replaceAll("\\[serviceFullPath\\]", servicePackage + "." + capitalizePrefix + "Service");
-								}
-								controllerContent = controllerContent.replaceAll("\\[prefix\\]", prefix);
-								controllerContent = controllerContent.replaceAll("\\[upperPrefix\\]", upperPrefix);
-								controllerContent = controllerContent.replaceAll("\\[lowerPrefix\\]", lowerPrefix);
-								controllerContent = controllerContent.replaceAll("\\[capitalizePrefix\\]", capitalizePrefix);
-								controllerContent = controllerContent.replaceAll("\\[company\\]", company);
-								controllerContent = controllerContent.replaceAll("\\[author\\]", author);
-								controllerContent = controllerContent.replaceAll("\\[date\\]", date);
-								/* S: Contoller 파일을 생성한다. */
-								ByteArrayInputStream controllerFileStream = new ByteArrayInputStream(controllerContent.getBytes("UTF-8"));
-
-								IFile controllerFile = controllerFolder.getFile(new Path(capitalizePrefix + "Controller.java"));
-								if(!controllerFile.exists()) controllerFile.create(controllerFileStream ,true, new NullProgressMonitor());
-
-								/* E: Contoller 파일을 생성한다. */
-
-								System.out.println("Controller 생성 : " + (System.currentTimeMillis() - startTime) + " milliseconds");
-								startTime = System.currentTimeMillis();
-							}
-			/* E : Contoller 생성 */
-
-			/* S : Mapper 생성 */
-							if(isCreateMapper) {
-
-								/* S : Mapper 폴더를 생성한다. */
-
-								IFolder mapperFolder = null;
-
-								mapperFolder = newFolder.getWorkspace().getRoot().getFolder(new Path(mapperPath + "/" + prefix));
-								if(!mapperFolder.exists()) mapperFolder.create(true ,true, new NullProgressMonitor());
-
-								/* E : Mapper 폴더를 생성한다. */
-
-								if(mapperTemplateFile == null || "".equals(mapperTemplateFile)) {
-									mapperTemplateFile = "platform:/plugin/kr.pe.maun.csdgenerator/resource/template/mapperTemplate.txt";
-								}
-
-								/* Mapper 파일내용을 가져온다.. */
-								String mapperContent = getSource(mapperTemplateFile);
-
-								mapperContent = mapperContent.replaceAll("\\[namespace\\]", prefix + "Mapper");
-								mapperContent = mapperContent.replaceAll("\\[upperPrefix\\]", upperPrefix);
-								mapperContent = mapperContent.replaceAll("\\[lowerPrefix\\]", lowerPrefix);
-								mapperContent = mapperContent.replaceAll("\\[capitalizePrefix\\]", capitalizePrefix);
-								mapperContent = mapperContent.replaceAll("\\[company\\]", company);
-								mapperContent = mapperContent.replaceAll("\\[author\\]", author);
-								mapperContent = mapperContent.replaceAll("\\[date\\]", date);
-
-								if(!prefix.equals(databaseTableName)) {
-									mapperContent = mapperContent.replaceAll("\\[table\\]", databaseTableName);
-								} else {
-									mapperContent = mapperContent.replaceAll("\\[table\\]", capitalizePrefix);
-								}
-
-								if(connectionProfile != null) {
-
-									List<ColumnItem> columns = databaseResource.getColumns(databaseTableName);
-									List<String> indexColumns = databaseResource.getIndexColumns(databaseTableName);
-
-									try {
-										DocumentBuilder builder = factory.newDocumentBuilder();
-
-										org.w3c.dom.Document document = builder.parse(new ByteArrayInputStream(mapperContent.getBytes()));
-
-										Element documentElement = document.getDocumentElement();
-
-										NodeList nodeList = documentElement.getChildNodes();
-
-										for(int i = 0; i < nodeList.getLength(); i++) {
-											Node item = nodeList.item(i);
-											String content = item.getTextContent();
-											if("select".equals(item.getNodeName())) {
-												content = content.replaceAll("\\[columns\\]", selecColumn(columns));
-												content = content.replaceAll("\\[indexColumns\\]", indexColumn(indexColumns));
-											} else if("insert".equals(item.getNodeName())) {
-												content = content.replaceAll("\\[columns\\]", insertColumn(columns));
-												content = content.replaceAll("\\[values\\]", insertValue(columns));
-											} else if("update".equals(item.getNodeName())) {
-												content = content.replaceAll("\\[columns\\]", updateColumn(columns));
-												content = content.replaceAll("\\[indexColumns\\]", indexColumn(indexColumns));
-											}
-											item.setTextContent(content);
-										}
-
-										StringWriter writer = new StringWriter();
-										Transformer transformer = TransformerFactory.newInstance().newTransformer();
-										transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-										DocumentType documentType = document.getDoctype();
-								        if(documentType != null) {
-								            transformer.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, documentType.getPublicId());
-								            transformer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, documentType.getSystemId());
-								        }
-										transformer.transform(new DOMSource(document), new StreamResult(writer));
-
-										mapperContent = writer.toString();
-
-									} catch (ParserConfigurationException | SAXException | IOException | TransformerException | TransformerFactoryConfigurationError e) {
-										e.printStackTrace();
-									}
-								}
-
-								mapperContent = mapperContent.replaceAll("&lt;", "<");
-								mapperContent = mapperContent.replaceAll("&gt;", ">");
-
-								IFile mapperFile = mapperFolder.getFile(new Path(prefix + "Mapper.xml"));
-								if(!mapperFile.exists()) mapperFile.create(new ByteArrayInputStream(mapperContent.getBytes()) ,true, new NullProgressMonitor());
-
-								System.out.println("Mapper 생성 : " + (System.currentTimeMillis() - startTime) + " milliseconds");
-								startTime = System.currentTimeMillis();
-							}
-			/* E : Mapper 생성 */
-
-			/* S : Jsp 생성 */
-							if(isCreateJsp) {
-
-								/* S : Jsp 폴더를 생성한다. */
-
-								IFolder jspFolder = null;
-
-								jspFolder = newFolder.getWorkspace().getRoot().getFolder(new Path(jspPath + "/" + prefix));
-								if(!jspFolder.exists()) jspFolder.create(true ,true, new NullProgressMonitor());
-
-								/* E : Jsp 폴더를 생성한다. */
-
-								if(jspTemplateListFile == null || "".equals(jspTemplateListFile)) {
-									jspTemplateListFile = "platform:/plugin/kr.pe.maun.csdgenerator/resource/template/jspTemplate.txt";
-								}
-
-								/* Jsp 파일내용을 가져온다.. */
-								String jspListContent = getSource(jspTemplateListFile);
-
-								ByteArrayInputStream jspListFileStream = new ByteArrayInputStream(jspListContent.getBytes("UTF-8"));
-
-								IFile jspListFile = jspFolder.getFile(new Path(prefix + "List.jsp"));
-								if(!jspListFile.exists()) jspListFile.create(jspListFileStream ,true, new NullProgressMonitor());
-
-								if(jspTemplatePostFile == null || "".equals(jspTemplatePostFile)) {
-									jspTemplatePostFile = "platform:/plugin/kr.pe.maun.csdgenerator/resource/template/jspTemplate.txt";
-								}
-
-								String jspPostContent = getSource(jspTemplatePostFile);
-
-								ByteArrayInputStream jspPostFileStream = new ByteArrayInputStream(jspPostContent.getBytes("UTF-8"));
-
-								IFile jspPostFile = jspFolder.getFile(new Path(prefix + "Post.jsp"));
-								if(!jspPostFile.exists()) jspPostFile.create(jspPostFileStream ,true, new NullProgressMonitor());
-
-								if(jspTemplateViewFile == null || "".equals(jspTemplateViewFile)) {
-									jspTemplateViewFile = "platform:/plugin/kr.pe.maun.csdgenerator/resource/template/jspTemplate.txt";
-								}
-
-								String jspViewContent = getSource(jspTemplateViewFile);
-
-								ByteArrayInputStream jspViewFileStream = new ByteArrayInputStream(jspViewContent.getBytes("UTF-8"));
-
-								IFile jspViewFile = jspFolder.getFile(new Path(prefix + "View.jsp"));
-								if(!jspViewFile.exists()) jspViewFile.create(jspViewFileStream ,true, new NullProgressMonitor());
-
-								System.out.println("Jsp 생성 : " + (System.currentTimeMillis() - startTime) + " milliseconds");
-								startTime = System.currentTimeMillis();
-							}
-			/* E : Jsp 생성 */
-
-			/* S : Vo 생성 */
+							/* S : Vo 생성 */
 
 							if(isCreateVo) {
 								if(connectionProfile != null) {
 
-									String voPackage = voPath.replace("/", ".").substring(voPath.lastIndexOf(javaVoBuildPath) + javaVoBuildPath.length() + 1);
+									parameterType = capitalizePrefix + "Vo";
+									returnType = capitalizePrefix + "Vo";
+									importParameterVo = voPackage + "." + capitalizePrefix + "Vo";
+									importReturnVo = voPackage + "." + capitalizePrefix + "Vo";
 
 									List<ColumnItem> columns = databaseResource.getColumns(databaseTableName);
 
@@ -988,11 +542,460 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 									}
 								}
 
-								System.out.println("Vo 생성 : " + (System.currentTimeMillis() - startTime) + " milliseconds");
-								startTime = System.currentTimeMillis();
+								System.out.println("Vo 생성 : " + (System.currentTimeMillis() - lapTime) + " milliseconds");
+								lapTime = System.currentTimeMillis();
 							}
 
 			/* E : Vo 생성 */
+
+			/* S : Dao 생성 */
+							String daoPackage = null;
+							if(isCreateDao) {
+								/* S : Dao 폴더를 생성한다. */
+								daoPackage = rootPackagePath;
+								String daoFolderName = "";
+								IFolder daoFolder = null;
+
+								if(isCreateDaoFolder) {
+
+									if(isAddPrefixDaoFolder) daoFolderName += capitalizePrefix;
+
+									daoFolderName += "Dao";
+									daoPackage = daoPackage + "." + daoFolderName;
+									daoFolder = newFolder.getFolder(new Path(daoFolderName));
+									if(!daoFolder.exists()) daoFolder.create(true ,true, new NullProgressMonitor());
+								} else {
+									daoFolder = newFolder;
+								}
+								/* E : Dao 폴더를 생성한다. */
+
+								if(isCreateDaoSubFolder) {
+									daoPackage = daoPackage + "." + prefix;
+									daoFolder = daoFolder.getFolder(new Path(prefix));
+									if(!daoFolder.exists()) daoFolder.create(true ,true, new NullProgressMonitor());
+								}
+
+								if(daoTemplateFile == null || "".equals(daoTemplateFile)) {
+									daoTemplateFile = "platform:/plugin/kr.pe.maun.csdgenerator/resource/template/daoClassTemplate.txt";
+								}
+
+								/* Dao 파일내용을 가져온다.. */
+								String daoContent = getSource(daoTemplateFile);
+								daoContent = daoContent.replaceAll("\\[packagePath\\]", daoPackage);
+								daoContent = StringUtils.replaceReservedWord(propertiesItem, prefix, daoContent);
+								daoContent = StringUtils.replaceParameter(parameterType, daoContent);
+								daoContent = StringUtils.replaceReturn(returnType, daoContent);
+								/* S: Dao 파일을 생성한다. */
+								ByteArrayInputStream daoFileStream = new ByteArrayInputStream(daoContent.getBytes("UTF-8"));
+
+								IFile daoFile = daoFolder.getFile(new Path(capitalizePrefix + "Dao.java"));
+								if(!daoFile.exists()) daoFile.create(daoFileStream ,true, new NullProgressMonitor());
+
+								ICompilationUnit daoCompilationUnit = JavaCore.createCompilationUnitFrom(daoFile);
+								if(importParameterVo != null) daoCompilationUnit.createImport(importParameterVo, null, new NullProgressMonitor());
+								if(importReturnVo != null) daoCompilationUnit.createImport(importReturnVo, null, new NullProgressMonitor());
+								daoCompilationUnit.save(null, true);
+
+								System.out.println("Dao 생성 : " + (System.currentTimeMillis() - lapTime) + " milliseconds");
+								lapTime = System.currentTimeMillis();
+							}
+			/* E : Dao 생성 */
+
+			/* S : Service 생성 */
+							String servicePackage = null;
+
+							if(isCreateService) {
+								/* S : Service 폴더를 생성한다. */
+								servicePackage = rootPackagePath;
+								String serviceFolderName = "";
+								IFolder serviceFolder = null;
+
+								if(isCreateServiceFolder) {
+
+									if(isAddPrefixServiceFolder) serviceFolderName += capitalizePrefix;
+
+									serviceFolderName += "Service";
+									servicePackage = servicePackage + "." + serviceFolderName;
+									serviceFolder = newFolder.getFolder(new Path(serviceFolderName));
+
+									if(!serviceFolder.exists()) serviceFolder.create(true ,true, new NullProgressMonitor());
+								} else {
+									serviceFolder = newFolder;
+								}
+								/* E : Service 폴더를 생성한다. */
+
+								if(isCreateServiceSubFolder) {
+									servicePackage = servicePackage + "." + prefix;
+									serviceFolder = serviceFolder.getFolder(new Path(prefix));
+									if(!serviceFolder.exists()) serviceFolder.create(true ,true, new NullProgressMonitor());
+								}
+
+								/* S : ServiceImpl 폴더를 생성한다. */
+
+								String serviceImplFolderName = "";
+								String serviceImplPackage = servicePackage;
+								IFolder serviceImplFolder = null;
+
+								if(isCreateServiceImplFolder) {
+
+									serviceImplFolderName += "Impl";
+									serviceImplPackage = serviceImplPackage + "." + serviceImplFolderName;
+									serviceImplFolder = serviceFolder.getFolder(new Path(serviceImplFolderName));
+
+									if(!serviceImplFolder.exists()) serviceImplFolder.create(true ,true, new NullProgressMonitor());
+								} else {
+									serviceImplFolder = newFolder;
+								}
+
+								/* E : ServiceImpl 폴더를 생성한다. */
+
+								if(serviceTemplateFile == null || "".equals(serviceTemplateFile)) {
+									if(isCreateServiceImpl) {
+										serviceTemplateFile = "platform:/plugin/kr.pe.maun.csdgenerator/resource/template/serviceInterfaceTemplate.txt";
+									} else {
+										serviceTemplateFile = "platform:/plugin/kr.pe.maun.csdgenerator/resource/template/serviceClassTemplate.txt";
+									}
+								}
+
+								/* Service 파일내용을 가져온다.. */
+								String serviceContent = getSource(serviceTemplateFile);
+								serviceContent = serviceContent.replaceAll("\\[packagePath\\]", servicePackage);
+								serviceContent = StringUtils.replaceReservedWord(propertiesItem, prefix, serviceContent);
+								serviceContent = StringUtils.replaceParameter(parameterType, serviceContent);
+								serviceContent = StringUtils.replaceReturn(returnType, serviceContent);
+								/* S: Service 파일을 생성한다. */
+								ByteArrayInputStream serviceFileStream = new ByteArrayInputStream(serviceContent.getBytes("UTF-8"));
+
+								IFile serviceFile = serviceFolder.getFile(new Path(capitalizePrefix + "Service.java"));
+								if(!serviceFile.exists()) serviceFile.create(serviceFileStream ,true, new NullProgressMonitor());
+
+								ICompilationUnit serviceCompilationUnit = JavaCore.createCompilationUnitFrom(serviceFile);
+								if(importParameterVo != null) serviceCompilationUnit.createImport(importParameterVo, null, new NullProgressMonitor());
+								if(importReturnVo != null) serviceCompilationUnit.createImport(importReturnVo, null, new NullProgressMonitor());
+								if(isCreateDao) {
+									serviceCompilationUnit.createImport(daoPackage + "." + capitalizePrefix + "Dao", null, new NullProgressMonitor());
+								}
+
+								if(isCreateServiceImpl) {
+
+									CodeFormatter codeFormatter = ToolFactory.createCodeFormatter(null);
+
+									ASTParser serviceParser = ASTParser.newParser(AST.JLS8);
+									serviceParser.setSource(serviceCompilationUnit);
+									serviceParser.setResolveBindings(true);
+
+								    CompilationUnit serviceParserCompilationUnit = (CompilationUnit) serviceParser.createAST(null);
+								    serviceParserCompilationUnit.recordModifications();
+
+								    TypeDeclaration serviceTypeDeclaration = (TypeDeclaration) serviceParserCompilationUnit.types().get(0);
+								    serviceTypeDeclaration.setInterface(true);
+
+								    List<Object> serviceTypeDeclarationModifiers = serviceTypeDeclaration.modifiers();
+								    List<Object> removeServiceTypeDeclarationModifiers = new ArrayList<Object>();
+								    for(Object serviceTypeDeclarationModifier : serviceTypeDeclarationModifiers) {
+								    	if(serviceTypeDeclarationModifier instanceof MarkerAnnotation
+								    			|| serviceTypeDeclarationModifier instanceof NormalAnnotation
+								    			|| serviceTypeDeclarationModifier instanceof SingleMemberAnnotation) {
+								    		removeServiceTypeDeclarationModifiers.add(serviceTypeDeclarationModifier);
+								    	}
+								    }
+									serviceTypeDeclarationModifiers.removeAll(removeServiceTypeDeclarationModifiers);
+
+								    FieldDeclaration[] serviceFieldDeclarations = serviceTypeDeclaration.getFields();
+								    for(FieldDeclaration fieldDeclaration : serviceFieldDeclarations) {
+								    	fieldDeclaration.delete();
+								    }
+
+									for(MethodDeclaration methodDeclaration : serviceTypeDeclaration.getMethods()) {
+									    List<Object> methodDeclarationModifiers = methodDeclaration.modifiers();
+									    List<Object> removeMethodDeclarationModifiers = new ArrayList<Object>();
+									    for(Object methodDeclarationModifier : methodDeclarationModifiers) {
+									    	if(methodDeclarationModifier instanceof MarkerAnnotation
+									    			|| methodDeclarationModifier instanceof NormalAnnotation
+									    			|| methodDeclarationModifier instanceof SingleMemberAnnotation) {
+									    		removeMethodDeclarationModifiers.add(methodDeclarationModifier);
+									    	}
+									    }
+									    methodDeclaration.modifiers().removeAll(removeMethodDeclarationModifiers);
+										if(methodDeclaration.getBody() != null) methodDeclaration.getBody().delete();
+									}
+
+									TextEdit serviceTextEdit = codeFormatter.format(CodeFormatter.K_COMPILATION_UNIT, serviceParserCompilationUnit.toString(), 0, serviceParserCompilationUnit.toString().length(), 0, null);
+									Document serviceDocument = new Document(serviceParserCompilationUnit.toString());
+
+									serviceTextEdit.apply(serviceDocument);
+
+									serviceCompilationUnit.getBuffer().setContents(serviceDocument.get());
+									serviceCompilationUnit.save(null, false);
+
+									 /*Service 파일내용을 가져온다..*/
+									String serviceImplContent = getSource(serviceTemplateFile);
+									serviceImplContent = serviceImplContent.replaceAll("\\[packagePath\\]", serviceImplPackage);
+									serviceImplContent = StringUtils.replaceReservedWord(propertiesItem, prefix, serviceImplContent);
+									serviceImplContent = StringUtils.replaceParameter(parameterType, serviceImplContent);
+									serviceImplContent = StringUtils.replaceReturn(returnType, serviceImplContent);
+
+									ByteArrayInputStream serviceImplFileStream = new ByteArrayInputStream(serviceImplContent.getBytes("UTF-8"));
+
+									IFile serviceImplFile = serviceImplFolder.getFile(new Path(capitalizePrefix + "ServiceImpl.java"));
+									if(!serviceImplFile.exists())  {
+										serviceImplFile.create(serviceImplFileStream ,true, new NullProgressMonitor());
+
+										ICompilationUnit serviceImplCompilationUnit = JavaCore.createCompilationUnitFrom(serviceImplFile);
+										if(importParameterVo != null) serviceImplCompilationUnit.createImport(importParameterVo, null, new NullProgressMonitor());
+										if(importReturnVo != null) serviceImplCompilationUnit.createImport(importReturnVo, null, new NullProgressMonitor());
+
+										if(isCreateDao) {
+											serviceImplCompilationUnit.createImport(daoPackage + "." + capitalizePrefix + "Dao", null, new NullProgressMonitor());
+										}
+
+										ASTParser serviceImplParser = ASTParser.newParser(AST.JLS8);
+										serviceImplParser.setSource(serviceImplCompilationUnit);
+									    serviceImplParser.setResolveBindings(true);
+
+									    CompilationUnit serviceImplParserCompilationUnit = (CompilationUnit) serviceImplParser.createAST(null);
+
+										AST serviceImplAst = serviceImplParserCompilationUnit.getAST();
+										TypeDeclaration serviceImplTypeDeclaration = (TypeDeclaration) serviceImplParserCompilationUnit.types().get(0);
+										serviceImplTypeDeclaration.setName(serviceImplAst.newSimpleName(serviceImplTypeDeclaration.getName() + "Impl"));
+
+										serviceImplTypeDeclaration.superInterfaceTypes().add(serviceImplAst.newSimpleType(serviceImplAst.newSimpleName(capitalizePrefix + "Service")));
+
+										for(MethodDeclaration methodDeclaration : serviceImplTypeDeclaration.getMethods()) {
+										    MarkerAnnotation markerAnnotation = methodDeclaration.getAST().newMarkerAnnotation();
+										    markerAnnotation.setTypeName(methodDeclaration.getAST().newName("Override"));
+										    methodDeclaration.modifiers().add(0, markerAnnotation);
+										}
+
+										TextEdit serviceImplTextEdit = codeFormatter.format(CodeFormatter.K_COMPILATION_UNIT, serviceImplParserCompilationUnit.toString(), 0, serviceImplParserCompilationUnit.toString().length(), 0, null);
+										Document serviceImplDocument = new Document(serviceImplParserCompilationUnit.toString());
+
+										serviceImplTextEdit.apply(serviceImplDocument);
+
+										serviceImplCompilationUnit.getBuffer().setContents(serviceImplDocument.get());
+										serviceImplCompilationUnit.createImport(servicePackage + "." + capitalizePrefix + "Service",  null, new NullProgressMonitor());
+										serviceImplCompilationUnit.save(null, false);
+									}
+								}
+
+								System.out.println("Service 생성 : " + (System.currentTimeMillis() - lapTime) + " milliseconds");
+								lapTime = System.currentTimeMillis();
+							}
+			/* E : Service 생성 */
+
+			/* S : Contoller 생성 */
+
+							if(isCreateController) {
+								/* S : Contoller 폴더를 생성한다. */
+
+								String controllerFolderName = "";
+								String controllerPackage = rootPackagePath;
+								IFolder controllerFolder = null;
+
+								if(isCreateControllerFolder) {
+
+									if(isAddPrefixControllerFolder) controllerFolderName += capitalizePrefix;
+
+									controllerFolderName += "Controller";
+									controllerPackage = controllerPackage + "." + controllerFolderName;
+									controllerFolder = newFolder.getFolder(new Path(controllerFolderName));
+									if(!controllerFolder.exists()) controllerFolder.create(true ,true, new NullProgressMonitor());
+								} else {
+									controllerFolder = newFolder;
+								}
+
+								/* E : Contoller 폴더를 생성한다. */
+
+								if(isCreateControllerSubFolder) {
+									controllerPackage = controllerPackage + "." + prefix;
+									controllerFolder = controllerFolder.getFolder(new Path(prefix));
+									if(!controllerFolder.exists()) controllerFolder.create(true ,true, new NullProgressMonitor());
+								}
+
+								if(controllerTemplateFile == null || "".equals(controllerTemplateFile)) {
+									controllerTemplateFile = "platform:/plugin/kr.pe.maun.csdgenerator/resource/template/controllerClassTemplate.txt";
+								}
+
+								/* Contoller 파일내용을 가져온다.. */
+								String controllerContent = getSource(controllerTemplateFile);
+								controllerContent = controllerContent.replaceAll("\\[packagePath\\]", controllerPackage);
+								controllerContent = StringUtils.replaceReservedWord(propertiesItem, prefix, controllerContent);
+								controllerContent = StringUtils.replaceParameter(parameterType, controllerContent);
+								controllerContent = StringUtils.replaceReturn(returnType, controllerContent);
+								/* S: Contoller 파일을 생성한다. */
+								ByteArrayInputStream controllerFileStream = new ByteArrayInputStream(controllerContent.getBytes("UTF-8"));
+
+								IFile controllerFile = controllerFolder.getFile(new Path(capitalizePrefix + "Controller.java"));
+								if(!controllerFile.exists()) controllerFile.create(controllerFileStream ,true, new NullProgressMonitor());
+
+								/* E: Contoller 파일을 생성한다. */
+
+								ICompilationUnit controllerCompilationUnit = JavaCore.createCompilationUnitFrom(controllerFile);
+								if(importParameterVo != null) controllerCompilationUnit.createImport(importParameterVo, null, new NullProgressMonitor());
+								if(importReturnVo != null) controllerCompilationUnit.createImport(importReturnVo, null, new NullProgressMonitor());
+
+								if(isCreateService) {
+									controllerCompilationUnit.createImport(servicePackage + "." + capitalizePrefix + "Service", null, new NullProgressMonitor());
+								}
+
+								System.out.println("Controller 생성 : " + (System.currentTimeMillis() - lapTime) + " milliseconds");
+								lapTime = System.currentTimeMillis();
+							}
+			/* E : Contoller 생성 */
+
+			/* S : Mapper 생성 */
+							if(isCreateMapper) {
+
+								/* S : Mapper 폴더를 생성한다. */
+
+								IFolder mapperFolder = newFolder.getWorkspace().getRoot().getFolder(new Path(mapperPath + "/" + prefix));
+								if(!mapperFolder.exists()) mapperFolder.create(true ,true, new NullProgressMonitor());
+
+								/* E : Mapper 폴더를 생성한다. */
+
+								if(mapperTemplateFile == null || "".equals(mapperTemplateFile)) {
+									mapperTemplateFile = "platform:/plugin/kr.pe.maun.csdgenerator/resource/template/mapperTemplate.txt";
+								}
+
+								/* Mapper 파일내용을 가져온다.. */
+								String mapperContent = getSource(mapperTemplateFile);
+
+								mapperContent = mapperContent.replaceAll("\\[namespace\\]", prefix + "Mapper");
+								mapperContent = StringUtils.replaceReservedWord(propertiesItem, prefix, mapperContent);
+
+								if(!prefix.equals(databaseTableName)) {
+									mapperContent = mapperContent.replaceAll("\\[table\\]", databaseTableName);
+								} else {
+									mapperContent = mapperContent.replaceAll("\\[table\\]", capitalizePrefix);
+								}
+
+								if(connectionProfile != null) {
+
+									List<ColumnItem> columns = databaseResource.getColumns(databaseTableName);
+									List<String> indexColumns = databaseResource.getIndexColumns(databaseTableName);
+									/*
+									try {
+
+										DocumentBuilder builder = factory.newDocumentBuilder();
+
+										org.w3c.dom.Document document = builder.parse(new ByteArrayInputStream(mapperContent.getBytes()));
+
+										Element documentElement = document.getDocumentElement();
+
+										NodeList nodeList = documentElement.getChildNodes();
+
+										for(int i = 0; i < nodeList.getLength(); i++) {
+											Node item = nodeList.item(i);
+											String content = item.getTextContent();
+											if("select".equals(item.getNodeName())) {
+												content = content.replaceAll("\\[columns\\]", selecColumn(columns));
+												content = content.replaceAll("\\[indexColumns\\]", indexColumn(indexColumns));
+											} else if("insert".equals(item.getNodeName())) {
+												content = content.replaceAll("\\[columns\\]", insertColumn(columns));
+												content = content.replaceAll("\\[values\\]", insertValue(columns));
+											} else if("update".equals(item.getNodeName())) {
+												content = content.replaceAll("\\[columns\\]", updateColumn(columns));
+												content = content.replaceAll("\\[indexColumns\\]", indexColumn(indexColumns));
+											}
+											item.setTextContent(content);
+										}
+
+										StringWriter writer = new StringWriter();
+										Transformer transformer = TransformerFactory.newInstance().newTransformer();
+										transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+										DocumentType documentType = document.getDoctype();
+								        if(documentType != null) {
+								            transformer.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, documentType.getPublicId());
+								            transformer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, documentType.getSystemId());
+								        }
+										transformer.transform(new DOMSource(document), new StreamResult(writer));
+
+										mapperContent = writer.toString();
+
+									} catch (ParserConfigurationException | SAXException | IOException | TransformerException | TransformerFactoryConfigurationError e) {
+										e.printStackTrace();
+									}
+*/
+									mapperContent = mapperContent.replaceAll("\\[columns\\]", updateColumn(columns));
+									mapperContent = mapperContent.replaceAll("\\[values\\]", insertValue(columns));
+									mapperContent = mapperContent.replaceAll("\\[indexColumns\\]", indexColumn(indexColumns));
+
+								}
+
+								if(parameterType.toLowerCase().indexOf("hashmap") == -1) {
+									mapperContent = mapperContent.replaceAll("\\[paramType\\]", parameterType.toLowerCase().charAt(0) + parameterType.substring(1));
+								} else {
+									mapperContent = mapperContent.replaceAll("\\[paramType\\]", "hashMap");
+								}
+
+								if(returnType.toLowerCase().indexOf("hashmap") == -1) {
+									mapperContent = mapperContent.replaceAll("\\[resultType\\]", returnType.toLowerCase().charAt(0) + returnType.substring(1));
+								} else {
+									mapperContent = mapperContent.replaceAll("\\[resultType\\]", "hashMap");
+								}
+
+								mapperContent = mapperContent.replaceAll("&lt;", "<");
+								mapperContent = mapperContent.replaceAll("&gt;", ">");
+
+								IFile mapperFile = mapperFolder.getFile(new Path(prefix + "Mapper.xml"));
+								if(!mapperFile.exists()) mapperFile.create(new ByteArrayInputStream(mapperContent.getBytes()) ,true, new NullProgressMonitor());
+
+								System.out.println("Mapper 생성 : " + (System.currentTimeMillis() - lapTime) + " milliseconds");
+								lapTime = System.currentTimeMillis();
+							}
+			/* E : Mapper 생성 */
+
+			/* S : Jsp 생성 */
+							if(isCreateJsp) {
+
+								/* S : Jsp 폴더를 생성한다. */
+
+								IFolder jspFolder = null;
+
+								jspFolder = newFolder.getWorkspace().getRoot().getFolder(new Path(jspPath + "/" + prefix));
+								if(!jspFolder.exists()) jspFolder.create(true ,true, new NullProgressMonitor());
+
+								/* E : Jsp 폴더를 생성한다. */
+
+								if(jspTemplateListFile == null || "".equals(jspTemplateListFile)) {
+									jspTemplateListFile = "platform:/plugin/kr.pe.maun.csdgenerator/resource/template/jspTemplate.txt";
+								}
+
+								/* Jsp 파일내용을 가져온다.. */
+								String jspListContent = getSource(jspTemplateListFile);
+
+								ByteArrayInputStream jspListFileStream = new ByteArrayInputStream(jspListContent.getBytes("UTF-8"));
+
+								IFile jspListFile = jspFolder.getFile(new Path(prefix + "List.jsp"));
+								if(!jspListFile.exists()) jspListFile.create(jspListFileStream ,true, new NullProgressMonitor());
+
+								if(jspTemplatePostFile == null || "".equals(jspTemplatePostFile)) {
+									jspTemplatePostFile = "platform:/plugin/kr.pe.maun.csdgenerator/resource/template/jspTemplate.txt";
+								}
+
+								String jspPostContent = getSource(jspTemplatePostFile);
+
+								ByteArrayInputStream jspPostFileStream = new ByteArrayInputStream(jspPostContent.getBytes("UTF-8"));
+
+								IFile jspPostFile = jspFolder.getFile(new Path(prefix + "Post.jsp"));
+								if(!jspPostFile.exists()) jspPostFile.create(jspPostFileStream ,true, new NullProgressMonitor());
+
+								if(jspTemplateViewFile == null || "".equals(jspTemplateViewFile)) {
+									jspTemplateViewFile = "platform:/plugin/kr.pe.maun.csdgenerator/resource/template/jspTemplate.txt";
+								}
+
+								String jspViewContent = getSource(jspTemplateViewFile);
+
+								ByteArrayInputStream jspViewFileStream = new ByteArrayInputStream(jspViewContent.getBytes("UTF-8"));
+
+								IFile jspViewFile = jspFolder.getFile(new Path(prefix + "View.jsp"));
+								if(!jspViewFile.exists()) jspViewFile.create(jspViewFileStream ,true, new NullProgressMonitor());
+
+								System.out.println("Jsp 생성 : " + (System.currentTimeMillis() - lapTime) + " milliseconds");
+								lapTime = System.currentTimeMillis();
+							}
+			/* E : Jsp 생성 */
+
 						} catch (CoreException | UnsupportedEncodingException | MalformedTreeException | BadLocationException e) {
 							e.printStackTrace();
 						}
@@ -1031,6 +1034,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 							e.printStackTrace();
 						}
 					}
+					System.out.println("총 생성 시간 : " + (System.currentTimeMillis() - startTime) + " milliseconds");
 				}
 
 				Display.getDefault().asyncExec(new Runnable() {

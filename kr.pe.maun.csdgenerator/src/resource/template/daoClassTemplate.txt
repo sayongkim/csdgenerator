@@ -28,7 +28,7 @@ public class [capitalizePrefix]Dao {
 	 * @return
 	 */
 	public int select[capitalizePrefix]TotalCnt(HashMap<String, Object> searchMap) {
-		return sqlSession.selectOne("[lowerPrefix]Mapper.select[capitalizePrefix]TotalCnt", searchMap);
+		return sqlSession.selectOne("[prefix]Mapper.select[capitalizePrefix]TotalCnt", searchMap);
 	}
 
 	/**
@@ -41,7 +41,7 @@ public class [capitalizePrefix]Dao {
 	 * @return
 	 */
 	public List<HashMap<String, String>> select[capitalizePrefix]List(HashMap<String, Object> searchMap) {
-		return sqlSession.selectList("[lowerPrefix]Mapper.select[capitalizePrefix]List", searchMap);
+		return sqlSession.selectList("[prefix]Mapper.select[capitalizePrefix]List", searchMap);
 	}
 
 	/**
@@ -54,7 +54,7 @@ public class [capitalizePrefix]Dao {
 	 * @return
 	 */
 	public HashMap<String, String> select[capitalizePrefix](HashMap<String, Object> searchMap) {
-		return sqlSession.selectOne("[lowerPrefix]Mapper.select[capitalizePrefix]", searchMap);
+		return sqlSession.selectOne("[prefix]Mapper.select[capitalizePrefix]", searchMap);
 	}
 
 	/**
@@ -67,7 +67,7 @@ public class [capitalizePrefix]Dao {
 	 * @return
 	 */
 	public int insert[capitalizePrefix](HashMap<String, Object> requestMap) {
-		return sqlSession.insert("[lowerPrefix]Mapper.insert[capitalizePrefix]", requestMap);
+		return sqlSession.insert("[prefix]Mapper.insert[capitalizePrefix]", requestMap);
 	}
 
 	/**
@@ -80,7 +80,7 @@ public class [capitalizePrefix]Dao {
 	 * @return
 	 */
 	public int update[capitalizePrefix](HashMap<String, Object> requestMap) {
-		return sqlSession.update("[lowerPrefix]Mapper.update[capitalizePrefix]", requestMap);
+		return sqlSession.update("[prefix]Mapper.update[capitalizePrefix]", requestMap);
 	}
 
 }

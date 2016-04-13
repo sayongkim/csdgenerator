@@ -3,6 +3,11 @@ package kr.pe.maun.csdgenerator.dialogs;
 import java.util.ArrayList;
 import java.util.List;
 
+import kr.pe.maun.csdgenerator.CSDGeneratorPlugin;
+import kr.pe.maun.csdgenerator.db.DatabaseResource;
+import kr.pe.maun.csdgenerator.model.CSDGeneratorPropertiesItem;
+import kr.pe.maun.csdgenerator.properties.CSDGeneratorPropertiesHelper;
+
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -33,11 +38,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-
-import kr.pe.maun.csdgenerator.CSDGeneratorPlugin;
-import kr.pe.maun.csdgenerator.db.DatabaseResource;
-import kr.pe.maun.csdgenerator.model.CSDGeneratorPropertiesItem;
-import kr.pe.maun.csdgenerator.properties.CSDGeneratorPropertiesHelper;
 
 public class CSDFunctionGeneratorDialog extends Dialog {
 
@@ -74,6 +74,7 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 	private Combo connectionProfileCombo;
 	private Combo parameterCombo;
 	private Combo returnCombo;
+	private Combo importDaoCombo;
 
 	private Button createServiceButton;
 	private Button createDaoButton;
@@ -90,11 +91,17 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 	private IConnectionProfile[] connectionProfiles;
 	private DatabaseResource databaseResource;
 
-	private String databaseTable;
+	private String databaseTableName;
 
 	private ICompilationUnit compilationUnit;
 
 	private Button okButton;
+
+	private String parameterType;
+	private String returnType;
+
+	List<String> importDaos;
+	String selectImportDao;
 
 	public CSDFunctionGeneratorDialog(Shell parentShell) {
 		super(parentShell);
@@ -154,7 +161,7 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 		connectionProfileCombo.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				databaseTable = null;
+				databaseTableName = null;
 				databaseTablesCombo.removeAll();
 				databaseTablesCombo.setEnabled(false);
 				connectionProfile = null;
@@ -173,6 +180,11 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 						databaseTablesCombo.setEnabled(true);
 					}
 				}
+
+				createVoButton.setEnabled(false);
+				createMapperButton.setEnabled(false);
+				parameterCombo.setEnabled(true);
+				returnCombo.setEnabled(true);
 			}
 
 			@Override
@@ -180,6 +192,7 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 				widgetSelected(e);
 			}
 		});
+		if(!isCreateVo && isCreateMapper) connectionProfileCombo.setEnabled(false);
 
 		Label templateLabel = new Label(container, SWT.NONE);
 		templateLabel.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
@@ -190,7 +203,16 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 		databaseTablesCombo.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				databaseTable = databaseTablesCombo.getText();
+				databaseTableName = databaseTablesCombo.getText();
+				createVoButton.setEnabled(isCreateVo);
+				createMapperButton.setEnabled(isCreateMapper);
+				if(isCreateVo) {
+					parameterCombo.setEnabled(false);
+					returnCombo.setEnabled(false);
+				} else {
+					parameterCombo.setEnabled(true);
+					returnCombo.setEnabled(true);
+				}
 			}
 
 			@Override
@@ -198,6 +220,7 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 				widgetSelected(e);
 			}
 		});
+		databaseTablesCombo.setEnabled(false);
 
 		GridLayout updateObjectButtonCompositeLayout = new GridLayout(4, false);
 		updateObjectButtonCompositeLayout.marginWidth = 0;
@@ -258,7 +281,7 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 			}
 		});
 		createMapperButton.setSelection(isCreateMapper);
-		if(!isCreateMapper) createMapperButton.setEnabled(false);
+		createMapperButton.setEnabled(false);
 
 		createVoButton = new Button(updateObjectButtonComposite, SWT.CHECK);
 		createVoButton.setText("Vo");
@@ -283,7 +306,7 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 			}
 		});
 		createVoButton.setSelection(isCreateVo);
-		if(!isCreateVo) createVoButton.setEnabled(false);
+		createVoButton.setEnabled(false);
 
 		GridLayout createFunctionButtonCompositeLayout = new GridLayout(6, false);
 		createFunctionButtonCompositeLayout.marginWidth = 0;
@@ -449,10 +472,7 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 		parameterCombo = new Combo(container, SWT.READ_ONLY);
 		parameterCombo.setLayoutData(layoutData);
 		parameterCombo.setItems(objectList.toArray(new String[objectList.size()]));
-		if(isCreateVo) {
-			parameterCombo.select(0);
-			parameterCombo.setEnabled(false);
-		}
+		parameterCombo.select(0);
 
 		Label returnLabel = new Label(container, SWT.NONE);
 		returnLabel.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
@@ -461,10 +481,7 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 		returnCombo = new Combo(container, SWT.READ_ONLY);
 		returnCombo.setLayoutData(layoutData);
 		returnCombo.setItems(objectList.toArray(new String[objectList.size()]));
-		if(isCreateVo) {
-			returnCombo.select(0);
-			returnCombo.setEnabled(false);
-		}
+		returnCombo.select(0);
 
 		Label prefixLabel = new Label(container, SWT.NONE);
 		prefixLabel.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
@@ -481,18 +498,27 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 			}
 		});
 
+		Label importDaoLabel = new Label(container, SWT.NONE);
+		importDaoLabel.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
+		importDaoLabel.setText("Dao: ");
+
+		importDaoCombo = new Combo(container, SWT.READ_ONLY);
+		importDaoCombo.setLayoutData(layoutData);
+		importDaoCombo.setItems(importDaos.toArray(new String[importDaos.size()]));
+		importDaoCombo.select(0);
+
 		return container;
 	}
 
 	@Override
 	protected void configureShell(Shell newShell) {
 		super.configureShell(newShell);
-		newShell.setText("CSD Genernator");
+		newShell.setText("CSD Function Genernator");
 	}
 
 	@Override
 	protected Point getInitialSize() {
-		return new Point(600, 240);
+		return new Point(600, 270);
 	}
 
 	@Override
@@ -561,12 +587,12 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 		this.connectionProfile = connectionProfile;
 	}
 
-	public String getDatabaseTable() {
-		return databaseTable;
+	public String getDatabaseTableName() {
+		return databaseTableName;
 	}
 
-	public void setDatabaseTable(String databaseTable) {
-		this.databaseTable = databaseTable;
+	public void setDatabaseTableName(String databaseTableName) {
+		this.databaseTableName = databaseTableName;
 	}
 
 	public boolean isCreateSelectCount() {
@@ -617,8 +643,41 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 		this.isCreateDelete = isCreateDelete;
 	}
 
+	public String getParameterType() {
+		return parameterType;
+	}
+
+	public String getReturnType() {
+		return returnType;
+	}
+
+	public void setParameterType(String parameterType) {
+		this.parameterType = parameterType;
+	}
+
+	public void setReturnType(String returnType) {
+		this.returnType = returnType;
+	}
+
+	public List<String> getImportDaos() {
+		return importDaos;
+	}
+
+	public String getSelectImportDao() {
+		return selectImportDao;
+	}
+
+	public void setImportDaos(List<String> importDaos) {
+		this.importDaos = importDaos;
+	}
+
+	public void setSelectImportDao(String selectImportDao) {
+		this.selectImportDao = selectImportDao;
+	}
+
 	@Override
 	protected void okPressed() {
+
 		isCreateService = isCreateService && createServiceButton.isEnabled();
 		isCreateDao = isCreateDao && createDaoButton.isEnabled();
 		isCreateMapper = isCreateMapper && createMapperButton.isEnabled();
@@ -629,6 +688,11 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 		isCreateInsert = isCreateInsert && createInsertButton.isEnabled();
 		isCreateUpdate = isCreateUpdate && createUpdateButton.isEnabled();
 		isCreateDelete = isCreateDelete && createDeleteButton.isEnabled();
+
+		parameterType = parameterCombo.getText();
+		returnType = returnCombo.getText();
+
+		selectImportDao = importDaoCombo.getText();
 
 		super.okPressed();
 	}

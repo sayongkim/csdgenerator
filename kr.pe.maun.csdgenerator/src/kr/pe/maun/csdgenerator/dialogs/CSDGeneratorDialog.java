@@ -126,6 +126,9 @@ public class CSDGeneratorDialog extends Dialog {
 		super(parentShell);
 	}
 
+	String parameterType;
+	String returnType;
+
 	public CSDGeneratorDialog(Shell parentShell, ISelection selection) {
 		super(parentShell);
 		this.selection = selection;
@@ -211,15 +214,6 @@ public class CSDGeneratorDialog extends Dialog {
 					createDaoButton.setEnabled(false);
 				}
 
-				if(isCreateMapper) {
-					if(generalTemplateMapper != null
-							&& !"".equals(propertiesHelper.getMapperTemplateFile(generalTemplateMapper))) {
-						createMapperButton.setEnabled(true);
-					} else {
-						createMapperButton.setEnabled(false);
-					}
-				}
-
 				if(isCreateJsp) {
 					if(generalTemplateJsp != null
 							&& (!"".equals(propertiesHelper.getJspTemplateListFile(generalTemplateJsp))
@@ -287,6 +281,7 @@ public class CSDGeneratorDialog extends Dialog {
 				widgetSelected(e);
 			}
 		});
+		if(!isCreateVo && !isCreateMapper) connectionProfileCombo.setEnabled(false);
 
 		new Label(container, SWT.NONE);
 		createParentLocationButton = new Button(container, SWT.CHECK);
@@ -402,7 +397,7 @@ public class CSDGeneratorDialog extends Dialog {
 			}
 		});
 		createMapperButton.setSelection(isCreateMapper);
-		if(!isCreateMapper) createMapperButton.setEnabled(false);
+		createMapperButton.setEnabled(false);
 
 		createVoButton = new Button(craeteButtonComposite, SWT.CHECK);
 		createVoButton.setText("Vo");
@@ -427,7 +422,7 @@ public class CSDGeneratorDialog extends Dialog {
 			}
 		});
 		createVoButton.setSelection(isCreateVo);
-		if(!isCreateVo) createVoButton.setEnabled(false);
+		createVoButton.setEnabled(false);
 
 		createJspButton = new Button(craeteButtonComposite, SWT.CHECK);
 		createJspButton.setText("Jsp");
@@ -475,10 +470,7 @@ public class CSDGeneratorDialog extends Dialog {
 		parameterCombo = new Combo(container, SWT.READ_ONLY);
 		parameterCombo.setLayoutData(layoutData);
 		parameterCombo.setItems(objectList.toArray(new String[objectList.size()]));
-		if(isCreateVo) {
-			parameterCombo.select(0);
-			parameterCombo.setEnabled(false);
-		}
+		parameterCombo.select(0);
 
 		Label returnLabel = new Label(container, SWT.NONE);
 		returnLabel.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
@@ -487,10 +479,7 @@ public class CSDGeneratorDialog extends Dialog {
 		returnCombo = new Combo(container, SWT.READ_ONLY);
 		returnCombo.setLayoutData(layoutData);
 		returnCombo.setItems(objectList.toArray(new String[objectList.size()]));
-		if(isCreateVo) {
-			returnCombo.select(0);
-			returnCombo.setEnabled(false);
-		}
+		returnCombo.select(0);
 
 		Label prefixLabel = new Label(container, SWT.NONE);
 		prefixLabel.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
@@ -571,9 +560,17 @@ public class CSDGeneratorDialog extends Dialog {
 				databaseTables = databaseTableList.toArray(new String[databaseTableList.size()]);
 
 				if(databaseTables.length > 0) {
+					createMapperButton.setEnabled(true);
+					createVoButton.setEnabled(true);
 					regExButton.setEnabled(true);
+					parameterCombo.setEnabled(!createVoButton.getSelection());
+					returnCombo.setEnabled(!createVoButton.getSelection());
 				} else {
+					createMapperButton.setEnabled(false);
+					createVoButton.setEnabled(false);
 					regExButton.setEnabled(false);
+					parameterCombo.setEnabled(true);
+					returnCombo.setEnabled(true);
 					if(regExButton.getSelection()) prefixField.setText("[A-Za-z0-9]+_([A-Za-z0-9_]+)");
 				}
 
@@ -913,7 +910,7 @@ public class CSDGeneratorDialog extends Dialog {
 		javaBuildTreeItem.setExpanded(true);
 
 		/* E : Create Java File */
-		if(isCreateVo && !"".equals(voPath)) {
+		if(isCreateVo &&  createVoButton.isEnabled() && !"".equals(voPath)) {
 			for(String name : names) {
 
 				if(pattern != null) {
@@ -1215,6 +1212,22 @@ public class CSDGeneratorDialog extends Dialog {
 		this.databaseTables = databaseTables;
 	}
 
+	public String getParameterType() {
+		return parameterType;
+	}
+
+	public String getReturnType() {
+		return returnType;
+	}
+
+	public void setParameterType(String parameterType) {
+		this.parameterType = parameterType;
+	}
+
+	public void setReturnType(String returnType) {
+		this.returnType = returnType;
+	}
+
 	private void getDatabaseTrees() {
 		databaseTablesTable.removeAll();
 		connectionProfile = null;
@@ -1253,6 +1266,9 @@ public class CSDGeneratorDialog extends Dialog {
 		isCreateDao = isCreateDao && createDaoButton.isEnabled();
 		isCreateMapper = isCreateMapper && createMapperButton.isEnabled();
 		isCreateJsp = isCreateJsp && createJspButton.isEnabled();
+
+		parameterType = parameterCombo.getText();
+		returnType = returnCombo.getText();
 		super.okPressed();
 	}
 

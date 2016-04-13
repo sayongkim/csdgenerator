@@ -14,43 +14,41 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
-import [serviceFullPath];
-
 @Controller
 public class [capitalizePrefix]Controller {
 
 	private static final Logger logger = LogManager.getLogger([capitalizePrefix]Controller.class);
 
 	@Autowired
-	private [capitalizePrefix]Service [lowerPrefix]Service;
+	private [capitalizePrefix]Service [prefix]Service;
 
 	/**
 	 * Desc : 목록 조회
-	 * @Method : [lowerPrefix]List
+	 * @Method : [prefix]List
 	 * @Company : [company]
 	 * @Author : [author]
 	 * @Date : [date]
 	 * @return
 	 */
-	@RequestMapping(value="/[lowerPrefix]/list", method=RequestMethod.GET)
-	public ModelAndView [lowerPrefix]List() {
+	@RequestMapping(value="/[prefix]/list", method=RequestMethod.GET)
+	public ModelAndView [prefix]List() {
 
-		ModelAndView modelAndView = new ModelAndView("[lowerPrefix]/[lowerPrefix]");
+		ModelAndView modelAndView = new ModelAndView("[prefix]/[prefix]");
 
 		return modelAndView;
 	}
 
 		/**
 	 * Desc : 목록 (Ajax)
-	 * @Method : [lowerPrefix]ListData
+	 * @Method : [prefix]ListData
 	 * @Company : [company]
 	 * @Author : [author]
 	 * @Date : [date]
 	 * @return
 	 */
-	@RequestMapping(value="/[lowerPrefix]/list/data", method=RequestMethod.GET)
+	@RequestMapping(value="/[prefix]/list/data", method=RequestMethod.GET)
 	@ResponseBody
-	public HashMap<String, Object> [lowerPrefix]ListData(@RequestParam(value="current", defaultValue="1") int current
+	public HashMap<String, Object> [prefix]ListData(@RequestParam(value="current", defaultValue="1") int current
 			,@RequestParam(value="rowCount", defaultValue="10") int rowCount
 			,@RequestParam HashMap<String, Object> searchMap) {
 
@@ -59,7 +57,7 @@ public class [capitalizePrefix]Controller {
 		resultMap.put("current", current);
 		resultMap.put("rowCount", rowCount);
 
-		int totalCnt = [lowerPrefix]Service.select[capitalizePrefix]TotalCnt(searchMap);
+		int totalCnt = [prefix]Service.select[capitalizePrefix]TotalCnt(searchMap);
 		resultMap.put("total", totalCnt);
 
 		int startNum = (current - 1) * rowCount;
@@ -68,102 +66,102 @@ public class [capitalizePrefix]Controller {
 		searchMap.put("startNum", Integer.toString(startNum));
 		searchMap.put("endNum", Integer.toString(endNum));
 
-		List<HashMap<String, String>> [lowerPrefix]List = [lowerPrefix]Service.select[capitalizePrefix]List(searchMap);
+		List<HashMap<String, String>> [prefix]List = [prefix]Service.select[capitalizePrefix]List(searchMap);
 
 		int row_num = totalCnt - ((current - 1) * rowCount);
-		int [lowerPrefix]Size = [lowerPrefix]List.size();
+		int [prefix]Size = [prefix]List.size();
 
-		for(int i = 0; i < [lowerPrefix]Size; i++) {
-			HashMap<String, String> [lowerPrefix] = [lowerPrefix]List.get(i);
-			[lowerPrefix].put("row_num", Integer.toString(row_num));
-			[lowerPrefix]List.set(i, [lowerPrefix]);
+		for(int i = 0; i < [prefix]Size; i++) {
+			HashMap<String, String> [prefix] = [prefix]List.get(i);
+			[prefix].put("row_num", Integer.toString(row_num));
+			[prefix]List.set(i, [prefix]);
 			row_num--;
 		}
 
-		resultMap.put("rows", [lowerPrefix]List);
+		resultMap.put("rows", [prefix]List);
 
 		return resultMap;
 	}
 
 	/**
 	 * Desc : 등록
-	 * @Method : [lowerPrefix]Post
+	 * @Method : [prefix]Post
 	 * @Company : [company]
 	 * @Author : [author]
 	 * @Date : [date]
 	 * @return
 	 */
-	@RequestMapping(value="/[lowerPrefix]/post", method=RequestMethod.GET)
-	public ModelAndView [lowerPrefix]Post() {
+	@RequestMapping(value="/[prefix]/post", method=RequestMethod.GET)
+	public ModelAndView [prefix]Post() {
 
-		ModelAndView modelAndView = new ModelAndView("[lowerPrefix]/[lowerPrefix]Post");
+		ModelAndView modelAndView = new ModelAndView("[prefix]/[prefix]Post");
 
 		return modelAndView;
 	}
 
 	/**
 	 * Desc : 등록 처리
-	 * @Method : [lowerPrefix]Post
+	 * @Method : [prefix]Post
 	 * @Company : [company]
 	 * @Author : [author]
 	 * @Date : [date]
 	 * @return
 	 */
-	@RequestMapping(value="/[lowerPrefix]/post", method=RequestMethod.POST)
-	public ModelAndView [lowerPrefix]Post(MultipartHttpServletRequest request
+	@RequestMapping(value="/[prefix]/post", method=RequestMethod.POST)
+	public ModelAndView [prefix]Post(MultipartHttpServletRequest request
 			,@RequestParam HashMap<String, Object> requestMap) {
 
 		ModelAndView modelAndView = new ModelAndView("common/replace");
 
-		[lowerPrefix]Service.insert[capitalizePrefix](requestMap);
+		[prefix]Service.insert[capitalizePrefix](requestMap);
 
 		modelAndView.addObject("message", "처리되었습니다.");
-		modelAndView.addObject("target", request.getContextPath() + "/[lowerPrefix]/post/?no_seq=" + requestMap.get("no_seq"));
+		modelAndView.addObject("target", request.getContextPath() + "/[prefix]/post/?no_seq=" + requestMap.get("no_seq"));
 
 		return modelAndView;
 	}
 
 	/**
 	 * Desc : 수정
-	 * @Method : [lowerPrefix]Post
+	 * @Method : [prefix]Post
 	 * @Company : [company]
 	 * @Author : [author]
 	 * @Date : [date]
 	 * @return
 	 */
-	@RequestMapping(value="/[lowerPrefix]/post/", method=RequestMethod.GET)
-	public ModelAndView [lowerPrefix]Post(@RequestParam(value="no_seq", required=true) String no_seq) {
+	@RequestMapping(value="/[prefix]/post/", method=RequestMethod.GET)
+	public ModelAndView [prefix]Post(@RequestParam(value="no_seq", required=true) String no_seq) {
 
-		ModelAndView modelAndView = new ModelAndView("[lowerPrefix]/[lowerPrefix]Post");
+		ModelAndView modelAndView = new ModelAndView("[prefix]/[prefix]Post");
 
 		HashMap<String, Object> searchMap = new HashMap<String, Object>();
 		searchMap.put("no_seq", no_seq);
-		HashMap<String, String> [lowerPrefix] = [lowerPrefix]Service.select[capitalizePrefix](searchMap);
-		modelAndView.addObject("[lowerPrefix]", [lowerPrefix]);
+		HashMap<String, String> [prefix] = [prefix]Service.select[capitalizePrefix](searchMap);
+		modelAndView.addObject("[prefix]", [prefix]);
 
 		return modelAndView;
 	}
 
 	/**
 	 * Desc : 수정 처리
-	 * @Method : [lowerPrefix]Post
+	 * @Method : [prefix]Post
 	 * @Company : [company]
 	 * @Author : [author]
 	 * @Date : [date]
 	 * @return
 	 */
-	@RequestMapping(value="/[lowerPrefix]/post/", method=RequestMethod.POST)
-	public ModelAndView [lowerPrefix]Post(MultipartHttpServletRequest request,
+	@RequestMapping(value="/[prefix]/post/", method=RequestMethod.POST)
+	public ModelAndView [prefix]Post(MultipartHttpServletRequest request,
 			@RequestParam(value="no_seq", required=true) String no_seq
 			,@RequestParam HashMap<String, Object> requestMap) {
 
 		ModelAndView modelAndView = new ModelAndView("common/replace");
 
 		requestMap.put("no_seq", no_seq);
-		[lowerPrefix]Service.update[capitalizePrefix](requestMap);
+		[prefix]Service.update[capitalizePrefix](requestMap);
 
 		modelAndView.addObject("message", "처리되었습니다.");
-		modelAndView.addObject("target", request.getContextPath() + "/[lowerPrefix]/post?no_seq=" + requestMap.get("no_seq"));
+		modelAndView.addObject("target", request.getContextPath() + "/[prefix]/post?no_seq=" + requestMap.get("no_seq"));
 
 		return modelAndView;
 	}

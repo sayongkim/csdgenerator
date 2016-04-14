@@ -11,7 +11,7 @@ public class StringUtils {
 
 	public static String toCamelCase(String source) {
 	    StringBuffer result = new StringBuffer();
-	    String[] sourceArray = source.split("_");
+	    String[] sourceArray = source.toLowerCase().split("_");
 	    if(sourceArray.length > 1) {
 		    result.append(sourceArray[0].toLowerCase());
 		    if(sourceArray.length > 1) {
@@ -24,7 +24,7 @@ public class StringUtils {
 			    }
 		    }
 	    } else {
-	    	result.append(source);
+	    	result.append(source.toLowerCase());
 		}
 	    return result.toString();
 	}

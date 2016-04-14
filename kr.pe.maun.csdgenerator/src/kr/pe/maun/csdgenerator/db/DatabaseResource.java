@@ -24,6 +24,10 @@ public class DatabaseResource {
 	private final String MYSQL_COLUMN_QUERY = "SELECT COLUMN_NAME, COLUMN_TYPE, REPLACE(COLUMN_COMMENT, '\n', '') FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?";
 	private final String MYSQL_INDEX_QUERY = "SHOW INDEX FROM ? WHERE KEY_NAME = 'PRIMARY'";
 
+	private final String POSTGRESQL_TABLE_QUERY = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'public' AND TABLE_CATALOG = ? ORDER BY TABLE_NAME";
+	private final String POSTGRESQL_COLUMN_QUERY = "SELECT ISC.COLUMN_NAME ,ISC.DATA_TYPE ,(SELECT PG_CATALOG.COL_DESCRIPTION(PA.ATTRELID, PA.ATTNUM) FROM PG_CATALOG.PG_CLASS PC INNER JOIN PG_CATALOG.PG_ATTRIBUTE PA ON PA.ATTRELID = PC.OID WHERE PC.RELNAME = ISC.TABLE_NAME AND PA.ATTNAME = ISC.COLUMN_NAME ) AS COMMENT FROM INFORMATION_SCHEMA.COLUMNS ISC WHERE ISC.TABLE_CATALOG = ? AND ISC.TABLE_NAME = ?";
+	private final String POSTGRESQL_INDEX_QUERY = "SELECT CC.TABLE_CATALOG, CC.TABLE_SCHEMA, CC.TABLE_NAME, CC.CONSTRAINT_NAME, CC.COLUMN_NAME FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS TC ,INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE CC WHERE TC.TABLE_CATALOG = ? AND TC.TABLE_NAME = ? AND TC.CONSTRAINT_TYPE = 'PRIMARY KEY' AND TC.TABLE_CATALOG = CC.TABLE_CATALOG AND TC.TABLE_SCHEMA = CC.TABLE_SCHEMA AND TC.TABLE_NAME = CC.TABLE_NAME AND TC.CONSTRAINT_NAME = CC.CONSTRAINT_NAME";
+
 	private IConnection connection;
 	IConnectionProfile profile;
 
@@ -50,15 +54,20 @@ public class DatabaseResource {
 
 			PreparedStatement stmt = null;
 
+			String url = baseProperties.getProperty("org.eclipse.datatools.connectivity.db.URL");
+			String[] urlArray = url.split("/");
+
 			switch (vendor) {
 			case "mysql":
-				String url = baseProperties.getProperty("org.eclipse.datatools.connectivity.db.URL");
-				String[] urlArray = url.split("/");
 				stmt = rawConnection.prepareStatement(MYSQL_TABLE_QUERY);
 				stmt.setString(1, urlArray[urlArray.length - 1]);
 				break;
 			case "oracle":
 				stmt = rawConnection.prepareStatement(ORACLE_TABLE_QUERY);
+				break;
+			case "postgres":
+				stmt = rawConnection.prepareStatement(POSTGRESQL_TABLE_QUERY);
+				stmt.setString(1, urlArray[urlArray.length - 1]);
 				break;
 			}
 			if(stmt != null) {
@@ -90,10 +99,11 @@ public class DatabaseResource {
 
 			PreparedStatement stmt = null;
 
+			String url = baseProperties.getProperty("org.eclipse.datatools.connectivity.db.URL");
+			String[] urlArray = url.split("/");
+
 			switch (vendor) {
 			case "mysql":
-				String url = baseProperties.getProperty("org.eclipse.datatools.connectivity.db.URL");
-				String[] urlArray = url.split("/");
 				stmt = rawConnection.prepareStatement(MYSQL_COLUMN_QUERY);
 				stmt.setString(1, urlArray[urlArray.length - 1]);
 				stmt.setString(2, tableName);
@@ -101,6 +111,11 @@ public class DatabaseResource {
 			case "oracle":
 				stmt = rawConnection.prepareStatement(ORACLE_COLUMN_QUERY);
 				stmt.setString(1, tableName);
+				break;
+			case "postgres":
+				stmt = rawConnection.prepareStatement(POSTGRESQL_COLUMN_QUERY);
+				stmt.setString(1, urlArray[urlArray.length - 1]);
+				stmt.setString(2, tableName);
 				break;
 			}
 
@@ -133,6 +148,9 @@ public class DatabaseResource {
 
 			PreparedStatement stmt = null;
 
+			String url = baseProperties.getProperty("org.eclipse.datatools.connectivity.db.URL");
+			String[] urlArray = url.split("/");
+
 			switch (vendor) {
 			case "mysql":
 				stmt = rawConnection.prepareStatement(MYSQL_INDEX_QUERY.replace("?", tableName));
@@ -140,6 +158,11 @@ public class DatabaseResource {
 			case "oracle":
 				stmt = rawConnection.prepareStatement(ORACLE_INDEX_QUERY);
 				stmt.setString(1, tableName);
+				break;
+			case "postgres":
+				stmt = rawConnection.prepareStatement(POSTGRESQL_INDEX_QUERY);
+				stmt.setString(1, urlArray[urlArray.length - 1]);
+				stmt.setString(2, tableName);
 				break;
 			}
 

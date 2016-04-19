@@ -1,6 +1,5 @@
 package kr.pe.maun.csdgenerator.actions;
 
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
@@ -24,6 +23,7 @@ import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -31,15 +31,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-
-import kr.pe.maun.csdgenerator.CSDGeneratorPlugin;
-import kr.pe.maun.csdgenerator.db.DatabaseResource;
-import kr.pe.maun.csdgenerator.dialogs.CSDGeneratorDialog;
-import kr.pe.maun.csdgenerator.model.CSDGeneratorPropertiesItem;
-import kr.pe.maun.csdgenerator.model.ColumnItem;
-import kr.pe.maun.csdgenerator.model.SerialVersionUIDItem;
-import kr.pe.maun.csdgenerator.properties.CSDGeneratorPropertiesHelper;
-import kr.pe.maun.csdgenerator.utils.StringUtils;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -95,6 +86,16 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import kr.pe.maun.csdgenerator.CSDGeneratorPlugin;
+import kr.pe.maun.csdgenerator.db.DatabaseResource;
+import kr.pe.maun.csdgenerator.dialogs.CSDGeneratorDialog;
+import kr.pe.maun.csdgenerator.model.CSDGeneratorPropertiesItem;
+import kr.pe.maun.csdgenerator.model.ColumnItem;
+import kr.pe.maun.csdgenerator.model.SerialVersionUIDItem;
+import kr.pe.maun.csdgenerator.properties.CSDGeneratorPropertiesHelper;
+import kr.pe.maun.csdgenerator.utils.StringUtils;
 
 public class CSDGeneratorAction implements IObjectActionDelegate {
 
@@ -873,7 +874,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 									List<ColumnItem> columns = databaseResource.getColumns(databaseTableName);
 									List<String> indexColumns = databaseResource.getIndexColumns(databaseTableName);
-									/*
+
 									try {
 
 										DocumentBuilder builder = factory.newDocumentBuilder();
@@ -915,10 +916,6 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 									} catch (ParserConfigurationException | SAXException | IOException | TransformerException | TransformerFactoryConfigurationError e) {
 										e.printStackTrace();
 									}
-*/
-									mapperContent = mapperContent.replaceAll("\\[columns\\]", updateColumn(columns));
-									mapperContent = mapperContent.replaceAll("\\[values\\]", insertValue(columns));
-									mapperContent = mapperContent.replaceAll("\\[indexColumns\\]", indexColumn(indexColumns));
 
 								}
 

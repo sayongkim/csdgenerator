@@ -761,36 +761,41 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 
 					if(isCreateMapper && databaseTableName != null && connectionProfile != null) {
 						try {
+
+							List<ColumnItem> columns = databaseResource.getColumns(databaseTableName);
+							List<String> indexColumns = databaseResource.getIndexColumns(databaseTableName);
+
 							if(isCreateSelectCount) {
 								mapperTemplate += StringUtils.appedFirstAndEndNewLine(StringUtils.replaceReservedWord(propertiesItem, prefix, mapperSelectCountTemplate));
+								mapperTemplate = mapperTemplate.replaceAll("\\[columns\\]", selecColumn(columns));
 							}
 
 							if(isCreateSelectList) {
 								mapperTemplate += StringUtils.appedFirstAndEndNewLine(StringUtils.replaceReservedWord(propertiesItem, prefix, mapperSelectListTemplate));
+								mapperTemplate = mapperTemplate.replaceAll("\\[columns\\]", selecColumn(columns));
 							}
 
 							if(isCreateSelectOne) {
 								mapperTemplate += StringUtils.appedFirstAndEndNewLine(StringUtils.replaceReservedWord(propertiesItem, prefix, mapperSelectOneTemplate));
+								mapperTemplate = mapperTemplate.replaceAll("\\[columns\\]", selecColumn(columns));
 							}
 
 							if(isCreateInsert) {
 								mapperTemplate += StringUtils.appedFirstAndEndNewLine(StringUtils.replaceReservedWord(propertiesItem, prefix, mapperInsertTemplate));
+								mapperTemplate = mapperTemplate.replaceAll("\\[columns\\]", insertColumn(columns));
+								mapperTemplate = mapperTemplate.replaceAll("\\[values\\]", insertValue(columns));
 							}
 
 							if(isCreateUpdate) {
 								mapperTemplate += StringUtils.replaceReservedWord(propertiesItem, prefix, StringUtils.appedFirstAndEndNewLine(mapperUpdateTemplate));
+								mapperTemplate = mapperTemplate.replaceAll("\\[columns\\]", updateColumn(columns));
 							}
 
 							if(isCreateDelete) {
 								mapperTemplate += StringUtils.replaceReservedWord(propertiesItem, prefix, StringUtils.appedFirstAndEndNewLine(mapperDeleteTemplate));
 							}
 
-							List<ColumnItem> columns = databaseResource.getColumns(databaseTableName);
-							List<String> indexColumns = databaseResource.getIndexColumns(databaseTableName);
-
 							mapperTemplate = mapperTemplate.replaceAll("\\[table\\]", databaseTableName);
-							mapperTemplate = mapperTemplate.replaceAll("\\[columns\\]", updateColumn(columns));
-							mapperTemplate = mapperTemplate.replaceAll("\\[values\\]", insertValue(columns));
 							mapperTemplate = mapperTemplate.replaceAll("\\[indexColumns\\]", indexColumn(indexColumns));
 
 							if(parameterType.toLowerCase().indexOf("hashmap") == -1) {

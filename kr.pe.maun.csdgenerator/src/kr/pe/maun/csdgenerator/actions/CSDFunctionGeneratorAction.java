@@ -569,7 +569,7 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 							serviceTemplate = StringUtils.replaceParameter(parameterType, serviceTemplate);
 							serviceTemplate = StringUtils.replaceReturn(returnType, serviceTemplate);
 							if(prefixDao != null) {
-								serviceTemplate = serviceTemplate.replaceAll(prefix.toLowerCase() + "Dao", prefixDao.substring(0, 1).toLowerCase() + prefixDao.substring(1) + "Dao");
+								serviceTemplate = serviceTemplate.replaceAll(prefix + "Dao", prefixDao.substring(0, 1).toLowerCase() + prefixDao.substring(1) + "Dao");
 							}
 
 							if(importParameterVo != null) serviceCompilationUnit.createImport(importParameterVo, null, new NullProgressMonitor());

@@ -192,7 +192,7 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 				widgetSelected(e);
 			}
 		});
-		if(!isCreateVo && isCreateMapper) connectionProfileCombo.setEnabled(false);
+		if(!isCreateVo && !isCreateMapper) connectionProfileCombo.setEnabled(false);
 
 		Label templateLabel = new Label(container, SWT.NONE);
 		templateLabel.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));

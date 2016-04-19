@@ -684,7 +684,7 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 
 		isCreateSelectCount = isCreateSelectCount && createSelectCountButton.isEnabled();
 		isCreateSelectList = isCreateSelectList && createSelectListButton.isEnabled();
-		isCreateSelectOne = isCreateSelectList && createSelectOneButton.isEnabled();
+		isCreateSelectOne = isCreateSelectOne && createSelectOneButton.isEnabled();
 		isCreateInsert = isCreateInsert && createInsertButton.isEnabled();
 		isCreateUpdate = isCreateUpdate && createUpdateButton.isEnabled();
 		isCreateDelete = isCreateDelete && createDeleteButton.isEnabled();

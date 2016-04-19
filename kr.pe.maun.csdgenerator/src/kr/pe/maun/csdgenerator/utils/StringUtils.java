@@ -14,17 +14,15 @@ public class StringUtils {
 	    String[] sourceArray = source.toLowerCase().split("_");
 	    if(sourceArray.length > 1) {
 		    result.append(sourceArray[0].toLowerCase());
-		    if(sourceArray.length > 1) {
-			    for (int i = 1; i < sourceArray.length; i++) {
-			    	String s = sourceArray[i];
-			        result.append(Character.toUpperCase(s.charAt(0)));
-			        if (s.length() > 1) {
-			            result.append(s.substring(1, s.length()).toLowerCase());
-			        }
-			    }
+		    for (int i = 1; i < sourceArray.length; i++) {
+		    	String s = sourceArray[i];
+		        result.append(Character.toUpperCase(s.charAt(0)));
+		        if (s.length() > 1) {
+		            result.append(s.substring(1, s.length()).toLowerCase());
+		        }
 		    }
 	    } else {
-	    	result.append(source.toLowerCase());
+	    	result.append(source);
 		}
 	    return result.toString();
 	}

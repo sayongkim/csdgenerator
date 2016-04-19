@@ -323,7 +323,7 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				Button button = (Button) e.widget;
-				setCreateService(button.getSelection());
+				setCreateSelectCount(button.getSelection());
 
 			}
 

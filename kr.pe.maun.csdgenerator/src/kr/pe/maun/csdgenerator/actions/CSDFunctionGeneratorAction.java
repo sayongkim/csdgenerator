@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -270,6 +271,7 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 					String namePrefix = serviceCompilationUnit.getElementName().replaceAll("Service.java", "");
 
 					String javaVoBuildPath = "";
+					String voPackage = "";
 
 					try {
 						IClasspathEntry[] classpaths = javaProject.getRawClasspath();
@@ -283,7 +285,7 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 						e.printStackTrace();
 					}
 
-					String voPackage = voPath.replace("/", ".").substring(voPath.lastIndexOf(javaVoBuildPath) + javaVoBuildPath.length() + 1);
+					if(!"".equals(javaVoBuildPath)) voPackage = voPath.replace("/", ".").substring(voPath.lastIndexOf(javaVoBuildPath) + javaVoBuildPath.length() + 1);
 
 					String importParameterVo = null;
 					String importReturnVo = null;
@@ -859,7 +861,7 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 				inputStream = url.openConnection().getInputStream();
 				in = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
 			} else {
-				in = new BufferedReader(new FileReader(templateFile));
+				in = new BufferedReader(new InputStreamReader(new FileInputStream(templateFile),"UTF8"));
 			}
 
 		    String inputLine;

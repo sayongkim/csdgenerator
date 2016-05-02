@@ -28,6 +28,19 @@
                menubarPath="kr.pe.maun.csdgenerator.function.popupMenu">
          </action>
       </objectContribution>
+      <objectContribution
+            adaptable="true"
+            id="kr.pe.maun.csdgenerator.function.popupMenu"
+            nameFilter="*Controller.java"
+            objectClass="org.eclipse.core.resources.IFile">
+         <action
+               class="kr.pe.maun.csdgenerator.actions.CSDTemplateGeneratorAction"
+               enablesFor="+"
+               id="kr.pe.maun.csdgenerator.CSDTemplateGeneratorAction"
+               label="CSD Template Generator"
+               menubarPath="kr.pe.maun.csdgenerator.function.popupMenu">
+         </action>
+      </objectContribution>
    </extension>
   <!--
    <extension

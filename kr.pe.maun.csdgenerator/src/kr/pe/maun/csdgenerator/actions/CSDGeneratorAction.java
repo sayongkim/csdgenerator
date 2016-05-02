@@ -267,7 +267,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 						folder = (IFolder) folder.getParent().getAdapter(IFolder.class);
 					}
 
-					String voPackage = voPath.replace("/", ".").substring(voPath.lastIndexOf(javaVoBuildPath) + javaVoBuildPath.length() + 1);
+					String voPackage = voPath == null || voPath.length() < 1 ? "" : voPath.replace("/", ".").substring(voPath.lastIndexOf(javaVoBuildPath) + javaVoBuildPath.length() + 1);
 
 					String importParameterVo = null;
 					String importReturnVo = null;
@@ -559,9 +559,13 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 								if(isCreateDaoFolder) {
 
-									if(isAddPrefixDaoFolder) daoFolderName += capitalizePrefix;
+									if(isAddPrefixDaoFolder)  {
+										daoFolderName += prefix;
+										daoFolderName += "Dao";
+									} else {
+										daoFolderName += "dao";
+									}
 
-									daoFolderName += "Dao";
 									daoPackage = daoPackage + "." + daoFolderName;
 									daoFolder = newFolder.getFolder(new Path(daoFolderName));
 									if(!daoFolder.exists()) daoFolder.create(true ,true, new NullProgressMonitor());
@@ -613,9 +617,13 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 								if(isCreateServiceFolder) {
 
-									if(isAddPrefixServiceFolder) serviceFolderName += capitalizePrefix;
+									if(isAddPrefixServiceFolder) {
+										serviceFolderName += prefix;
+										serviceFolderName += "Service";
+									} else {
+										serviceFolderName += "service";
+									}
 
-									serviceFolderName += "Service";
 									servicePackage = servicePackage + "." + serviceFolderName;
 									serviceFolder = newFolder.getFolder(new Path(serviceFolderName));
 
@@ -639,7 +647,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 								if(isCreateServiceImplFolder) {
 
-									serviceImplFolderName += "Impl";
+									serviceImplFolderName += "impl";
 									serviceImplPackage = serviceImplPackage + "." + serviceImplFolderName;
 									serviceImplFolder = serviceFolder.getFolder(new Path(serviceImplFolderName));
 

@@ -5,7 +5,6 @@ import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,15 +29,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-
-import kr.pe.maun.csdgenerator.CSDGeneratorPlugin;
-import kr.pe.maun.csdgenerator.db.DatabaseResource;
-import kr.pe.maun.csdgenerator.dialogs.CSDFunctionGeneratorDialog;
-import kr.pe.maun.csdgenerator.model.CSDGeneratorPropertiesItem;
-import kr.pe.maun.csdgenerator.model.ColumnItem;
-import kr.pe.maun.csdgenerator.model.SerialVersionUIDItem;
-import kr.pe.maun.csdgenerator.properties.CSDGeneratorPropertiesHelper;
-import kr.pe.maun.csdgenerator.utils.StringUtils;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -104,6 +94,14 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import kr.pe.maun.csdgenerator.CSDGeneratorPlugin;
+import kr.pe.maun.csdgenerator.db.DatabaseResource;
+import kr.pe.maun.csdgenerator.dialogs.CSDFunctionGeneratorDialog;
+import kr.pe.maun.csdgenerator.model.CSDGeneratorPropertiesItem;
+import kr.pe.maun.csdgenerator.model.ColumnItem;
+import kr.pe.maun.csdgenerator.properties.CSDGeneratorPropertiesHelper;
+import kr.pe.maun.csdgenerator.utils.StringUtils;
+
 public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 
 	CSDFunctionGeneratorDialog dialog;
@@ -141,6 +139,7 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 
 			if(isServiceInterface) {
 				SearchRequestor requestor = new SearchRequestor() {
+					@SuppressWarnings("restriction")
 					@Override
 					public void acceptSearchMatch(SearchMatch searchMatch) throws CoreException {
 						if(searchMatch.getElement() instanceof ResolvedSourceType) {
@@ -727,6 +726,7 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 							daoTemplate = daoTemplate.replaceAll("\\[namespace\\]", prefixDao.substring(0, 1).toLowerCase() + prefixDao.substring(1) + "Mapper");
 
 							SearchRequestor requestor = new SearchRequestor() {
+								@SuppressWarnings("restriction")
 								@Override
 								public void acceptSearchMatch(SearchMatch searchMatch) throws CoreException {
 									if(searchMatch.getElement() instanceof ResolvedSourceType) {

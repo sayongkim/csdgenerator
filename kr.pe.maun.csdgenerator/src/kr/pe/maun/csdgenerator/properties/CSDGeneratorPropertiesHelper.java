@@ -193,7 +193,7 @@ public class CSDGeneratorPropertiesHelper {
 	}
 
 	public String getServiceFunctionSelectCountTemplate() {
-		return preferences.node(SERVICE_SELECT_COUNT_TEMPLATE).get(FUNCTION_TEMPLATE_KEY, "\t/**\n\t * 총 건수 조회\n\t * @Method : select[capitalizePrefix]TotalCnt\n\t * @Company : [company]\n\t * @Author : [author]\n\t * @Date : [date]\n\t * @param [searchParamName]\n\t * @return\n\t */\n\t@Override\n\t@Transactional(readOnly=true, propagation=Propagation.SUPPORTS)\n\tpublic long select[capitalizePrefix]TotalCnt([searchParamType] [searchParamName]) {\n\t\treturn [prefix]Dao.select[capitalizePrefix]TotalCnt([searchParamName]);\n\t}");
+		return preferences.node(SERVICE_SELECT_COUNT_TEMPLATE).get(FUNCTION_TEMPLATE_KEY, CSDGeneratorMessages.FUNCTION_TEMPLATE_SERVICE_SELECT_CNT);
 	}
 
 	public void setServiceFunctionSelectCountTemplate(String template) {
@@ -206,7 +206,7 @@ public class CSDGeneratorPropertiesHelper {
 	}
 
 	public String getServiceFunctionSelectListTemplate() {
-		return preferences.node(SERVICE_SELECT_LIST_TEMPLATE).get(FUNCTION_TEMPLATE_KEY, "\t/**\n\t * 목록 조회\n\t * @Method : select[capitalizePrefix]List\n\t * @Company : [company]\n\t * @Author : [author]\n\t * @Date : [date]\n\t * @param [searchParamName]\n\t * @return\n\t */\n\t@Override\n\t@Transactional(readOnly=true, propagation=Propagation.SUPPORTS)\n\tpublic List<[returnType]> select[capitalizePrefix]List([searchParamType] [searchParamName]) {\n\t\treturn [prefix]Dao.select[capitalizePrefix]List([searchParamName]);\n\t}");
+		return preferences.node(SERVICE_SELECT_LIST_TEMPLATE).get(FUNCTION_TEMPLATE_KEY, CSDGeneratorMessages.FUNCTION_TEMPLATE_SERVICE_SELECT_LIST);
 	}
 
 	public void setServiceFunctionSelectListTemplate(String template) {
@@ -219,7 +219,7 @@ public class CSDGeneratorPropertiesHelper {
 	}
 
 	public String getServiceFunctionSelectOneTemplate() {
-		return preferences.node(SERVICE_SELECT_ONE_TEMPLATE).get(FUNCTION_TEMPLATE_KEY, "\t/**\n\t * 조회\n\t * @Method : select[capitalizePrefix]\n\t * @Company : [company]\n\t * @Author : [author]\n\t * @Date : [date]\n\t * @param [searchParamName]\n\t * @return\n\t */\n\t@Override\n\t@Transactional(readOnly=true, propagation=Propagation.SUPPORTS)\n\tpublic [returnType] select[capitalizePrefix]([paramType] [searchParamName]) {\n\t\treturn [prefix]Dao.select[capitalizePrefix]([searchParamName]);\n\t}");
+		return preferences.node(SERVICE_SELECT_ONE_TEMPLATE).get(FUNCTION_TEMPLATE_KEY, CSDGeneratorMessages.FUNCTION_TEMPLATE_SERVICE_SELECT_ONE);
 	}
 
 	public void setServiceFunctionSelectOneTemplate(String template) {
@@ -232,7 +232,7 @@ public class CSDGeneratorPropertiesHelper {
 	}
 
 	public String getServiceFunctionInsertTemplate() {
-		return preferences.node(SERVICE_INSERT_TEMPLATE).get(FUNCTION_TEMPLATE_KEY, "\t/**\n\t * 등록\n\t * @Method : insert[capitalizePrefix]\n\t * @Company : [company]\n\t * @Author : [author]\n\t * @Date : [date]\n\t * @param [paramName]\n\t * @return\n\t */\n\t@Override\n\t@Transactional(propagation = Propagation.REQUIRED, isolation=Isolation.DEFAULT)\n\tpublic int insert[capitalizePrefix]([paramType] [paramName]) {\n\t\treturn [prefix]Dao.insert[capitalizePrefix]([paramName]);\n\t}");
+		return preferences.node(SERVICE_INSERT_TEMPLATE).get(FUNCTION_TEMPLATE_KEY, CSDGeneratorMessages.FUNCTION_TEMPLATE_SERVICE_INSERT);
 	}
 
 	public void setServiceFunctionInsertTemplate(String template) {
@@ -245,7 +245,7 @@ public class CSDGeneratorPropertiesHelper {
 	}
 
 	public String getServiceFunctionUpdateTemplate() {
-		return preferences.node(SERVICE_UPDATE_TEMPLATE).get(FUNCTION_TEMPLATE_KEY, "\t/**\n\t * 수정\n\t * @Method : update[capitalizePrefix]\n\t * @Company : [company]\n\t * @Author : [author]\n\t * @Date : [date]\n\t * @param [paramName]\n\t * @return\n\t */\n\t@Override\n\t@Transactional(propagation = Propagation.REQUIRED, isolation=Isolation.DEFAULT)\n\tpublic int update[capitalizePrefix]([paramType] [paramName]) {\n\t\treturn [prefix]Dao.update[capitalizePrefix]([paramName]);\n\t}");
+		return preferences.node(SERVICE_UPDATE_TEMPLATE).get(FUNCTION_TEMPLATE_KEY, CSDGeneratorMessages.FUNCTION_TEMPLATE_SERVICE_UPDATE);
 	}
 
 	public void setServiceFunctionUpdateTemplate(String template) {
@@ -258,7 +258,7 @@ public class CSDGeneratorPropertiesHelper {
 	}
 
 	public String getServiceFunctionDeleteTemplate() {
-		return preferences.node(SERVICE_DELETE_TEMPLATE).get(FUNCTION_TEMPLATE_KEY, "\t/**\n\t * 삭제\n\t * @Method : delete[capitalizePrefix]\n\t * @Company : [company]\n\t * @Author : [author]\n\t * @Date : [date]\n\t * @param [paramName]\n\t * @return\n\t */\n\t@Override\n\t@Transactional(propagation = Propagation.REQUIRED, isolation=Isolation.DEFAULT)\n\tpublic int delete[capitalizePrefix]([paramType] [paramName]) {\n\t\treturn [prefix]Dao.update[capitalizePrefix]([paramName]);\n\t}");
+		return preferences.node(SERVICE_DELETE_TEMPLATE).get(FUNCTION_TEMPLATE_KEY, CSDGeneratorMessages.FUNCTION_TEMPLATE_SERVICE_DELETE);
 	}
 
 	public void setServiceFunctionDeleteTemplate(String template) {
@@ -312,7 +312,7 @@ public class CSDGeneratorPropertiesHelper {
 	}
 
 	public String getDaoFunctionSelectCountTemplate() {
-		return preferences.node(DAO_SELECT_COUNT_TEMPLATE).get(FUNCTION_TEMPLATE_KEY, "\t/**\n\t * 총 건수 조회\n\t * @Method : select[capitalizePrefix]TotalCnt\n\t * @Company : [company]\n\t * @Author : [author]\n\t * @Date : [date]\n\t * @param [searchParamName]\n\t * @return\n\t */\n\tpublic long select[capitalizePrefix]TotalCnt([searchParamType] [searchParamName]) {\n\t\treturn sqlSession.selectOne(\"[namespace].select[capitalizePrefix]TotalCnt\", [searchParamName]);\n\t}");
+		return preferences.node(DAO_SELECT_COUNT_TEMPLATE).get(FUNCTION_TEMPLATE_KEY, CSDGeneratorMessages.FUNCTION_TEMPLATE_DAO_SELECT_CNT);
 	}
 
 	public void setDaoFunctionSelectCountTemplate(String template) {
@@ -325,7 +325,7 @@ public class CSDGeneratorPropertiesHelper {
 	}
 
 	public String getDaoFunctionSelectListTemplate() {
-		return preferences.node(DAO_SELECT_LIST_TEMPLATE).get(FUNCTION_TEMPLATE_KEY, "\t/**\n\t * 목록 조회\n\t * @Method : select[capitalizePrefix]List\n\t * @Company : [company]\n\t * @Author : [author]\n\t * @Date : [date]\n\t * @param [searchParamName]\n\t * @return\n\t */\n\tpublic List<[returnType]> select[capitalizePrefix]List([searchParamType] [searchParamName]) {\n\t\treturn sqlSession.selectList(\"[namespace].select[capitalizePrefix]List\", [searchParamName]);\n\t}");
+		return preferences.node(DAO_SELECT_LIST_TEMPLATE).get(FUNCTION_TEMPLATE_KEY, CSDGeneratorMessages.FUNCTION_TEMPLATE_DAO_SELECT_LIST);
 	}
 
 	public void setDaoFunctionSelectListTemplate(String template) {
@@ -338,7 +338,7 @@ public class CSDGeneratorPropertiesHelper {
 	}
 
 	public String getDaoFunctionSelectOneTemplate() {
-		return preferences.node(DAO_SELECT_ONE_TEMPLATE).get(FUNCTION_TEMPLATE_KEY, "\t/**\n\t * 조회\n\t * @Method : select[capitalizePrefix]\n\t * @Company : [company]\n\t * @Author : [author]\n\t * @Date : [date]\n\t * @param [searchParamName]\n\t * @return\n\t */\n\tpublic [returnType] select[capitalizePrefix]([searchParamType] [searchParamName]) {\n\t\treturn sqlSession.selectOne(\"[namespace].select[capitalizePrefix]\", [searchParamName]);\n\t}");
+		return preferences.node(DAO_SELECT_ONE_TEMPLATE).get(FUNCTION_TEMPLATE_KEY, CSDGeneratorMessages.FUNCTION_TEMPLATE_DAO_SELECT_ONE);
 	}
 
 	public void setDaoFunctionSelectOneTemplate(String template) {
@@ -351,7 +351,7 @@ public class CSDGeneratorPropertiesHelper {
 	}
 
 	public String getDaoFunctionInsertTemplate() {
-		return preferences.node(DAO_INSERT_TEMPLATE).get(FUNCTION_TEMPLATE_KEY, "\t/**\n\t * 등록\n\t * @Method : insert[capitalizePrefix]\n\t * @Company : [company]\n\t * @Author : [author]\n\t * @Date : [date]\n\t * @param [paramName]\n\t * @return\n\t */\n\tpublic int insert[capitalizePrefix]([paramType] [paramName]) {\n\t\treturn sqlSession.insert(\"[namespace].insert[capitalizePrefix]\", [paramName]);\n\t}");
+		return preferences.node(DAO_INSERT_TEMPLATE).get(FUNCTION_TEMPLATE_KEY, CSDGeneratorMessages.FUNCTION_TEMPLATE_DAO_INSERT);
 	}
 
 	public void setDaoFunctionInsertTemplate(String template) {
@@ -364,7 +364,7 @@ public class CSDGeneratorPropertiesHelper {
 	}
 
 	public String getDaoFunctionUpdateTemplate() {
-		return preferences.node(DAO_UPDATE_TEMPLATE).get(FUNCTION_TEMPLATE_KEY, "\t/**\n\t * 수정\n\t * @Method : update[capitalizePrefix]\n\t * @Company : [company]\n\t * @Author : [author]\n\t * @Date : [date]\n\t * @param [paramName]\n\t * @return\n\t */\n\tpublic int update[capitalizePrefix]([paramType] [paramName]) {\n\t\treturn sqlSession.update(\"[namespace].update[capitalizePrefix]\", [paramName]);\n\t}");
+		return preferences.node(DAO_UPDATE_TEMPLATE).get(FUNCTION_TEMPLATE_KEY, CSDGeneratorMessages.FUNCTION_TEMPLATE_DAO_UPDATE);
 	}
 
 	public void setDaoFunctionUpdateTemplate(String template) {
@@ -377,7 +377,7 @@ public class CSDGeneratorPropertiesHelper {
 	}
 
 	public String getDaoFunctionDeleteTemplate() {
-		return preferences.node(DAO_DELETE_TEMPLATE).get(FUNCTION_TEMPLATE_KEY, "\t/**\n\t * 삭제\n\t * @Method : delete[capitalizePrefix]\n\t * @Company : [company]\n\t * @Author : [author]\n\t * @Date : [date]\n\t * @param [paramName]\n\t * @return\n\t */\n\tpublic int delete[capitalizePrefix]([paramType] [paramName]) {\n\t\treturn sqlSession.delete(\"[namespace].delete[capitalizePrefix]\", [paramName]);\n\t}");
+		return preferences.node(DAO_DELETE_TEMPLATE).get(FUNCTION_TEMPLATE_KEY, CSDGeneratorMessages.FUNCTION_TEMPLATE_DAO_DELETE);
 	}
 
 	public void setDaoFunctionDeleteTemplate(String template) {
@@ -432,7 +432,7 @@ public class CSDGeneratorPropertiesHelper {
 	}
 
 	public String getMapperFunctionSelectCountTemplate() {
-		return preferences.node(MAPPER_SELECT_COUNT_TEMPLATE).get(FUNCTION_TEMPLATE_KEY, "\t<!--\n\tDesc : 총 건수 조회\n\tTABLE : [table]\n\t-->\n\t<select id=\"select[capitalizePrefix]TotalCnt\" parameterType=\"[paramName]\" resultType=\"long\">\n\t\tSELECT\n\t\t\tCOUNT(NO_SEQ) AS cnt\n\t\tFROM [table]\n\t\tWHERE\n\t\t\t&lt;include refid=\"sqlSearch[capitalizePrefix]\" /&gt;\n\t</select>");
+		return preferences.node(MAPPER_SELECT_COUNT_TEMPLATE).get(FUNCTION_TEMPLATE_KEY, CSDGeneratorMessages.FUNCTION_TEMPLATE_MAPPER_SELECT_CNT);
 	}
 
 	public void setMapperFunctionSelectCountTemplate(String template) {
@@ -445,7 +445,7 @@ public class CSDGeneratorPropertiesHelper {
 	}
 
 	public String getMapperFunctionSelectListTemplate() {
-		return preferences.node(MAPPER_SELECT_LIST_TEMPLATE).get(FUNCTION_TEMPLATE_KEY, "\t<!--\n\tDesc : 목록 조회\n\tTABLE : [table]\n\t-->\n\t<select id=\"select[capitalizePrefix]List\" parameterType=\"[paramName]\" resultType=\"[paramName]\">\n\t\tSELECT\n\t\t\t[columns]\n\t\tFROM [table]\n\t\tWHERE DEL_YN = 'N'\n\t\t\t&lt;include refid=\"sqlSearch[capitalizePrefix]\" /&gt;\n\t\tORDER BY NO_SEQ DESC\n\t\t&lt;if test=' startNum != null and startNum != \"\" and  endNum != null and endNum != \"\" '&gt;\n\t\tLIMIT #{startNum}, #{endNum}\n\t\t&lt;/if&gt;\n\t</select>");
+		return preferences.node(MAPPER_SELECT_LIST_TEMPLATE).get(FUNCTION_TEMPLATE_KEY, CSDGeneratorMessages.FUNCTION_TEMPLATE_MAPPER_SELECT_LIST);
 	}
 
 	public void setMapperFunctionSelectListTemplate(String template) {
@@ -458,7 +458,7 @@ public class CSDGeneratorPropertiesHelper {
 	}
 
 	public String getMapperFunctionSelectOneTemplate() {
-		return preferences.node(MAPPER_SELECT_ONE_TEMPLATE).get(FUNCTION_TEMPLATE_KEY, "\t<!--\n\tDesc : 조회\n\tTABLE : [table]\n\t-->\n\t<select id=\"select[capitalizePrefix]\" parameterType=\"[paramName]\" resultType=\"[paramName]\">\n\t\tSELECT\n\t\t\t[columns]\n\t\tFROM [table]\n\t\tWHERE 1=1\n\t\t\t[indexColumns]\n\t</select>");
+		return preferences.node(MAPPER_SELECT_ONE_TEMPLATE).get(FUNCTION_TEMPLATE_KEY, CSDGeneratorMessages.FUNCTION_TEMPLATE_MAPPER_SELECT_ONE);
 	}
 
 	public void setMapperFunctionSelectOneTemplate(String template) {
@@ -471,7 +471,7 @@ public class CSDGeneratorPropertiesHelper {
 	}
 
 	public String getMapperFunctionInsertTemplate() {
-		return preferences.node(MAPPER_INSERT_TEMPLATE).get(FUNCTION_TEMPLATE_KEY, "\t<!--\n\tDesc : 등록\n\tTABLE : [table]\n\t-->\n\t<insert id=\"insert[capitalizePrefix]\" parameterType=\"[paramName]\">\n\t\t&lt;selectKey resultType=\"string\" keyProperty=\"no_seq\" order=\"BEFORE\"&gt;\n\t\t&lt;/selectKey&gt;\n\t\tINSERT INTO [table] (\n\t\t\t[columns]\n\t\t) VALUES (\n\t\t\t[values]\n\t\t)\n\t</insert>");
+		return preferences.node(MAPPER_INSERT_TEMPLATE).get(FUNCTION_TEMPLATE_KEY, CSDGeneratorMessages.FUNCTION_TEMPLATE_MAPPER_INSERT);
 	}
 
 	public void setMapperFunctionInsertTemplate(String template) {
@@ -484,7 +484,7 @@ public class CSDGeneratorPropertiesHelper {
 	}
 
 	public String getMapperFunctionUpdateTemplate() {
-		return preferences.node(MAPPER_UPDATE_TEMPLATE).get(FUNCTION_TEMPLATE_KEY, "\t<!--\n\tDesc : 수정\n\tTABLE : [table]\n\t-->\n\t<update id=\"update[capitalizePrefix]\" parameterType=\"[paramName]\">\n\t\tUPDATE [table] SET\n\t\t\t[columns]\n\t\tWHERE 1=1\n\t\t\t[indexColumns]\n\t</update>");
+		return preferences.node(MAPPER_UPDATE_TEMPLATE).get(FUNCTION_TEMPLATE_KEY, CSDGeneratorMessages.FUNCTION_TEMPLATE_MAPPER_UPDATE);
 	}
 
 	public void setMapperFunctionUpdateTemplate(String template) {
@@ -497,7 +497,7 @@ public class CSDGeneratorPropertiesHelper {
 	}
 
 	public String getMapperFunctionDeleteTemplate() {
-		return preferences.node(MAPPER_DELETE_TEMPLATE).get(FUNCTION_TEMPLATE_KEY, "\t<!--\n\tDesc : 삭제\n\tTABLE : [table]\n\t-->\n\t<delete id=\"delete[capitalizePrefix]\" parameterType=\"[paramName]\">\n\t\tDELETE FROM [table] WHERE 1=1 [indexColumns]\n\t</delete>");
+		return preferences.node(MAPPER_DELETE_TEMPLATE).get(FUNCTION_TEMPLATE_KEY, CSDGeneratorMessages.FUNCTION_TEMPLATE_MAPPER_DELETE);
 	}
 
 	public void setMapperFunctionDeleteTemplate(String template) {

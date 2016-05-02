@@ -345,18 +345,20 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 		companyLabel.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
 
 		companyText = new Text(generalComposite, SWT.FILL | SWT.BORDER);
-		companyText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 0));
+		companyText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		if(!isSpecificSettings) companyText.setEnabled(false);
 		companyText.setText(getCompany());
+		new Label(generalComposite, SWT.NONE);
 
 		Label authorLabel = new Label(generalComposite, SWT.NONE);
 		authorLabel.setText("Author:");
 		authorLabel.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
 
 		authorText = new Text(generalComposite, SWT.FILL | SWT.BORDER);
-		authorText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 0));
+		authorText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		if(!isSpecificSettings) authorText.setEnabled(false);
 		authorText.setText(getAuthor());
+		new Label(generalComposite, SWT.NONE);
 
 		Label databaseConnectionLabel = new Label(generalComposite, SWT.NONE);
 		databaseConnectionLabel.setText("Database Connection:");
@@ -366,7 +368,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 		connectionProfiles = ProfileManager.getInstance().getProfiles();
 		connectionCombo = new Combo(generalComposite, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
-		connectionCombo.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, false, 2, 0));
+		connectionCombo.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, false));
 		for (IConnectionProfile profile : connectionProfiles) {
 			connectionCombo.add(profile.getName());
 		}
@@ -382,6 +384,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 				widgetSelected(e);
 			}
 		});
+		new Label(generalComposite, SWT.NONE);
 
 		Label generalTemplateLabel = new Label(generalComposite, SWT.NONE);
 		generalTemplateLabel.setText("Template Group:");
@@ -457,49 +460,47 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 								File templateFile = member.getLocation().toFile();
 								if(templateFile.exists()) {
 									String name = member.getName();
-									if(name.indexOf("CT_") > -1) {
-										controllerTemplateName = templateFolder.getName() + "_" + name.substring(0, name.indexOf(".")).replace("CT_", "");
+									if(name.indexOf("controller") > -1) {
+										controllerTemplateName = templateFolder.getName() + name.substring(0, name.indexOf(".")).replace("_controller", "");
 										TreeItem controllerTemplateNameTreeItem = new TreeItem(controllerTemplateTree, SWT.NULL);
 										controllerTemplateNameTreeItem.setText(controllerTemplateName);
 										TreeItem controllerTemplatePathTreeItem = new TreeItem(controllerTemplateNameTreeItem, SWT.NULL);
 										controllerTemplatePathTreeItem.setText(templateFile.getAbsolutePath());
 										controllerTemplateNameTreeItem.setExpanded(true);
 										controllerTemplateNames = propertiesHelper.controllerPropertiesFlush(controllerTemplateTree);
-									} else if(name.indexOf("ST_") > -1) {
-										serviceTemplateName =  templateFolder.getName() + "_" + name.substring(0, name.indexOf(".")).replace("ST_", "");
+									} else if(name.indexOf("service") > -1) {
+										serviceTemplateName =  templateFolder.getName() + name.substring(0, name.indexOf(".")).replace("_service", "");
 										TreeItem serviceTemplateNameTreeItem = new TreeItem(serviceTemplateTree, SWT.NULL);
 										serviceTemplateNameTreeItem.setText(serviceTemplateName);
 										TreeItem serviceTemplatePathTreeItem = new TreeItem(serviceTemplateNameTreeItem, SWT.NULL);
 										serviceTemplatePathTreeItem.setText(templateFile.getAbsolutePath());
 										serviceTemplateNameTreeItem.setExpanded(true);
 										serviceTemplateNames = propertiesHelper.servicePropertiesFlush(serviceTemplateTree);
-									} else if(name.indexOf("DT_") > -1) {
-										daoTemplateName =  templateFolder.getName() + "_" + name.substring(0, name.indexOf(".")).replace("DT_", "");
+									} else if(name.indexOf("dao") > -1) {
+										daoTemplateName =  templateFolder.getName() + name.substring(0, name.indexOf(".")).replace("_dao", "");
 										TreeItem daoTemplateNameTreeItem = new TreeItem(daoTemplateTree, SWT.NULL);
 										daoTemplateNameTreeItem.setText(daoTemplateName);
 										TreeItem daoTemplatePathTreeItem = new TreeItem(daoTemplateNameTreeItem, SWT.NULL);
 										daoTemplatePathTreeItem.setText(templateFile.getAbsolutePath());
 										daoTemplateNameTreeItem.setExpanded(true);
 										daoTemplateNames = propertiesHelper.daoPropertiesFlush(daoTemplateTree);
-									} else if(name.indexOf("MT_") > -1) {
-										mapperTemplateName =  templateFolder.getName() + "_" + name.substring(0, name.indexOf(".")).replace("MT_", "");
+									} else if(name.indexOf("mapper") > -1) {
+										mapperTemplateName =  templateFolder.getName() + name.substring(0, name.indexOf(".")).replace("_mapper", "");
 										TreeItem mapperTemplateNameTreeItem = new TreeItem(mapperTemplateTree, SWT.NULL);
 										mapperTemplateNameTreeItem.setText(mapperTemplateName);
 										TreeItem mapperTemplatePathTreeItem = new TreeItem(mapperTemplateNameTreeItem, SWT.NULL);
 										mapperTemplatePathTreeItem.setText(templateFile.getAbsolutePath());
 										mapperTemplateNameTreeItem.setExpanded(true);
 										mapperTemplateNames = propertiesHelper.mapperPropertiesFlush(mapperTemplateTree);
-									} else if(name.indexOf("JT") > -1) {
-										if(name.indexOf("JTL_") > -1) {
-											jspTemplateName =  templateFolder.getName() + "_" + name.substring(0, name.indexOf(".")).replace("JTL_", "");
-											jspTemplateListFile = templateFile.getAbsolutePath();
-										} else if(name.indexOf("JTP_") > -1) {
-											if("".equals(jspTemplateName)) jspTemplateName =  templateFolder.getName() + "_" + name.substring(0, name.indexOf(".")).replace("JTR_", "");
-											jspTemplatePostFile = templateFile.getAbsolutePath();
-										} else if(name.indexOf("JTV_") > -1) {
-											if("".equals(jspTemplateName)) jspTemplateName =  templateFolder.getName() + "_" + name.substring(0, name.indexOf(".")).replace("JTV_", "");
-											jspTemplateViewFile = templateFile.getAbsolutePath();
-										}
+									} else if(name.indexOf("list") > -1) {
+										jspTemplateName =  templateFolder.getName() + name.substring(0, name.indexOf(".")).replace("_list", "");
+										jspTemplateListFile = templateFile.getAbsolutePath();
+									} else if(name.indexOf("post") > -1) {
+										if("".equals(jspTemplateName)) jspTemplateName =  templateFolder.getName() + name.substring(0, name.indexOf(".")).replace("_post", "");
+										jspTemplatePostFile = templateFile.getAbsolutePath();
+									} else if(name.indexOf("view") > -1) {
+										if("".equals(jspTemplateName)) jspTemplateName =  templateFolder.getName() + name.substring(0, name.indexOf(".")).replace("_view", "");
+										jspTemplateViewFile = templateFile.getAbsolutePath();
 									}
 								}
 							}

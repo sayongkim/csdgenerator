@@ -808,7 +808,7 @@ public class CSDGeneratorDialog extends Dialog {
 					if (isCreateServiceImpl) {
 						if (isCreateServiceImplFolder) {
 							if(serviceImplFolderTreeItem == null || isCreateServiceSubFolder) {
-								String serviceImplFolder = "Impl";
+								String serviceImplFolder = "impl";
 
 								serviceImplFolderTreeItem = new TreeItem(serviceSubFolderTreeItem.isDisposed() ? serviceFolderTreeItem : serviceSubFolderTreeItem, 1);
 								serviceImplFolderTreeItem.setText(serviceImplFolder);
@@ -839,7 +839,7 @@ public class CSDGeneratorDialog extends Dialog {
 					if (isCreateServiceImpl) {
 						if (isCreateServiceImplFolder) {
 							if(serviceImplFolderTreeItem == null || isCreateServiceSubFolder) {
-								String serviceImplFolder = "Impl";
+								String serviceImplFolder = "impl";
 
 								serviceImplFolderTreeItem = new TreeItem(javaRootTreeItem, 1);
 								serviceImplFolderTreeItem.setText(serviceImplFolder);
@@ -866,7 +866,7 @@ public class CSDGeneratorDialog extends Dialog {
 					String daoFolder = "";
 
 					if (isAddPrefixDaoFolder) {
-						daoFolder = capitalizePrefix + "Dao";
+						daoFolder = name + "Dao";
 					} else {
 						daoFolder = "dao";
 					}

@@ -73,11 +73,13 @@ import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.SearchRequestor;
 import org.eclipse.jdt.internal.core.ResolvedSourceType;
 import org.eclipse.jdt.launching.JavaRuntime;
+import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeSelection;
@@ -86,7 +88,10 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
 import org.eclipse.ui.IObjectActionDelegate;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.texteditor.ITextEditor;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -106,13 +111,15 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 
 	CSDFunctionGeneratorDialog dialog;
 
-	ICompilationUnit serviceImplCompilationUnit;
-	ICompilationUnit daoCompilationUnit;
+	String namePrefix = "";
 
 	private ISelection selection;
 	private Shell shell;
 
 	ICompilationUnit serviceCompilationUnit;
+	ICompilationUnit serviceImplCompilationUnit;
+	ICompilationUnit daoCompilationUnit;
+
 	IImportDeclaration[] importDeclarations;
 
 	@Override
@@ -120,50 +127,75 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 
 		dialog = new CSDFunctionGeneratorDialog(shell, selection);
 
+		serviceCompilationUnit = null;
+		serviceImplCompilationUnit = null;
+		daoCompilationUnit = null;
+
 		if(selection instanceof TreeSelection) {
 			TreeSelection treeSelection = (TreeSelection) selection;
 			TreePath[] treePaths = treeSelection.getPaths();
 			for(TreePath treePath : treePaths) {
-				if(treePath.getLastSegment() instanceof ICompilationUnit) {
-					serviceCompilationUnit = (ICompilationUnit) treePath.getLastSegment();
+				Object lastSegment = treePath.getLastSegment();
+				if(lastSegment instanceof ICompilationUnit) {
+					if(((ICompilationUnit) lastSegment).getElementName().indexOf("Impl") > -1) {
+						serviceImplCompilationUnit = (ICompilationUnit) lastSegment;
+					} else {
+						serviceCompilationUnit = (ICompilationUnit) lastSegment;
+					}
+				}
+			}
+		} else if(selection instanceof TextSelection) {
+			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+			ITextEditor editor = (ITextEditor) page.getActiveEditor();
+			IJavaElement javaElement = JavaUI.getEditorInputJavaElement(editor.getEditorInput());
+			if(javaElement instanceof ICompilationUnit) {
+				if(((ICompilationUnit) javaElement).getElementName().indexOf("Impl") > -1) {
+					serviceImplCompilationUnit = (ICompilationUnit) javaElement;
+				} else {
+					serviceCompilationUnit = (ICompilationUnit) javaElement;
 				}
 			}
 		}
 
 		List<String> importDaos = new ArrayList<String>();
+		List<String> importServiceInterfaces = new ArrayList<String>();
 
 		try {
-			String namePrefix = serviceCompilationUnit.getElementName().replaceAll("Service.java", "");
-			IType serviceType = serviceCompilationUnit.getType(namePrefix + "Service");
-			boolean isServiceInterface = serviceType.isInterface();
 
-			if(isServiceInterface) {
-				SearchRequestor requestor = new SearchRequestor() {
-					@SuppressWarnings("restriction")
-					@Override
-					public void acceptSearchMatch(SearchMatch searchMatch) throws CoreException {
-						if(searchMatch.getElement() instanceof ResolvedSourceType) {
-							ResolvedSourceType resolvedSourceType = (ResolvedSourceType) searchMatch.getElement();
-							if(resolvedSourceType.getParent().getElementType() == IJavaElement.COMPILATION_UNIT) {
-								serviceImplCompilationUnit = (ICompilationUnit) ((ResolvedSourceType) searchMatch.getElement()).getParent();
+			if(serviceCompilationUnit != null) {
+				namePrefix = serviceCompilationUnit.getElementName().replaceAll("Service.java", "");
+				IType serviceType = serviceCompilationUnit.getType(namePrefix + "Service");
+
+				if(serviceType.isInterface()) {
+					SearchEngine searchEngine = new SearchEngine();
+					searchEngine.search(SearchPattern.createPattern(serviceType, IJavaSearchConstants.IMPLEMENTORS), new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()}, SearchEngine.createWorkspaceScope(), new SearchRequestor() {
+						@SuppressWarnings("restriction")
+						@Override
+						public void acceptSearchMatch(SearchMatch searchMatch) throws CoreException {
+							if(searchMatch.getElement() instanceof ResolvedSourceType) {
+								ResolvedSourceType resolvedSourceType = (ResolvedSourceType) searchMatch.getElement();
+								if(resolvedSourceType.getParent().getElementType() == IJavaElement.COMPILATION_UNIT) {
+									serviceImplCompilationUnit = (ICompilationUnit) ((ResolvedSourceType) searchMatch.getElement()).getParent();
+								}
 							}
 						}
-					}
-				};
+					}, null);
 
-				SearchEngine searchEngine = new SearchEngine();
-				SearchParticipant[] searchParticipants = new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()};
-				SearchPattern createPattern = SearchPattern.createPattern(serviceType, IJavaSearchConstants.IMPLEMENTORS);
-				searchEngine.search(createPattern, searchParticipants, SearchEngine.createWorkspaceScope(), requestor, null);
-
-				importDeclarations = serviceImplCompilationUnit.getImports();
+					importDeclarations = serviceImplCompilationUnit.getImports();
+				} else {
+					importDeclarations = serviceCompilationUnit.getImports();
+				}
 			} else {
-				importDeclarations = serviceCompilationUnit.getImports();
+				namePrefix = serviceImplCompilationUnit.getElementName().replaceAll("ServiceImpl.java", "");
+				importDeclarations = serviceImplCompilationUnit.getImports();
 			}
 
 			for(IImportDeclaration importDeclaration : importDeclarations) {
 				if(importDeclaration.getElementName().indexOf("Dao") > -1) {
 					importDaos.add(importDeclaration.getElementName());
+				} else if(importDeclaration.getElementName().indexOf("Service") > -1
+						&& importDeclaration.getElementName().indexOf("org.springframework") == -1) {
+					importServiceInterfaces.add(importDeclaration.getElementName());
 				}
 			}
 
@@ -171,6 +203,7 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 			e1.printStackTrace();
 		}
 
+		dialog.setImportServiceInterfaces(importServiceInterfaces);
 		dialog.setImportDaos(importDaos);
 
 		if(dialog.open() != InputDialog.OK)
@@ -188,7 +221,7 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 				String parameterType = dialog.getParameterType();
 				String returnType = dialog.getReturnType();
 
-				IJavaProject javaProject = serviceCompilationUnit.getJavaProject();
+				IJavaProject javaProject = serviceCompilationUnit == null ? serviceImplCompilationUnit.getJavaProject() : serviceCompilationUnit.getJavaProject();
 				IProject project = javaProject.getProject();
 
 				if(prefix != null) {
@@ -211,15 +244,9 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 					DatabaseResource databaseResource = connectionProfile == null ? null : new DatabaseResource(connectionProfile);
 					String databaseTableName = dialog.getDatabaseTableName();
 
-					String company = propertiesItem.getCompany() != null ? propertiesItem.getCompany() : "";
-					String author = propertiesItem.getAuthor() != null ? propertiesItem.getAuthor() : System.getProperty("user.name");
-
 					boolean isCreateService = dialog.isCreateService();
 
 					boolean isCreateDao = dialog.isCreateDao();
-					boolean isCreateDaoFolder = propertiesItem.getCreateDaoFolder();
-					boolean isAddPrefixDaoFolder = propertiesItem.getAddPrefixDaoFolder();
-					boolean isCreateDaoSubFolder = propertiesItem.getCreateDaoSubFolder();
 					String myBatisSettingFile = propertiesItem.getMyBatisSettingFile();
 
 					boolean isCreateMapper = dialog.isCreateMapper();
@@ -264,10 +291,10 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 					String mapperUpdateTemplate = propertiesHelper.getMapperFunctionUpdateTemplate();
 					String mapperDeleteTemplate = propertiesHelper.getMapperFunctionDeleteTemplate();
 
+					String selectImportServiceInterface = dialog.getSelectImportServiceInterface();
+
 					String selectImportDao = dialog.getSelectImportDao();
 					String prefixDao = selectImportDao != null ? selectImportDao.substring(selectImportDao.lastIndexOf(".") + 1).replace("Dao", "") : null;
-
-					String namePrefix = serviceCompilationUnit.getElementName().replaceAll("Service.java", "");
 
 					String javaVoBuildPath = "";
 					String voPackage = "";
@@ -537,9 +564,23 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 
 					if(isCreateService) {
 						try {
+							if(serviceCompilationUnit == null) {
+								SearchEngine searchEngine = new SearchEngine();
+								searchEngine.search(SearchPattern.createPattern(selectImportServiceInterface, IJavaSearchConstants.INTERFACE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_FULL_MATCH), new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()}, SearchEngine.createWorkspaceScope(), new SearchRequestor() {
+									@SuppressWarnings("restriction")
+									@Override
+									public void acceptSearchMatch(SearchMatch searchMatch) throws CoreException {
+										if(searchMatch.getElement() instanceof ResolvedSourceType) {
+											ResolvedSourceType resolvedSourceType = (ResolvedSourceType) searchMatch.getElement();
+											if(resolvedSourceType.getParent().getElementType() == IJavaElement.COMPILATION_UNIT) {
+												serviceCompilationUnit = (ICompilationUnit) ((ResolvedSourceType) searchMatch.getElement()).getParent();
+											}
+										}
+									}
+								}, null);
+							}
 
-							IType serviceType = serviceCompilationUnit.getType(namePrefix + "Service");
-							boolean isServiceInterface = serviceType.isInterface();
+							IType serviceType = serviceCompilationUnit.getTypes()[0];
 
 							if(isCreateSelectCount) {
 								serviceTemplate += StringUtils.appedFirstAndEndNewLine(StringUtils.replaceReservedWord(propertiesItem, prefix, serviceSelectCountTemplate));
@@ -567,18 +608,20 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 
 							serviceTemplate = StringUtils.replaceParameter(parameterType, serviceTemplate);
 							serviceTemplate = StringUtils.replaceReturn(returnType, serviceTemplate);
-							if(prefixDao != null) {
-								serviceTemplate = serviceTemplate.replaceAll(prefix + "Dao", prefixDao.substring(0, 1).toLowerCase() + prefixDao.substring(1) + "Dao");
-							}
+							serviceTemplate = serviceTemplate.replaceAll(prefix + "Dao", prefixDao.substring(0, 1).toLowerCase() + prefixDao.substring(1) + "Dao");
 
 							if(importParameterVo != null) serviceCompilationUnit.createImport(importParameterVo, null, new NullProgressMonitor());
 							if(importReturnVo != null) serviceCompilationUnit.createImport(importReturnVo, null, new NullProgressMonitor());
 
 							String serviceContent = serviceCompilationUnit.getSource();
+							serviceContent = serviceContent.substring(0, serviceContent.lastIndexOf("}"));
 							serviceContent += serviceTemplate;
 							serviceContent += "\n}";
 
-							if(isServiceInterface) {
+							serviceContent = serviceContent.replaceAll("[\t ]*@Override[\t ]*[\r\n|\n|\r]", "");
+							serviceContent = serviceContent.replaceAll("Impl", "");
+
+							if(serviceType.isInterface()) {
 /*
 								SearchRequestor requestor = new SearchRequestor() {
 									@Override
@@ -725,7 +768,8 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 							daoTemplate = StringUtils.replaceReturn(returnType, daoTemplate);
 							daoTemplate = daoTemplate.replaceAll("\\[namespace\\]", prefixDao.substring(0, 1).toLowerCase() + prefixDao.substring(1) + "Mapper");
 
-							SearchRequestor requestor = new SearchRequestor() {
+							SearchEngine searchEngine = new SearchEngine();
+							searchEngine.search(SearchPattern.createPattern(selectImportDao, IJavaSearchConstants.TYPE, IJavaSearchConstants.CONSTRUCTOR, SearchPattern.R_FULL_MATCH), new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()}, SearchEngine.createWorkspaceScope(), new SearchRequestor() {
 								@SuppressWarnings("restriction")
 								@Override
 								public void acceptSearchMatch(SearchMatch searchMatch) throws CoreException {
@@ -736,12 +780,7 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 										}
 									}
 								}
-							};
-
-							SearchEngine searchEngine = new SearchEngine();
-							SearchParticipant[] searchParticipants = new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()};
-							SearchPattern createPattern = SearchPattern.createPattern(selectImportDao, IJavaSearchConstants.TYPE, IJavaSearchConstants.CONSTRUCTOR, SearchPattern.R_FULL_MATCH);
-							searchEngine.search(createPattern, searchParticipants, SearchEngine.createWorkspaceScope(), requestor, null);
+							}, null);
 
 							if(importParameterVo != null) daoCompilationUnit.createImport(importParameterVo, null, new NullProgressMonitor());
 							if(importReturnVo != null) daoCompilationUnit.createImport(importReturnVo, null, new NullProgressMonitor());

@@ -25,4 +25,5 @@ Import-Package: org.eclipse.jdt.core,
  org.eclipse.ltk.core.refactoring,
  org.eclipse.text.edits,
  org.eclipse.ui.dialogs,
+ org.eclipse.ui.texteditor,
  org.eclipse.ui.views.properties

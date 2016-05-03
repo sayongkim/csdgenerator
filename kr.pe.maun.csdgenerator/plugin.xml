@@ -18,7 +18,6 @@
       <objectContribution
             adaptable="true"
             id="kr.pe.maun.csdgenerator.function.popupMenu"
-            nameFilter="*Service.java"
             objectClass="org.eclipse.core.resources.IFile">
          <action
                class="kr.pe.maun.csdgenerator.actions.CSDFunctionGeneratorAction"
@@ -27,6 +26,18 @@
                label="CSD Function Generator"
                menubarPath="kr.pe.maun.csdgenerator.function.popupMenu">
          </action>
+         <visibility>
+            <or>
+               <objectState
+                     name="name"
+                     value="*Service.java">
+               </objectState>
+               <objectState
+                     name="name"
+                     value="*ServiceImpl.java">
+               </objectState>
+            </or>
+         </visibility>
       </objectContribution>
       <objectContribution
             adaptable="true"
@@ -42,22 +53,6 @@
          </action>
       </objectContribution>
    </extension>
-  <!--
-   <extension
-         point="org.eclipse.ui.preferencePages">
-      <page
-            class="kr.pe.maun.csdgenerator.preferences.CSDGeneratorPreferencePage"
-            id="kr.pe.maun.csdgenerator.preferences.CSDGeneratorPreferencePage"
-            name="CSD Generator">
-      </page>
-   </extension>
-   <extension
-         point="org.eclipse.core.runtime.preferences">
-      <initializer
-            class="kr.pe.maun.csdgenerator.preferences.PreferenceInitializer">
-      </initializer>
-   </extension>
-  -->
    <extension
          point="org.eclipse.ui.propertyPages">
       <page

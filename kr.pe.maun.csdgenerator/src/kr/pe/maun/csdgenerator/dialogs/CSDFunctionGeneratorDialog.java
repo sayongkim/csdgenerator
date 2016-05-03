@@ -17,9 +17,12 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.datatools.connectivity.IConnectionProfile;
 import org.eclipse.datatools.connectivity.ProfileManager;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeSelection;
@@ -38,6 +41,9 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.texteditor.ITextEditor;
 
 public class CSDFunctionGeneratorDialog extends Dialog {
 
@@ -74,6 +80,7 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 	private Combo connectionProfileCombo;
 	private Combo parameterCombo;
 	private Combo returnCombo;
+	private Combo importServiceInterfaceCombo;
 	private Combo importDaoCombo;
 
 	private Button createServiceButton;
@@ -100,7 +107,10 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 	private String parameterType;
 	private String returnType;
 
+	List<String> importServiceInterfaces;
 	List<String> importDaos;
+
+	String selectImportServiceInterface;
 	String selectImportDao;
 
 	public CSDFunctionGeneratorDialog(Shell parentShell) {
@@ -126,6 +136,11 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 					compilationUnit = (ICompilationUnit) treePath.getLastSegment();
 				}
 			}
+		} else if(selection instanceof TextSelection) {
+			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+			ITextEditor editor = (ITextEditor) page.getActiveEditor();
+			IJavaElement javaElement = JavaUI.getEditorInputJavaElement(editor.getEditorInput());
+			if(javaElement instanceof ICompilationUnit) compilationUnit = (ICompilationUnit) javaElement;
 		}
 
 		IProject project = compilationUnit.getJavaProject().getProject();
@@ -498,6 +513,15 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 			}
 		});
 
+		Label importServiceInterfaceLabel = new Label(container, SWT.NONE);
+		importServiceInterfaceLabel.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
+		importServiceInterfaceLabel.setText("Service Interface: ");
+
+		importServiceInterfaceCombo = new Combo(container, SWT.READ_ONLY);
+		importServiceInterfaceCombo.setLayoutData(layoutData);
+		importServiceInterfaceCombo.setItems(importServiceInterfaces.toArray(new String[importServiceInterfaces.size()]));
+		importServiceInterfaceCombo.select(0);
+
 		Label importDaoLabel = new Label(container, SWT.NONE);
 		importDaoLabel.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
 		importDaoLabel.setText("Dao: ");
@@ -518,7 +542,7 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 
 	@Override
 	protected Point getInitialSize() {
-		return new Point(600, 270);
+		return new Point(600, 300);
 	}
 
 	@Override
@@ -659,6 +683,22 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 		this.returnType = returnType;
 	}
 
+	public List<String> getImportServiceInterfaces() {
+		return importServiceInterfaces;
+	}
+
+	public void setImportServiceInterfaces(List<String> importServiceInterfaces) {
+		this.importServiceInterfaces = importServiceInterfaces;
+	}
+
+	public String getSelectImportServiceInterface() {
+		return selectImportServiceInterface;
+	}
+
+	public void setSelectImportServiceInterface(String selectImportServiceInterface) {
+		this.selectImportServiceInterface = selectImportServiceInterface;
+	}
+
 	public List<String> getImportDaos() {
 		return importDaos;
 	}
@@ -692,6 +732,7 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 		parameterType = parameterCombo.getText();
 		returnType = returnCombo.getText();
 
+		selectImportServiceInterface = importServiceInterfaceCombo.getText();
 		selectImportDao = importDaoCombo.getText();
 
 		super.okPressed();

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: CSDGenerator
 Bundle-SymbolicName: kr.pe.maun.csdgenerator;singleton:=true
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.0.1
 Bundle-Activator: kr.pe.maun.csdgenerator.CSDGeneratorPlugin
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,

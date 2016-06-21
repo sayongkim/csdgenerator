@@ -414,7 +414,7 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 							voContent = voContent.replaceAll("\\[value\\]", valueBuffer.toString());
 							voContent = voContent.replaceAll("\\[GettersAndSetters\\]", gettersAndSetters.toString());
 
-							ByteArrayInputStream voFileStream = new ByteArrayInputStream(voContent.getBytes());
+							ByteArrayInputStream voFileStream = new ByteArrayInputStream(voContent.getBytes("UTF-8"));
 
 							IFile voFile = voFolder.getFile(new Path(capitalizePrefix + "Vo.java"));
 							if(!voFile.exists()) voFile.create(voFileStream ,true, new NullProgressMonitor());
@@ -429,7 +429,7 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 								searchVoContent = searchVoContent.replaceAll("\\[value\\]", valueBuffer.toString());
 								searchVoContent = searchVoContent.replaceAll("\\[GettersAndSetters\\]", "");
 
-								ByteArrayInputStream searchVoFileStream = new ByteArrayInputStream(searchVoContent.getBytes());
+								ByteArrayInputStream searchVoFileStream = new ByteArrayInputStream(searchVoContent.getBytes("UTF-8"));
 
 								searchVoFile = voFolder.getFile(new Path("Search" + capitalizePrefix + "Vo.java"));
 								if(!searchVoFile.exists()) searchVoFile.create(searchVoFileStream ,true, new NullProgressMonitor());
@@ -492,7 +492,7 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 
 									String myBatisSettingContent = getSource(myBatisSettingFile);
 									DocumentBuilder builder = factory.newDocumentBuilder();
-									myBatisSettingDocument = builder.parse(new ByteArrayInputStream(myBatisSettingContent.getBytes()));
+									myBatisSettingDocument = builder.parse(new ByteArrayInputStream(myBatisSettingContent.getBytes("UTF-8")));
 
 									Element documentElement = myBatisSettingDocument.getDocumentElement();
 
@@ -546,7 +546,7 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 									IFile _myBatisSettingFile = project.getWorkspace().getRoot().getFile(Path.fromOSString(myBatisSettingFile));
 
 									if(_myBatisSettingFile.exists()) {
-										_myBatisSettingFile.create(new ByteArrayInputStream(myBatisSettingDocument.toString().getBytes()) ,true, new NullProgressMonitor());
+										_myBatisSettingFile.create(new ByteArrayInputStream(myBatisSettingDocument.toString().getBytes("UTF-8")) ,true, new NullProgressMonitor());
 									} else {
 										BufferedWriter myBatisSetting = new BufferedWriter(new FileWriter(myBatisSettingFile));
 										myBatisSetting.write(writer.toString());
@@ -860,8 +860,8 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 							mapperContent += "\n\n</mapper>";
 
 							IFile mapperFile = project.getWorkspace().getRoot().getFile(new Path(mapperFilePath));
-							mapperFile.setContents(new ByteArrayInputStream(mapperContent.getBytes()), true, true, new NullProgressMonitor());
-						} catch (CoreException e) {
+							mapperFile.setContents(new ByteArrayInputStream(mapperContent.getBytes("UTF-8")), true, true, new NullProgressMonitor());
+						} catch (CoreException | UnsupportedEncodingException e) {
 							e.printStackTrace();
 						}
 					}

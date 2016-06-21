@@ -175,7 +175,7 @@ public class CSDTemplateGeneratorAction implements IObjectActionDelegate {
 						controllerSource = controllerSource.replaceAll(capitalizePrefix, "\\[capitalizePrefix\\]");
 
 						IFile controllerTemplateFile = templateFolder.getFile(new Path("_controller.txt"));
-						if(!controllerTemplateFile.exists()) controllerTemplateFile.create(new ByteArrayInputStream(controllerSource.getBytes()) ,true, new NullProgressMonitor());
+						if(!controllerTemplateFile.exists()) controllerTemplateFile.create(new ByteArrayInputStream(controllerSource.getBytes("UTF-8")) ,true, new NullProgressMonitor());
 						/* E : Create Controller Template File */
 
 						/* S : Create Service Template File */
@@ -217,7 +217,7 @@ public class CSDTemplateGeneratorAction implements IObjectActionDelegate {
 						serviceSource = serviceSource.replaceAll(capitalizePrefix, "\\[capitalizePrefix\\]");
 
 						IFile serviceTemplateFile = templateFolder.getFile(new Path("_service.txt"));
-						if(!serviceTemplateFile.exists()) serviceTemplateFile.create(new ByteArrayInputStream(serviceSource.getBytes()) ,true, new NullProgressMonitor());
+						if(!serviceTemplateFile.exists()) serviceTemplateFile.create(new ByteArrayInputStream(serviceSource.getBytes("UTF-8")) ,true, new NullProgressMonitor());
 						/* E : Create Service Template File */
 
 						/* S : Create Dao Template File */
@@ -247,7 +247,7 @@ public class CSDTemplateGeneratorAction implements IObjectActionDelegate {
 						daoSource = daoSource.replaceAll(capitalizePrefix, "\\[capitalizePrefix\\]");
 
 						IFile daoTemplateFile = templateFolder.getFile(new Path("_dao.txt"));
-						if(!daoTemplateFile.exists()) daoTemplateFile.create(new ByteArrayInputStream(daoSource.getBytes()) ,true, new NullProgressMonitor());
+						if(!daoTemplateFile.exists()) daoTemplateFile.create(new ByteArrayInputStream(daoSource.getBytes("UTF-8")) ,true, new NullProgressMonitor());
 						/* E : Create Dao Template File */
 
 						/* S : Create Mapper Template File */
@@ -258,7 +258,7 @@ public class CSDTemplateGeneratorAction implements IObjectActionDelegate {
 							if(mapperFile.exists()) {
 								String mapperSource = getSource(mapperFile.getLocation().toOSString());
 								IFile mapperTemplateFile = templateFolder.getFile(new Path("_mapper.txt"));
-								if(!mapperTemplateFile.exists()) mapperTemplateFile.create(new ByteArrayInputStream(mapperSource.getBytes()) ,true, new NullProgressMonitor());
+								if(!mapperTemplateFile.exists()) mapperTemplateFile.create(new ByteArrayInputStream(mapperSource.getBytes("UTF-8")) ,true, new NullProgressMonitor());
 							}
 						}
 						/* E : Create Mapper Template File */
@@ -271,24 +271,24 @@ public class CSDTemplateGeneratorAction implements IObjectActionDelegate {
 							if(jspListFile.exists()) {
 								String jspListSource = getSource(jspListFile.getLocation().toOSString());
 								IFile jspListTemplateFile = templateFolder.getFile(new Path("_list.txt"));
-								if(!jspListTemplateFile.exists()) jspListTemplateFile.create(new ByteArrayInputStream(jspListSource.getBytes()) ,true, new NullProgressMonitor());
+								if(!jspListTemplateFile.exists()) jspListTemplateFile.create(new ByteArrayInputStream(jspListSource.getBytes("UTF-8")) ,true, new NullProgressMonitor());
 							}
 							IFile jspPostFile = jspFolder.getFile(new Path(prefix + "Post.jsp"));
 							if(jspPostFile.exists()) {
 								String jspPostSource = getSource(jspPostFile.getLocation().toOSString());
 								IFile jspPostTemplateFile = templateFolder.getFile(new Path("_post.txt"));
-								if(!jspPostTemplateFile.exists()) jspPostTemplateFile.create(new ByteArrayInputStream(jspPostSource.getBytes()) ,true, new NullProgressMonitor());
+								if(!jspPostTemplateFile.exists()) jspPostTemplateFile.create(new ByteArrayInputStream(jspPostSource.getBytes("UTF-8")) ,true, new NullProgressMonitor());
 							}
 							IFile jspViewFile = jspFolder.getFile(new Path(prefix + "View.jsp"));
 							if(jspViewFile.exists()) {
 								String jspViewSource = getSource(jspViewFile.getLocation().toOSString());
 								IFile jspViewTemplateFile = templateFolder.getFile(new Path("_view.txt"));
-								if(!jspViewTemplateFile.exists()) jspViewTemplateFile.create(new ByteArrayInputStream(jspViewSource.getBytes()) ,true, new NullProgressMonitor());
+								if(!jspViewTemplateFile.exists()) jspViewTemplateFile.create(new ByteArrayInputStream(jspViewSource.getBytes("UTF-8")) ,true, new NullProgressMonitor());
 							}
 						}
 						/* E : Create Mapper Template File */
 
-					} catch (CoreException e) {
+					} catch (CoreException | UnsupportedEncodingException e) {
 						e.printStackTrace();
 					}
 				}

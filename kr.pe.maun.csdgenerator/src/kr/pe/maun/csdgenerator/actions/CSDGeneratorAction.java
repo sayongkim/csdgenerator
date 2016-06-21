@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -302,7 +302,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 						try {
 							DocumentBuilder builder = factory.newDocumentBuilder();
-							myBatisSettingDocument = builder.parse(new ByteArrayInputStream(myBatisSettingContent.getBytes()));
+							myBatisSettingDocument = builder.parse(new ByteArrayInputStream(myBatisSettingContent.getBytes("UTF-8")));
 						} catch (Exception e){
 							e.printStackTrace();
 						}
@@ -430,7 +430,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 									voContent = voContent.replaceAll("\\[value\\]", valueBuffer.toString());
 									voContent = voContent.replaceAll("\\[GettersAndSetters\\]", gettersAndSetters.toString());
 
-									ByteArrayInputStream voFileStream = new ByteArrayInputStream(voContent.getBytes());
+									ByteArrayInputStream voFileStream = new ByteArrayInputStream(voContent.getBytes("UTF-8"));
 
 									IFile voFile = voFolder.getFile(new Path(capitalizePrefix + "Vo.java"));
 									if(!voFile.exists()) voFile.create(voFileStream ,true, new NullProgressMonitor());
@@ -445,7 +445,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 										searchVoContent = searchVoContent.replaceAll("\\[value\\]", valueBuffer.toString());
 										searchVoContent = searchVoContent.replaceAll("\\[GettersAndSetters\\]", "");
 
-										ByteArrayInputStream searchVoFileStream = new ByteArrayInputStream(searchVoContent.getBytes());
+										ByteArrayInputStream searchVoFileStream = new ByteArrayInputStream(searchVoContent.getBytes("UTF-8"));
 
 										searchVoFile = voFolder.getFile(new Path("Search" + capitalizePrefix + "Vo.java"));
 										if(!searchVoFile.exists()) searchVoFile.create(searchVoFileStream ,true, new NullProgressMonitor());
@@ -530,7 +530,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 											IFile _myBatisSettingFile = newFolder.getWorkspace().getRoot().getFile(Path.fromOSString(myBatisSettingFile));
 
 											if(_myBatisSettingFile.exists()) {
-												_myBatisSettingFile.create(new ByteArrayInputStream(myBatisSettingDocument.toString().getBytes()) ,true, new NullProgressMonitor());
+												_myBatisSettingFile.create(new ByteArrayInputStream(myBatisSettingDocument.toString().getBytes("UTF-8")) ,true, new NullProgressMonitor());
 											} else {
 												BufferedWriter myBatisSetting = new BufferedWriter(new FileWriter(myBatisSettingFile));
 												myBatisSetting.write(writer.toString());
@@ -873,7 +873,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 								mapperContent = StringUtils.replaceReservedWord(propertiesItem, prefix, mapperContent);
 
 								if(!prefix.equals(databaseTableName)) {
-									mapperContent = mapperContent.replaceAll("\\[table\\]", databaseTableName);
+									mapperContent = mapperContent.replaceAll("\\[table\\]", databaseTableName.toUpperCase());
 								} else {
 									mapperContent = mapperContent.replaceAll("\\[table\\]", capitalizePrefix);
 								}
@@ -887,7 +887,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 										DocumentBuilder builder = factory.newDocumentBuilder();
 
-										org.w3c.dom.Document document = builder.parse(new ByteArrayInputStream(mapperContent.getBytes()));
+										org.w3c.dom.Document document = builder.parse(new ByteArrayInputStream(mapperContent.getBytes("UTF-8")));
 
 										Element documentElement = document.getDocumentElement();
 
@@ -905,6 +905,9 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 											} else if("update".equals(item.getNodeName())) {
 												content = content.replaceAll("\\[columns\\]", updateColumn(columns));
 												content = content.replaceAll("\\[indexColumns\\]", indexColumn(indexColumns));
+											} else {
+												content = content.replaceAll("\\[columns\\]", "");
+												content = content.replaceAll("\\[indexColumns\\]", "");
 											}
 											item.setTextContent(content);
 										}
@@ -943,7 +946,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 								mapperContent = mapperContent.replaceAll("&gt;", ">");
 
 								IFile mapperFile = mapperFolder.getFile(new Path(prefix + "Mapper.xml"));
-								if(!mapperFile.exists()) mapperFile.create(new ByteArrayInputStream(mapperContent.getBytes()) ,true, new NullProgressMonitor());
+								if(!mapperFile.exists()) mapperFile.create(new ByteArrayInputStream(mapperContent.getBytes("UTF-8")) ,true, new NullProgressMonitor());
 
 								System.out.println("Mapper 생성 : " + (System.currentTimeMillis() - lapTime) + " milliseconds");
 								lapTime = System.currentTimeMillis();
@@ -1079,7 +1082,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 				inputStream = url.openConnection().getInputStream();
 				in = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
 			} else {
-				in = new BufferedReader(new FileReader(templateFile));
+				in = new BufferedReader(new InputStreamReader(new FileInputStream(templateFile), "UTF8"));
 			}
 
 		    String inputLine;
@@ -1109,7 +1112,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 			for (int i = 0; i < columnItems.size(); i++) {
 				ColumnItem columnItem = columnItems.get(i);
 				if(i > 0) result.append("\t\t\t,");
-				result.append(columnItem.getColumnName());
+				result.append(columnItem.getColumnName().toUpperCase());
 				result.append(" AS ");
 				result.append(StringUtils.toCamelCase(columnItem.getColumnName()));
 				if(i < (columnItems.size() - 1)) result.append("\n");
@@ -1124,7 +1127,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 			for (int i = 0; i < columnItems.size(); i++) {
 				ColumnItem columnItem = columnItems.get(i);
 				if(i > 0) result.append("\t\t\t,");
-				result.append(columnItem.getColumnName());
+				result.append(columnItem.getColumnName().toUpperCase());
 				if(i < (columnItems.size() - 1)) result.append("\n");
 			}
 		}
@@ -1153,7 +1156,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 			for (int i = 0; i < size; i++) {
 				ColumnItem columnItem = columnItems.get(i);
 				if(i > 0) result.append("\t\t\t,");
-				result.append(columnItem.getColumnName());
+				result.append(columnItem.getColumnName().toUpperCase());
 				result.append(" = #{");
 				result.append(StringUtils.toCamelCase(columnItem.getColumnName()));
 				result.append("}");
@@ -1171,7 +1174,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 				String column = indexColumns.get(i);
 				if(i > 0) result.append("\t\t\t");
 				result.append("AND ");
-				result.append(column);
+				result.append(column.toUpperCase());
 				result.append(" = #{");
 				result.append(StringUtils.toCamelCase(column));
 				result.append("}");

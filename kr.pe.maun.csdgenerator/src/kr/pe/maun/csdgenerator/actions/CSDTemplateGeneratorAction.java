@@ -199,56 +199,62 @@ public class CSDTemplateGeneratorAction implements IObjectActionDelegate {
 							}
 						}
 
-						IImportDeclaration[] serviceImports = serviceCompilationUnit.getImports();
-						serviceSource = serviceCompilationUnit.getSource();
-						for(IImportDeclaration importDeclaration : serviceImports) {
-							String elementName = importDeclaration.getElementName();
-							if(elementName.indexOf(capitalizePrefix + "Service") > -1) {
-								serviceSource = serviceSource.replaceAll("import " + elementName + ";[\t ]*[\r\n|\n|\r]", "");
-							} else if(elementName.indexOf(capitalizePrefix + "Dao") > -1) {
-								serviceSource = serviceSource.replaceAll("import " + elementName + ";[\t ]*[\r\n|\n|\r]", "");
+						if(serviceCompilationUnit != null) {
+
+							IImportDeclaration[] serviceImports = serviceCompilationUnit.getImports();
+							serviceSource = serviceCompilationUnit.getSource();
+							for(IImportDeclaration importDeclaration : serviceImports) {
+								String elementName = importDeclaration.getElementName();
+								if(elementName.indexOf(capitalizePrefix + "Service") > -1) {
+									serviceSource = serviceSource.replaceAll("import " + elementName + ";[\t ]*[\r\n|\n|\r]", "");
+								} else if(elementName.indexOf(capitalizePrefix + "Dao") > -1) {
+									serviceSource = serviceSource.replaceAll("import " + elementName + ";[\t ]*[\r\n|\n|\r]", "");
+								}
 							}
-						}
-						serviceSource = serviceSource.replaceAll(serviceCompilationUnit.getPackageDeclarations()[0].getElementName(), "\\[packagePath\\]");
-						serviceSource = serviceSource.replaceAll("[\t ]*@Override[\t ]*[\r\n|\n|\r]", "");
-						serviceSource = serviceSource.replaceAll("Impl", "");
-						serviceSource = serviceSource.replaceAll("implements[ \t]+" + capitalizePrefix + "Service[ \t]+", "");
-						serviceSource = serviceSource.replaceAll(prefix, "\\[prefix\\]");
-						serviceSource = serviceSource.replaceAll(capitalizePrefix, "\\[capitalizePrefix\\]");
+							serviceSource = serviceSource.replaceAll(serviceCompilationUnit.getPackageDeclarations()[0].getElementName(), "\\[packagePath\\]");
+							serviceSource = serviceSource.replaceAll("[\t ]*@Override[\t ]*[\r\n|\n|\r]", "");
+							serviceSource = serviceSource.replaceAll("Impl", "");
+							serviceSource = serviceSource.replaceAll("implements[ \t]+" + capitalizePrefix + "Service[ \t]+", "");
+							serviceSource = serviceSource.replaceAll(prefix, "\\[prefix\\]");
+							serviceSource = serviceSource.replaceAll(capitalizePrefix, "\\[capitalizePrefix\\]");
 
-						IFile serviceTemplateFile = templateFolder.getFile(new Path("_service.txt"));
-						if(!serviceTemplateFile.exists()) serviceTemplateFile.create(new ByteArrayInputStream(serviceSource.getBytes("UTF-8")) ,true, new NullProgressMonitor());
-						/* E : Create Service Template File */
+							IFile serviceTemplateFile = templateFolder.getFile(new Path("_service.txt"));
+							if(!serviceTemplateFile.exists()) serviceTemplateFile.create(new ByteArrayInputStream(serviceSource.getBytes("UTF-8")) ,true, new NullProgressMonitor());
+							/* E : Create Service Template File */
 
-						/* S : Create Dao Template File */
-						String daoSource = "";
-						for(IImportDeclaration importDeclaration : serviceImports) {
-							if(importDeclaration.getElementName().indexOf(capitalizePrefix + "Dao") > -1) {
-								SearchEngine searchEngine = new SearchEngine();
-								searchEngine.search(SearchPattern.createPattern(importDeclaration.getElementName(), IJavaSearchConstants.TYPE, IJavaSearchConstants.CONSTRUCTOR, SearchPattern.R_FULL_MATCH), new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()}, SearchEngine.createWorkspaceScope(), new SearchRequestor() {
-									@SuppressWarnings("restriction")
-									@Override
-									public void acceptSearchMatch(SearchMatch searchMatch) throws CoreException {
-										if(searchMatch.getElement() instanceof ResolvedSourceType) {
-											ResolvedSourceType resolvedSourceType = (ResolvedSourceType) searchMatch.getElement();
-											if(resolvedSourceType.getParent().getElementType() == IJavaElement.COMPILATION_UNIT) {
-												daoCompilationUnit = (ICompilationUnit) ((ResolvedSourceType) searchMatch.getElement()).getParent();
+							/* S : Create Dao Template File */
+							String daoSource = "";
+							for(IImportDeclaration importDeclaration : serviceImports) {
+								if(importDeclaration.getElementName().indexOf(capitalizePrefix + "Dao") > -1) {
+									SearchEngine searchEngine = new SearchEngine();
+									searchEngine.search(SearchPattern.createPattern(importDeclaration.getElementName(), IJavaSearchConstants.TYPE, IJavaSearchConstants.CONSTRUCTOR, SearchPattern.R_FULL_MATCH), new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()}, SearchEngine.createWorkspaceScope(), new SearchRequestor() {
+										@SuppressWarnings("restriction")
+										@Override
+										public void acceptSearchMatch(SearchMatch searchMatch) throws CoreException {
+											if(searchMatch.getElement() instanceof ResolvedSourceType) {
+												ResolvedSourceType resolvedSourceType = (ResolvedSourceType) searchMatch.getElement();
+												if(resolvedSourceType.getParent().getElementType() == IJavaElement.COMPILATION_UNIT) {
+													daoCompilationUnit = (ICompilationUnit) ((ResolvedSourceType) searchMatch.getElement()).getParent();
+												}
 											}
 										}
-									}
-								}, null);
-								break;
+									}, null);
+									break;
+								}
 							}
+
+							if(daoCompilationUnit != null) {
+								daoSource = daoCompilationUnit.getSource();
+								daoSource = daoSource.replaceAll(daoCompilationUnit.getPackageDeclarations()[0].getElementName(), "\\[packagePath\\]");
+								daoSource = daoSource.replaceAll(prefix, "\\[prefix\\]");
+								daoSource = daoSource.replaceAll(capitalizePrefix, "\\[capitalizePrefix\\]");
+
+								IFile daoTemplateFile = templateFolder.getFile(new Path("_dao.txt"));
+								if(!daoTemplateFile.exists()) daoTemplateFile.create(new ByteArrayInputStream(daoSource.getBytes("UTF-8")) ,true, new NullProgressMonitor());
+							}
+
+							/* E : Create Dao Template File */
 						}
-
-						daoSource = daoCompilationUnit.getSource();
-						daoSource = daoSource.replaceAll(daoCompilationUnit.getPackageDeclarations()[0].getElementName(), "\\[packagePath\\]");
-						daoSource = daoSource.replaceAll(prefix, "\\[prefix\\]");
-						daoSource = daoSource.replaceAll(capitalizePrefix, "\\[capitalizePrefix\\]");
-
-						IFile daoTemplateFile = templateFolder.getFile(new Path("_dao.txt"));
-						if(!daoTemplateFile.exists()) daoTemplateFile.create(new ByteArrayInputStream(daoSource.getBytes("UTF-8")) ,true, new NullProgressMonitor());
-						/* E : Create Dao Template File */
 
 						/* S : Create Mapper Template File */
 						String mapperPath = propertiesItem.getMapperPath();

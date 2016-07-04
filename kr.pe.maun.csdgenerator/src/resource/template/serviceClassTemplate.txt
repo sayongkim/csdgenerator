@@ -12,8 +12,6 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import [daoFullPath];
-
 @Service
 public class [capitalizePrefix]Service {
 
@@ -28,67 +26,81 @@ public class [capitalizePrefix]Service {
 	 * @Company : [company]
 	 * @Author : [author]
 	 * @Date : [date]
-	 * @param searchMap
-	 * @return
+	 * @param [searchParamName]
+	 * @return long
 	 */
-	@Transactional(readOnly=true, propagation=Propagation.SUPPORTS, transactionManager="transactionManager")
-	public int select[capitalizePrefix]TotalCnt(HashMap<String, Object> searchMap) {
-		return [prefix]Dao.select[capitalizePrefix]TotalCnt(searchMap);
+	@Transactional(readOnly=true, propagation=Propagation.SUPPORTS)
+	public long select[capitalizePrefix]TotalCnt([searchParamType] [searchParamName]) {
+		return [prefix]Dao.select[capitalizePrefix]TotalCnt([searchParamName]);
 	}
 
 	/**
 	 * 목록 조회
-	 * @Method : [prefix]Post
+	 * @Method : select[prefix]List
 	 * @Company : [company]
 	 * @Author : [author]
 	 * @Date : [date]
-	 * @param searchMap
+	 * @param [searchParamName]
 	 * @return
 	 */
-	@Transactional(readOnly=true, propagation=Propagation.SUPPORTS, transactionManager="transactionManager")
-	public List<HashMap<String, String>> select[capitalizePrefix]List(HashMap<String, Object> searchMap) {
-		return [prefix]Dao.select[capitalizePrefix]List(searchMap);
+	@Transactional(readOnly=true, propagation=Propagation.SUPPORTS)
+	public List<[returnType]> select[capitalizePrefix]List([searchParamType] [searchParamName]) {
+		return [prefix]Dao.select[capitalizePrefix]List([searchParamName]);
 	}
 
 	/**
 	 * 조회
-	 * @Method : [prefix]Post
+	 * @Method : select[prefix]
 	 * @Company : [company]
 	 * @Author : [author]
 	 * @Date : [date]
-	 * @param searchMap
+	 * @param [searchParamName]
 	 * @return
 	 */
-	@Transactional(readOnly=true, propagation=Propagation.SUPPORTS, transactionManager="transactionManager")
-	public HashMap<String, String> select[capitalizePrefix](HashMap<String, Object> searchMap) {
-		return [prefix]Dao.select[capitalizePrefix](searchMap);
+	@Transactional(readOnly=true, propagation=Propagation.SUPPORTS)
+	public [returnType] select[capitalizePrefix]([searchParamType] [searchParamName]) {
+		return [prefix]Dao.select[capitalizePrefix]([searchParamName]);
 	}
 
 	/**
 	 * 등록
-	 * @Method : [prefix]Post
+	 * @Method : insert[prefix]
 	 * @Company : [company]
 	 * @Author : [author]
 	 * @Date : [date]
-	 * @param requestMap
+	 * @param [paramName]
 	 * @return
 	 */
-	@Transactional(propagation = Propagation.REQUIRED, isolation=Isolation.DEFAULT, transactionManager="transactionManager")
-	public int insert[capitalizePrefix](HashMap<String, Object> requestMap) {
-		return [prefix]Dao.insert[capitalizePrefix](requestMap);
+	@Transactional(propagation = Propagation.REQUIRED, isolation=Isolation.DEFAULT)
+	public int insert[capitalizePrefix]([paramType] [paramName]) {
+		return [prefix]Dao.insert[capitalizePrefix]([paramName]);
 	}
 
 	/**
 	 * 수정
-	 * @Method : [prefix]Post
+	 * @Method : update[prefix]
 	 * @Company : [company]
 	 * @Author : [author]
 	 * @Date : [date]
-	 * @param requestMap
+	 * @param [paramName]
 	 * @return
 	 */
-	@Transactional(propagation = Propagation.REQUIRED, isolation=Isolation.DEFAULT, transactionManager="transactionManager")
-	public int update[capitalizePrefix](HashMap<String, Object> requestMap) {
-		return [prefix]Dao.update[capitalizePrefix](requestMap);
+	@Transactional(propagation = Propagation.REQUIRED, isolation=Isolation.DEFAULT)
+	public int update[capitalizePrefix]([paramType] [paramName]) {
+		return [prefix]Dao.update[capitalizePrefix]([paramName]);
+	}
+
+	/**
+	 * 삭제
+	 * @Method : delete[prefix]
+	 * @Company : [company]
+	 * @Author : [author]
+	 * @Date : [date]
+	 * @param [searchParamName]
+	 * @return
+	 */
+	@Transactional(propagation = Propagation.REQUIRED, isolation=Isolation.DEFAULT)
+	public int delete[capitalizePrefix]([searchParamType] [searchParamName]) {
+		return [prefix]Dao.delete[capitalizePrefix]([searchParamName]);
 	}
 }

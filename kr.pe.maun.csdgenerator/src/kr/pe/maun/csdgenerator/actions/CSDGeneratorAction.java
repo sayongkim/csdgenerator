@@ -659,11 +659,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 								/* E : ServiceImpl 폴더를 생성한다. */
 
 								if(serviceTemplateFile == null || "".equals(serviceTemplateFile)) {
-									if(isCreateServiceImpl) {
-										serviceTemplateFile = "platform:/plugin/kr.pe.maun.csdgenerator/resource/template/serviceInterfaceTemplate.txt";
-									} else {
-										serviceTemplateFile = "platform:/plugin/kr.pe.maun.csdgenerator/resource/template/serviceClassTemplate.txt";
-									}
+									serviceTemplateFile = "platform:/plugin/kr.pe.maun.csdgenerator/resource/template/serviceClassTemplate.txt";
 								}
 
 								/* Service 파일내용을 가져온다.. */

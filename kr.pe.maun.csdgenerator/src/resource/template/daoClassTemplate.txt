@@ -24,63 +24,76 @@ public class [capitalizePrefix]Dao {
 	 * @Company : [company]
 	 * @Author : [author]
 	 * @Date : [date]
-	 * @param searchMap
-	 * @return
+	 * @param [searchParamName]
+	 * @return long
 	 */
-	public int select[capitalizePrefix]TotalCnt(HashMap<String, Object> searchMap) {
-		return sqlSession.selectOne("[prefix]Mapper.select[capitalizePrefix]TotalCnt", searchMap);
+	public long select[capitalizePrefix]TotalCnt([searchParamType] [searchParamName]) {
+		return sqlSession.selectOne("[prefix]Mapper.select[capitalizePrefix]TotalCnt", [searchParamName]);
 	}
 
 	/**
 	 * 목록 조회
-	 * @Method : select[capitalizePrefix]TotalCnt
+	 * @Method : select[capitalizePrefix]List
 	 * @Company : [company]
 	 * @Author : [author]
 	 * @Date : [date]
-	 * @param searchMap
-	 * @return
+	 * @param [searchParamName]
+	 * @return List<[returnType]>
 	 */
-	public List<HashMap<String, String>> select[capitalizePrefix]List(HashMap<String, Object> searchMap) {
-		return sqlSession.selectList("[prefix]Mapper.select[capitalizePrefix]List", searchMap);
+	public List<[returnType]> select[capitalizePrefix]List([searchParamType] [searchParamName]) {
+		return sqlSession.selectList("[prefix]Mapper.select[capitalizePrefix]List", [searchParamName]);
 	}
 
 	/**
 	 * 조회
-	 * @Method : select[capitalizePrefix]TotalCnt
+	 * @Method : select[capitalizePrefix]
 	 * @Company : [company]
 	 * @Author : [author]
 	 * @Date : [date]
-	 * @param searchMap
-	 * @return
+	 * @param [searchParamName]
+	 * @return [returnType]
 	 */
-	public HashMap<String, String> select[capitalizePrefix](HashMap<String, Object> searchMap) {
-		return sqlSession.selectOne("[prefix]Mapper.select[capitalizePrefix]", searchMap);
+	public [returnType] select[capitalizePrefix]([searchParamType] [searchParamName]) {
+		return sqlSession.selectOne("[prefix]Mapper.select[capitalizePrefix]", [searchParamName]);
 	}
 
 	/**
 	 * 등록
-	 * @Method : select[capitalizePrefix]TotalCnt
+	 * @Method : insert[capitalizePrefix]
 	 * @Company : [company]
 	 * @Author : [author]
 	 * @Date : [date]
-	 * @param requestMap
-	 * @return
+	 * @param [paramName]
+	 * @return int
 	 */
-	public int insert[capitalizePrefix](HashMap<String, Object> requestMap) {
-		return sqlSession.insert("[prefix]Mapper.insert[capitalizePrefix]", requestMap);
+	public int insert[capitalizePrefix]([paramType] [paramName]) {
+		return sqlSession.insert("[prefix]Mapper.insert[capitalizePrefix]", [paramName]);
 	}
 
 	/**
 	 * 수정
-	 * @Method : select[capitalizePrefix]TotalCnt
+	 * @Method : update[capitalizePrefix]
 	 * @Company : [company]
 	 * @Author : [author]
 	 * @Date : [date]
-	 * @param requestMap
-	 * @return
+	 * @param [paramName]
+	 * @return int
 	 */
-	public int update[capitalizePrefix](HashMap<String, Object> requestMap) {
-		return sqlSession.update("[prefix]Mapper.update[capitalizePrefix]", requestMap);
+	public int update[capitalizePrefix]([paramType] [paramName]) {
+		return sqlSession.update("[prefix]Mapper.update[capitalizePrefix]", [paramName]);
+	}
+
+	/**
+	 * 삭제
+	 * @Method : delete[capitalizePrefix]
+	 * @Company : [company]
+	 * @Author : [author]
+	 * @Date : [date]
+	 * @param [searchParamName]
+	 * @return int
+	 */
+	public int delete[capitalizePrefix]([searchParamType] [searchParamName]) {
+		return sqlSession.update("[prefix]Mapper.delete[capitalizePrefix]", [searchParamName]);
 	}
 
 }

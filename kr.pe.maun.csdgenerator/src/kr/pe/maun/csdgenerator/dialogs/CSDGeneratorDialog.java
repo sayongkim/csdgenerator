@@ -166,7 +166,12 @@ public class CSDGeneratorDialog extends Dialog {
 
 		String databaseConnectionProfileName = propertiesItem.getDatabaseConnectionProfileName();
 
-		String[] templateGroupNames = propertiesHelper.getGeneralTemplateGroupNames();
+		String[] generalTemplateGroupNames = propertiesHelper.getGeneralTemplateGroupNames();
+		List<String> templateGroupNames = new ArrayList<String>();
+		templateGroupNames.add("Default");
+		for(String generalTemplateGroupName : generalTemplateGroupNames) {
+			templateGroupNames.add(generalTemplateGroupName);
+		}
 
 		container.setLayout(new GridLayout(4, false));
 
@@ -179,7 +184,8 @@ public class CSDGeneratorDialog extends Dialog {
 
 		templateCombo = new Combo(container, SWT.READ_ONLY);
 		templateCombo.setLayoutData(comboGridData);
-		templateCombo.setItems(templateGroupNames);
+		templateCombo.setItems(templateGroupNames.toArray(new String[templateGroupNames.size()]));
+		templateCombo.select(0);
 
 		templateCombo.addSelectionListener(new SelectionListener() {
 			@Override
@@ -187,63 +193,66 @@ public class CSDGeneratorDialog extends Dialog {
 
 				templateGroupName = templateCombo.getText();
 
-				String generalTemplateController = propertiesHelper.getGeneralTemplateController(templateCombo.getText());
-				String generalTemplateService = propertiesHelper.getGeneralTemplateService(templateCombo.getText());
-				String generalTemplateDao = propertiesHelper.getGeneralTemplateDao(templateCombo.getText());
-				String generalTemplateMapper = propertiesHelper.getGeneralTemplateMapper(templateCombo.getText());
-				String generalTemplateJsp = propertiesHelper.getGeneralTemplateJsp(templateCombo.getText());
+				if(!"Default".equals(templateGroupName)) {
+					String generalTemplateController = propertiesHelper.getGeneralTemplateController(templateCombo.getText());
+					String generalTemplateService = propertiesHelper.getGeneralTemplateService(templateCombo.getText());
+					String generalTemplateDao = propertiesHelper.getGeneralTemplateDao(templateCombo.getText());
+					String generalTemplateMapper = propertiesHelper.getGeneralTemplateMapper(templateCombo.getText());
+					String generalTemplateJsp = propertiesHelper.getGeneralTemplateJsp(templateCombo.getText());
 
-				if(generalTemplateController != null
-						&& !"".equals(propertiesHelper.getControllerTemplateFile(generalTemplateController))) {
-					createControllerButton.setEnabled(true);
-				} else {
-					createControllerButton.setEnabled(false);
-				}
-
-				if(generalTemplateService != null
-						&& !"".equals(propertiesHelper.getServiceTemplateFile(generalTemplateService))) {
-					createServiceButton.setEnabled(true);
-				} else {
-					createServiceButton.setEnabled(false);
-				}
-
-				if(generalTemplateDao != null
-						&& !"".equals(propertiesHelper.getDaoTemplateFile(generalTemplateDao))) {
-					createDaoButton.setEnabled(true);
-				} else {
-					createDaoButton.setEnabled(false);
-				}
-
-				if(isCreateJsp) {
-					if(generalTemplateJsp != null
-							&& (!"".equals(propertiesHelper.getJspTemplateListFile(generalTemplateJsp))
-							|| !"".equals(propertiesHelper.getJspTemplatePostFile(generalTemplateJsp))
-							|| !"".equals(propertiesHelper.getJspTemplateViewFile(generalTemplateJsp)))) {
-						createJspButton.setEnabled(true);
+					if(generalTemplateController != null
+							&& !"".equals(propertiesHelper.getControllerTemplateFile(generalTemplateController))) {
+						createControllerButton.setEnabled(true);
 					} else {
-						createJspButton.setEnabled(false);
+						createControllerButton.setEnabled(false);
 					}
-				}
 
-				if(generalTemplateJsp != null
-						&& !"".equals(propertiesHelper.getJspTemplateListFile(generalTemplateJsp))) {
-					existsJspTemplateListFile = true;
-				} else {
-					existsJspTemplateListFile = false;
-				}
+					if(generalTemplateService != null
+							&& !"".equals(propertiesHelper.getServiceTemplateFile(generalTemplateService))) {
+						createServiceButton.setEnabled(true);
+					} else {
+						createServiceButton.setEnabled(false);
+					}
 
-				if(generalTemplateJsp != null
-						&& !"".equals(propertiesHelper.getJspTemplatePostFile(generalTemplateJsp))) {
-					existsJspTemplatePostFile = true;
-				} else {
-					existsJspTemplatePostFile = false;
-				}
+					if(generalTemplateDao != null
+							&& !"".equals(propertiesHelper.getDaoTemplateFile(generalTemplateDao))) {
+						createDaoButton.setEnabled(true);
+					} else {
+						createDaoButton.setEnabled(false);
+					}
 
-				if(generalTemplateJsp != null
-						&& !"".equals(propertiesHelper.getJspTemplateViewFile(generalTemplateJsp))) {
-					existsJspTemplateViewFile = true;
-				} else {
-					existsJspTemplateViewFile = false;
+					if(isCreateJsp) {
+						if(generalTemplateJsp != null
+								&& (!"".equals(propertiesHelper.getJspTemplateListFile(generalTemplateJsp))
+								|| !"".equals(propertiesHelper.getJspTemplatePostFile(generalTemplateJsp))
+								|| !"".equals(propertiesHelper.getJspTemplateViewFile(generalTemplateJsp)))) {
+							createJspButton.setEnabled(true);
+						} else {
+							createJspButton.setEnabled(false);
+						}
+					}
+
+					if(generalTemplateJsp != null
+							&& !"".equals(propertiesHelper.getJspTemplateListFile(generalTemplateJsp))) {
+						existsJspTemplateListFile = true;
+					} else {
+						existsJspTemplateListFile = false;
+					}
+
+					if(generalTemplateJsp != null
+							&& !"".equals(propertiesHelper.getJspTemplatePostFile(generalTemplateJsp))) {
+						existsJspTemplatePostFile = true;
+					} else {
+						existsJspTemplatePostFile = false;
+					}
+
+					if(generalTemplateJsp != null
+							&& !"".equals(propertiesHelper.getJspTemplateViewFile(generalTemplateJsp))) {
+						existsJspTemplateViewFile = true;
+					} else {
+						existsJspTemplateViewFile = false;
+					}
+
 				}
 
 				createTree();
@@ -527,13 +536,14 @@ public class CSDGeneratorDialog extends Dialog {
 
 		previewTree = new Tree(container, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
 		previewTree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 3, 0));
+
 		createTree();
 
-		GridData databaseTablesTreeGridData = new GridData(SWT.FILL, SWT.FILL, false, true);
-		databaseTablesTreeGridData.widthHint = 200;
+		GridData databaseTablesGridData = new GridData(SWT.FILL, SWT.FILL, false, true);
+		databaseTablesGridData.widthHint = 200;
 
 		databaseTablesTable = new Table(container, SWT.CHECK | SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
-		databaseTablesTable.setLayoutData(databaseTablesTreeGridData);
+		databaseTablesTable.setLayoutData(databaseTablesGridData);
 		databaseTablesTable.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -768,7 +778,7 @@ public class CSDGeneratorDialog extends Dialog {
 					controllerJavaTreeItem.setText(capitalizePrefix + "Controller.java");
 					controllerJavaTreeItem.setImage(javaIcon);
 
-					if (!"".equals(name) && isCreateControllerSubFolder) {
+					if (!controllerSubFolderTreeItem.isDisposed()) {
 						controllerSubFolderTreeItem.setExpanded(true);
 						controllerSubFolderTreeItem.setImage(packageIcon);
 					}
@@ -807,7 +817,8 @@ public class CSDGeneratorDialog extends Dialog {
 
 					if (isCreateServiceImpl) {
 						if (isCreateServiceImplFolder) {
-							if(serviceImplFolderTreeItem == null || isCreateServiceSubFolder) {
+
+							if(serviceImplFolderTreeItem == null || isCreateServiceFolder || isCreateServiceSubFolder) {
 								String serviceImplFolder = "impl";
 
 								serviceImplFolderTreeItem = new TreeItem(serviceSubFolderTreeItem.isDisposed() ? serviceFolderTreeItem : serviceSubFolderTreeItem, 1);
@@ -827,7 +838,7 @@ public class CSDGeneratorDialog extends Dialog {
 					serviceJavaTreeItem.setText(capitalizePrefix + "Service.java");
 					serviceJavaTreeItem.setImage(javaIcon);
 
-					if (!"".equals(name) && isCreateServiceSubFolder) {
+					if (!serviceSubFolderTreeItem.isDisposed()) {
 						serviceSubFolderTreeItem.setExpanded(true);
 						serviceSubFolderTreeItem.setImage(packageIcon);
 					}
@@ -838,7 +849,7 @@ public class CSDGeneratorDialog extends Dialog {
 
 					if (isCreateServiceImpl) {
 						if (isCreateServiceImplFolder) {
-							if(serviceImplFolderTreeItem == null || isCreateServiceSubFolder) {
+							if(serviceImplFolderTreeItem == null || isCreateServiceFolder || isCreateServiceSubFolder) {
 								String serviceImplFolder = "impl";
 
 								serviceImplFolderTreeItem = new TreeItem(javaRootTreeItem, 1);
@@ -887,7 +898,7 @@ public class CSDGeneratorDialog extends Dialog {
 					daoJavaTreeItem.setText(capitalizePrefix + "Dao.java");
 					daoJavaTreeItem.setImage(javaIcon);
 
-					if (!"".equals(name) && isCreateDaoSubFolder) {
+					if (!daoSubFolderTreeItem.isDisposed()) {
 						daoSubFolderTreeItem.setExpanded(true);
 						daoSubFolderTreeItem.setImage(packageIcon);
 					}

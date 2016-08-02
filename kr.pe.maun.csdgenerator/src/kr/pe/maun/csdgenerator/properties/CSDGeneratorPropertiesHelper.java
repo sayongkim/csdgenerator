@@ -20,6 +20,11 @@ public class CSDGeneratorPropertiesHelper {
 	private static final String GENERAL_TEMPLATE_GOUP_MAPPER_NAME = "general.template.group.mapper";
 	private static final String GENERAL_TEMPLATE_GOUP_JSP_NAME = "general.template.group.jsp";
 
+	private static final String TEST_TEMPLATE_GOUP_NAME = "test.template.group";
+	private static final String TEST_TEMPLATE_GOUP_CONTROLLER_NAME = "test.template.group.controller";
+	private static final String TEST_TEMPLATE_GOUP_SERVICE_NAME = "test.template.group.service";
+	private static final String TEST_TEMPLATE_GOUP_DAO_NAME = "test.template.group.dao";
+
 	private static final String CONTROLLER_TEMPLATE_NAME = "controller.template";
 	private static final String CONTROLLER_TEMPLATE_FILE = "controller.template.file";
 
@@ -117,6 +122,49 @@ public class CSDGeneratorPropertiesHelper {
 		}
 
 		return getGeneralTemplateGroupNames();
+	}
+
+	public String[] getTestTemplateGroupNames(){
+		try {
+			Preferences node = preferences.node(TEST_TEMPLATE_GOUP_NAME);
+			return node.keys();
+		} catch (BackingStoreException e) {
+			e.printStackTrace();
+		}
+		return new String[]{};
+	}
+
+	public String getTestTemplateController(String key) {
+		return preferences.node(TEST_TEMPLATE_GOUP_CONTROLLER_NAME).get(key, null);
+	}
+
+	public String getTestTemplateService(String key) {
+		return preferences.node(TEST_TEMPLATE_GOUP_SERVICE_NAME).get(key, null);
+	}
+
+	public String getTestTemplateDao(String key) {
+		return preferences.node(TEST_TEMPLATE_GOUP_DAO_NAME).get(key, null);
+	}
+
+	public String[] testPropertiesFlush(Tree templateTree){
+		try {
+			preferences.node(TEST_TEMPLATE_GOUP_NAME).clear();
+			preferences.node(TEST_TEMPLATE_GOUP_CONTROLLER_NAME).clear();
+			preferences.node(TEST_TEMPLATE_GOUP_SERVICE_NAME).clear();
+			preferences.node(TEST_TEMPLATE_GOUP_DAO_NAME).clear();
+			TreeItem[] templateItems = templateTree.getItems();
+			for(TreeItem template : templateItems) {
+				preferences.node(TEST_TEMPLATE_GOUP_NAME).put(template.getText(), template.getText());
+				preferences.node(TEST_TEMPLATE_GOUP_CONTROLLER_NAME).put(template.getText(), (String) template.getItems()[0].getData());
+				preferences.node(TEST_TEMPLATE_GOUP_SERVICE_NAME).put(template.getText(), (String) template.getItems()[1].getData());
+				preferences.node(TEST_TEMPLATE_GOUP_DAO_NAME).put(template.getText(), (String) template.getItems()[2].getData());
+			}
+			preferences.node(TEST_TEMPLATE_GOUP_NAME).flush();
+		} catch (BackingStoreException e) {
+			e.printStackTrace();
+		}
+
+		return getTestTemplateGroupNames();
 	}
 
 	public String[] getControllerTemplateNames(){

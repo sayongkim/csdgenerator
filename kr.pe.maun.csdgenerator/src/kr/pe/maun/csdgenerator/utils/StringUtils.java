@@ -2,8 +2,10 @@ package kr.pe.maun.csdgenerator.utils;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import kr.pe.maun.csdgenerator.model.CSDGeneratorPropertiesItem;
+import kr.pe.maun.csdgenerator.model.ColumnItem;
 
 public class StringUtils {
 
@@ -22,7 +24,7 @@ public class StringUtils {
 		        }
 		    }
 	    } else {
-	    	result.append(source);
+	    	result.append(source.toLowerCase());
 		}
 	    return result.toString();
 	}
@@ -75,6 +77,119 @@ public class StringUtils {
 	public static String replaceReturn(String returnType, String source) {
 		source = source.replaceAll("\\[returnType\\]", returnType);
 		return source;
+	}
+
+
+	public static String replaceMapperSelecColumn(List<ColumnItem> columnItems) {
+		StringBuffer result = new StringBuffer();
+		if(columnItems.size() > 0) {
+			for (int i = 0; i < columnItems.size(); i++) {
+				ColumnItem columnItem = columnItems.get(i);
+				if(i > 0) result.append("\t\t\t,");
+				result.append(columnItem.getColumnName().toUpperCase());
+				result.append(" AS ");
+				result.append(StringUtils.toCamelCase(columnItem.getColumnName()));
+				if(i < (columnItems.size() - 1)) result.append("\n");
+			}
+		}
+		return result.toString();
+	}
+
+	public static String replaceMapperInsertColumn(List<ColumnItem> columnItems) {
+		StringBuffer result = new StringBuffer();
+		if(columnItems.size() > 0) {
+			for (int i = 0; i < columnItems.size(); i++) {
+				ColumnItem columnItem = columnItems.get(i);
+				if(i > 0) result.append("\t\t\t,");
+				result.append(columnItem.getColumnName().toUpperCase());
+				if(i < (columnItems.size() - 1)) result.append("\n");
+			}
+		}
+		return result.toString();
+	}
+
+	public static String replaceMapperInsertValue(List<ColumnItem> columnItems) {
+		StringBuffer result = new StringBuffer();
+		if(columnItems.size() > 0) {
+			for (int i = 0; i < columnItems.size(); i++) {
+				ColumnItem columnItem = columnItems.get(i);
+				if(i > 0) result.append("\t\t\t,");
+				result.append("#{");
+				result.append(StringUtils.toCamelCase(columnItem.getColumnName()));
+				result.append("}");
+				if(i < (columnItems.size() - 1)) result.append("\n");
+			}
+		}
+		return result.toString();
+	}
+
+	public static String replaceMapperUpdateColumn(List<ColumnItem> columnItems) {
+		StringBuffer result = new StringBuffer();
+		int size = columnItems.size();
+		if(size > 0) {
+			for (int i = 0; i < size; i++) {
+				ColumnItem columnItem = columnItems.get(i);
+				if(i > 0) result.append("\t\t\t,");
+				result.append(columnItem.getColumnName().toUpperCase());
+				result.append(" = #{");
+				result.append(StringUtils.toCamelCase(columnItem.getColumnName()));
+				result.append("}");
+				if(i < (size - 1)) result.append("\n");
+			}
+		}
+		return result.toString();
+	}
+
+	public static String replaceMapperIndexColumn(List<String> indexColumns) {
+		StringBuffer result = new StringBuffer();
+		int size = indexColumns.size();
+		if(size > 0) {
+			for (int i = 0; i < size; i++) {
+				String column = indexColumns.get(i);
+				if(i > 0) result.append("\t\t\t");
+				result.append("AND ");
+				result.append(column.toUpperCase());
+				result.append(" = #{");
+				result.append(StringUtils.toCamelCase(column));
+				result.append("}");
+				if(i < (size - 1)) result.append("\n");
+			}
+		}
+		return result.toString();
+	}
+
+	public static String replaceRepeatWord(String content, List<ColumnItem> columns) {
+		int size = columns.size();
+		if(size > 0 && (content.indexOf("/*r:s*/") > -1 || content.indexOf("<!--r:s-->") > -1)) {
+			String[] contentItems = content.split("\n");
+			boolean isReservedWord = false;
+			String replaceTarget = "";
+			String replaceContent = "";
+			for(String contentItem : contentItems) {
+				if(!isReservedWord && (contentItem.indexOf("/*r:s*/") > -1 || contentItem.indexOf("<!--r:s-->") > -1)) {
+					isReservedWord = true;
+				} else if(isReservedWord && contentItem.indexOf("/*r:e*/") == -1 && contentItem.indexOf("<!--r:e-->") == -1) {
+					replaceTarget += "\n";
+					replaceTarget += contentItem;
+				} else if(isReservedWord && (contentItem.indexOf("/*r:e*/") > -1 || contentItem.indexOf("<!--r:e-->") > -1)) {
+					isReservedWord = false;
+					for(ColumnItem columnItem : columns) {
+						String tempContent = replaceTarget;
+						if(replaceTarget.indexOf("et[column]") > -1) {
+							tempContent = tempContent.replaceAll("et\\[column\\]", StringUtils.toCamelCase("et_" + columnItem.getColumnName()));
+						} else {
+							tempContent = tempContent.replaceAll("\\[column\\]", StringUtils.toCamelCase(columnItem.getColumnName()));
+						}
+						tempContent = tempContent.replaceAll("\\[comment\\]", columnItem.getComments());
+						replaceContent += tempContent;
+					}
+					content = content.replace(replaceTarget, replaceContent);
+					replaceTarget = "";
+					replaceContent = "";
+				}
+			}
+		}
+		return content;
 	}
 
 }

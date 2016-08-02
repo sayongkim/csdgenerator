@@ -15,6 +15,21 @@ public interface ICSDGeneratorPropertiesItem {
 	String getDatabaseConnectionProfileName();
 	void setDatabaseConnectionProfileName(String databaseConnectionProfileName);
 
+	boolean getCreateTest();
+	void setCreateTest(boolean createTest);
+
+	boolean getCreateTestControllerFolder();
+	void setCreateTestControllerFolder(boolean createTestControllerFolder);
+
+	boolean getCreateTestServiceFolder();
+	void setCreateTestServiceFolder(boolean createTestServiceFolder);
+
+	boolean getCreateTestDaoFolder();
+	void setCreateTestDaoFolder(boolean createTestDaoFolder);
+
+	String getTestPath();
+	void setTestPath(String testPath);
+
 	boolean getCreateControllerFolder();
 	void setCreateControllerFolder(boolean createControllerFolder);
 
@@ -59,6 +74,15 @@ public interface ICSDGeneratorPropertiesItem {
 
 	boolean getCreateSearchVo();
 	void setCreateSearchVo(boolean createSearchVo);
+
+	boolean getCreateVoFolder();
+	void setCreateVoFolder(boolean createVoFolder);
+
+	String getVoSuperclass();
+	void setVoSuperclass(String voSuperclass);
+
+	String getVoFolder();
+	void setVoFolderName(String voFolderName);
 
 	String getVoPath();
 	void setVoPath(String voPath);

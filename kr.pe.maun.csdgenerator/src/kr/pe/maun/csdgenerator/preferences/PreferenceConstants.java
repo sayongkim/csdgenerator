@@ -14,6 +14,12 @@ public class PreferenceConstants {
 
 	public static final String CSDGENERATOR_DATABASE_CONNECTION_PROFILE_NAME = "csdgenerator.database.connection.profile.name";
 
+	public static final String CSDGENERATOR_CREATE_TEST = "csdgenerator.create.test";
+	public static final String CSDGENERATOR_CREATE_TEST_CONTROLLER_FOLDER = "csdgenerator.create.test.controller.folder";
+	public static final String CSDGENERATOR_CREATE_TEST_SERVICE_FOLDER = "csdgenerator.create.test.service.folder";
+	public static final String CSDGENERATOR_CREATE_TEST_DAO_FOLDER = "csdgenerator.create.test.dao.folder";
+	public static final String CSDGENERATOR_TEST_PATH = "csdgenerator.test.path";
+
 	public static final String CSDGENERATOR_TEMPLATE_GROUP = "csdgenerator.template.group";
 
 	public static final String CSDGENERATOR_CREATE_CONTROLLER_FOLDER = "csdgenerator.create.controller.folder";
@@ -36,7 +42,10 @@ public class PreferenceConstants {
 
 	public static final String CSDGENERATOR_CREATE_VO = "csdgenerator.create.vo";
 	public static final String CSDGENERATOR_CREATE_SEARCH_VO = "csdgenerator.create.search.vo";
+	public static final String CSDGENERATOR_CREATE_VO_FOLDER = "csdgenerator.create.vo.folder";
+	public static final String CSDGENERATOR_VO_FOLDER = "csdgenerator.vo.folder";
 	public static final String CSDGENERATOR_VO_PATH = "csdgenerator.vo.path";
+	public static final String CSDGENERATOR_VO_SUPERCLASS = "csdgenerator.vo.superclass";
 	public static final String CSDGENERATOR_MYBATIS_SETTING_FILE = "csdgenerator.mybatis.setting.file";
 
 	public static final String CSDGENERATOR_CREATE_JSP = "csdgenerator.create.jsp";

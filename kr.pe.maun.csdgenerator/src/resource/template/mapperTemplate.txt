@@ -9,7 +9,7 @@
 	Desc : 총 건수 조회
 	TABLE : [table]
 	-->
-	<select id="select[capitalizePrefix]TotalCnt" parameterType="hashMap" resultType="int">
+	<select id="select[capitalizePrefix]TotalCnt" parameterType="[paramType]" resultType="long">
 		SELECT
 			COUNT(NO_SEQ) AS cnt
 		FROM [table]
@@ -21,13 +21,13 @@
 	Desc : 목록 조회
 	TABLE : [table]
 	-->
-	<select id="select[capitalizePrefix]List" parameterType="hashMap" resultType="hashMap">
+	<select id="select[capitalizePrefix]List" parameterType="[paramType]" resultType="[resultType]">
 		SELECT
 			[columns]
 		FROM [table]
-		WHERE DEL_YN = 'N'
+		WHERE
 			&lt;include refid="sqlSearch[capitalizePrefix]" /&gt;
-		ORDER BY NO_SEQ DESC
+		ORDER BY 1 DESC
 		&lt;if test=' startNum != null and startNum != "" and  endNum != null and endNum != "" '&gt;
 		LIMIT #{startNum}, #{endNum}
 		&lt;/if&gt;
@@ -37,7 +37,7 @@
 	Desc : 조회
 	TABLE : [table]
 	-->
-	<select id="select[capitalizePrefix]" parameterType="hashMap" resultType="hashMap">
+	<select id="select[capitalizePrefix]" parameterType="[paramType]" resultType="[resultType]">
 		SELECT
 			[columns]
 		FROM [table]
@@ -49,7 +49,7 @@
 	Desc : 등록
 	TABLE : [table]
 	-->
-	<insert id="insert[capitalizePrefix]" parameterType="hashMap">
+	<insert id="insert[capitalizePrefix]" parameterType="[paramType]">
 		&lt;selectKey resultType="string" keyProperty="no_seq" order="BEFORE"&gt;
 		&lt;/selectKey&gt;
 		INSERT INTO [table] (
@@ -63,7 +63,18 @@
 	Desc : 수정
 	TABLE : [table]
 	-->
-	<update id="update[capitalizePrefix]" parameterType="hashMap">
+	<update id="update[capitalizePrefix]" parameterType="[paramType]">
+		UPDATE [table] SET
+			[columns]
+		WHERE 1=1
+			[indexColumns]
+	</update>
+
+	<!--
+	Desc : 삭제
+	TABLE : [table]
+	-->
+	<update id="delete[capitalizePrefix]" parameterType="[paramType]">
 		UPDATE [table] SET
 			[columns]
 		WHERE 1=1

@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<site>
-   <feature url="features/kr.pe.maun.csdgenerator.feature_1.0.1.jar" id="kr.pe.maun.csdgenerator.feature" version="1.0.1">
-      <category name="kr.pe.maun.csdgenerator"/>
-   </feature>
-   <category-def name="kr.pe.maun.csdgenerator" label="CSD Generator"/>
-</site>

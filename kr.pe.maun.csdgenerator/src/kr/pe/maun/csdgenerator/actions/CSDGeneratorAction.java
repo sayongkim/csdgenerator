@@ -121,8 +121,10 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 				subMonitor.setWorkRemaining(70);
 
-				IFolder folder = null;
-				IPackageFragment packageFragment = null;
+				IFolder javaFolder = null;
+				IFolder javaTestFolder = null;
+				IPackageFragment javaPackageFragment = null;
+				IPackageFragment javaTestPackageFragment = null;
 				String prefix  = dialog.getPrefix();
 				boolean isCreateFolder = dialog.isCreateFolder();
 				boolean isParentLocation = dialog.isParentLocation();
@@ -132,19 +134,21 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 					TreePath[] treePaths = treeSelection.getPaths();
 					for(TreePath treePath : treePaths) {
 						if(treePath.getLastSegment() instanceof IFolder) {
-							folder = (IFolder) treePath.getLastSegment();
+							javaFolder = (IFolder) treePath.getLastSegment();
 							/*System.out.println("path 1 : "+ folder. getLocation().toOSString());*/
 						} else if(treePath.getLastSegment() instanceof IPackageFragment) {
-							packageFragment = (IPackageFragment) treePath.getLastSegment();
+							javaPackageFragment = (IPackageFragment) treePath.getLastSegment();
 						}
 					}
 				}
 
-				IProject project = packageFragment.getJavaProject().getProject();
+				IProject project = javaPackageFragment.getJavaProject().getProject();
 
-				if(folder != null && prefix != null) {
+				CodeFormatter codeFormatter = ToolFactory.createCodeFormatter(null);
 
-					IFolder newFolder = folder.getFolder(new Path(prefix));
+				if(javaFolder != null && prefix != null) {
+
+					IFolder newFolder = javaFolder.getFolder(new Path(prefix));
 
 					String controllerPath = prefix + "Controller";
 					String servicePath = prefix + "Service";
@@ -175,7 +179,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 					} catch (CoreException | UnsupportedEncodingException e) {
 						e.printStackTrace();
 					}
-				} else if(packageFragment != null && prefix != null) {
+				} else if(javaPackageFragment != null && prefix != null) {
 
 					DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 					factory.setValidating(true);
@@ -184,10 +188,10 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 					long startTime = System.currentTimeMillis();
 					long lapTime = System.currentTimeMillis();
 
-					IResource resource = (IResource) packageFragment.getJavaProject().getProject().getAdapter(IResource.class);
+					IResource resource = (IResource) javaPackageFragment.getJavaProject().getProject().getAdapter(IResource.class);
 
 					CSDGeneratorPropertiesItem propertiesItem = new CSDGeneratorPropertiesItem(resource);
-					CSDGeneratorPropertiesHelper propertiesHelper = new CSDGeneratorPropertiesHelper(new ProjectScope(packageFragment.getJavaProject().getProject()).getNode(CSDGeneratorPlugin.PLUGIN_ID));
+					CSDGeneratorPropertiesHelper propertiesHelper = new CSDGeneratorPropertiesHelper(new ProjectScope(javaPackageFragment.getJavaProject().getProject()).getNode(CSDGeneratorPlugin.PLUGIN_ID));
 
 					IConnectionProfile connectionProfile = dialog.getConnectionProfile();
 					DatabaseResource databaseResource = connectionProfile == null ? null : new DatabaseResource(connectionProfile);
@@ -198,11 +202,21 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 					String generalTemplateMapper = propertiesHelper.getGeneralTemplateMapper(dialog.getTemplateGroupName());
 					String generalTemplateJsp = propertiesHelper.getGeneralTemplateJsp(dialog.getTemplateGroupName());
 
+					String testTemplateController = propertiesHelper.getTestTemplateController(dialog.getTemplateGroupName());
+					String testTemplateService = propertiesHelper.getTestTemplateService(dialog.getTemplateGroupName());
+					String testTemplateDao = propertiesHelper.getTestTemplateDao(dialog.getTemplateGroupName());
+
+					String testPath = propertiesItem.getTestPath();
+
 					boolean isCreateController = dialog.isCreateController();
 					boolean isCreateControllerFolder = propertiesItem.getCreateControllerFolder();
 					boolean isAddPrefixControllerFolder = propertiesItem.getAddPrefixControllerFolder();
 					boolean isCreateControllerSubFolder = propertiesItem.getCreateControllerSubFolder();
 					String controllerTemplateFile = generalTemplateController == null ? null : propertiesHelper.getControllerTemplateFile(generalTemplateController);
+
+					boolean isCreateTestController = dialog.isCreateTestController();
+					boolean isCreateTestControllerFolder = propertiesItem.getCreateTestControllerFolder();
+					String testControllerTemplateFile = testTemplateController == null ? null : propertiesHelper.getControllerTemplateFile(testTemplateController);
 
 					boolean isCreateService = dialog.isCreateService();
 					boolean isCreateServiceFolder = propertiesItem.getCreateServiceFolder();
@@ -213,6 +227,10 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 					boolean isCreateServiceImpl = propertiesItem.getCreateServiceImpl();
 					boolean isCreateServiceImplFolder = propertiesItem.getCreateServiceImpl();
 
+					boolean isCreateTestService = dialog.isCreateTestService();
+					boolean isCreateTestServiceFolder = propertiesItem.getCreateTestServiceFolder();
+					String testServiceTemplateFile = testTemplateService == null ? null : propertiesHelper.getServiceTemplateFile(testTemplateService);
+
 					boolean isCreateDao = dialog.isCreateDao();
 					boolean isCreateDaoFolder = propertiesItem.getCreateDaoFolder();
 					boolean isAddPrefixDaoFolder = propertiesItem.getAddPrefixDaoFolder();
@@ -220,13 +238,21 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 					String daoTemplateFile = generalTemplateDao == null ? null : propertiesHelper.getDaoTemplateFile(generalTemplateDao);
 					String myBatisSettingFile = propertiesItem.getMyBatisSettingFile();
 
+					boolean isCreateTestDao = dialog.isCreateTestDao();
+					boolean isCreateTestDaoFolder = propertiesItem.getCreateTestDaoFolder();
+					String testDaoTemplateFile = testTemplateDao == null ? null : propertiesHelper.getDaoTemplateFile(testTemplateDao);
+
 					boolean isCreateMapper = dialog.isCreateMapper();
 					String mapperPath = propertiesItem.getMapperPath();
 					String mapperTemplateFile = generalTemplateMapper == null ? null : propertiesHelper.getMapperTemplateFile(generalTemplateMapper);
 
 					boolean isCreateVo = dialog.isCreateVo();
 					boolean isCreateSearchVo = propertiesItem.getCreateSearchVo();
+					boolean isCreateVoFolder = propertiesItem.getCreateVoFolder();
+					String voFolderName = propertiesItem.getVoFolder();
 					String voPath = propertiesItem.getVoPath();
+					String voSuperclass = dialog.getVoSuperclass();
+					boolean isExtendVoSuperclass = dialog.isExtendVoSuperclass() && voSuperclass != null && voSuperclass.indexOf(".") != -1;
 
 					boolean isCreateJsp = dialog.isCreateJsp();
 					String jspPath = propertiesItem.getJspPath();
@@ -239,12 +265,21 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 					String[] dataTypes = propertiesHelper.getDataTypes();
 
-					String packageFullPath = packageFragment.getElementName();
-
-					IJavaProject javaProject = packageFragment.getJavaProject();
+					IJavaProject javaProject = javaPackageFragment.getJavaProject();
 
 					String javaVoBuildPath = "";
 
+					try {
+						javaTestPackageFragment = javaProject.findPackageFragment(new Path(testPath));
+					} catch (JavaModelException e) {
+						e.printStackTrace();
+						isCreateTestController = false;
+						isCreateTestService = false;
+						isCreateTestDao = false;
+					}
+
+					String packageFullPath = javaPackageFragment.getElementName();
+					String testPackageFullPath = javaTestPackageFragment == null ? "" : javaTestPackageFragment.getElementName();
 
 					List<SerialVersionUIDItem> addSerialVersionUIDList = new ArrayList<SerialVersionUIDItem>();
 
@@ -252,7 +287,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 						IClasspathEntry[] classpaths = javaProject.getRawClasspath();
 						for (IClasspathEntry classpath : classpaths) {
 							IPath path = classpath.getPath();
-							if (voPath != null && voPath.indexOf(path.toString()) > -1) {
+							if (isCreateVo && voPath != null && voPath.indexOf(path.toString()) > -1) {
 								javaVoBuildPath = path.removeFirstSegments(1).toString();
 							}
 						}
@@ -260,24 +295,12 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 						e.printStackTrace();
 					}
 
-					folder = (IFolder) packageFragment.getResource().getAdapter(IFolder.class);
+					javaFolder = (IFolder) javaPackageFragment.getResource().getAdapter(IFolder.class);
+					javaTestFolder = javaTestPackageFragment == null ? null : (IFolder) javaTestPackageFragment.getResource().getAdapter(IFolder.class);
 
 					if(isParentLocation) {
 						packageFullPath = packageFullPath.substring(0, packageFullPath.lastIndexOf("."));
-						folder = (IFolder) folder.getParent().getAdapter(IFolder.class);
-					}
-
-					String voPackage = voPath == null || voPath.length() < 1 ? "" : voPath.replace("/", ".").substring(voPath.lastIndexOf(javaVoBuildPath) + javaVoBuildPath.length() + 1);
-
-					String importParameterVo = null;
-					String importReturnVo = null;
-
-					if(parameterType.toLowerCase().indexOf("hashmap") == -1) {
-						importParameterVo = voPackage + "." + parameterType;
-					}
-
-					if(returnType.toLowerCase().indexOf("hashmap") == -1) {
-						importReturnVo = voPackage + "." + returnType;
+						javaFolder = (IFolder) javaFolder.getParent().getAdapter(IFolder.class);
 					}
 
 					String[] databaseTables = dialog.getDatabaseTables();
@@ -311,6 +334,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 					for(String databaseTableName : databaseTables) {
 
 						String rootPackagePath = packageFullPath;
+						String rootTestPackagePath = testPackageFullPath;
 
 						prefix = databaseTableName;
 
@@ -323,19 +347,52 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 						prefix = StringUtils.toCamelCase(prefix);
 
-						IFolder newFolder = folder.getFolder(new Path(prefix));
+						IFolder newJavaFolder = javaFolder.getFolder(new Path(prefix));
+						IFolder newJavaTestFolder = javaTestFolder.getFolder(new Path(prefix));
 
 						String capitalizePrefix = prefix.substring(0, 1).toUpperCase() + prefix.substring(1);
 
 						try {
 
+							List<ColumnItem> columns = null;
+							List<String> indexColumns = null;
+
+							if(connectionProfile != null) {
+								columns = databaseResource.getColumns(databaseTableName);
+								indexColumns = databaseResource.getIndexColumns(databaseTableName);
+							}
+
 							/* 폴더를 생성한다. */
 							if(isCreateFolder
-									&& (isCreateController || isCreateService || isCreateDao)) {
-								if(!newFolder.exists()) newFolder.create(true ,true, new NullProgressMonitor());
+									&& (isCreateController || isCreateService || isCreateDao || isCreateVo)) {
+								if(!newJavaFolder.exists()) newJavaFolder.create(true ,true, new NullProgressMonitor());
 								rootPackagePath = rootPackagePath + "." + prefix;
 							} else {
-								newFolder = folder;
+								newJavaFolder = javaFolder;
+							}
+
+							if(isCreateTestController || isCreateTestService || isCreateTestDao) {
+								if(!newJavaTestFolder.exists()) newJavaTestFolder.create(true ,true, new NullProgressMonitor());
+								rootTestPackagePath = rootTestPackagePath + "." + prefix;
+							} else {
+								newJavaTestFolder = javaTestFolder;
+							}
+
+							String voPackage = voPath == null || voPath.length() < 1 || voPath.lastIndexOf(javaVoBuildPath) == -1 ? "" : voPath.replace("/", ".").substring(voPath.lastIndexOf(javaVoBuildPath) + javaVoBuildPath.length() + 1);
+
+							if(isCreateVoFolder) {
+								voPackage = rootPackagePath + "." + voFolderName;
+							}
+
+							String importParameterVo = null;
+							String importReturnVo = null;
+
+							if(parameterType.toLowerCase().indexOf("hashmap") == -1) {
+								importParameterVo = voPackage + "." + parameterType;
+							}
+
+							if(returnType.toLowerCase().indexOf("hashmap") == -1) {
+								importReturnVo = voPackage + "." + returnType;
 							}
 
 							/* S : Vo 생성 */
@@ -348,9 +405,14 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 									importParameterVo = voPackage + "." + capitalizePrefix + "Vo";
 									importReturnVo = voPackage + "." + capitalizePrefix + "Vo";
 
-									List<ColumnItem> columns = databaseResource.getColumns(databaseTableName);
+									IFolder voFolder = null;
 
-									IFolder voFolder = newFolder.getWorkspace().getRoot().getFolder(new Path(voPath + "/"));
+									if(isCreateVoFolder) {
+										voFolder = newJavaFolder.getFolder(new Path(voFolderName));
+									} else {
+										voFolder = newJavaFolder.getWorkspace().getRoot().getFolder(new Path(voPath + "/"));
+									}
+
 									if(!voFolder.exists()) voFolder.create(true ,true, new NullProgressMonitor());
 
 									String voContent = getSource("platform:/plugin/kr.pe.maun.csdgenerator/resource/template/voTemplate.txt");
@@ -414,7 +476,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 										gettersAndSetters.append("\tpublic void ");
 										gettersAndSetters.append(StringUtils.toCamelCase("set_" + column.getColumnName()));
-										gettersAndSetters.append("( ");
+										gettersAndSetters.append("(");
 										gettersAndSetters.append(dataType);
 										gettersAndSetters.append(" ");
 										gettersAndSetters.append(columnName);
@@ -460,6 +522,27 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 											compilationUnit.createImport(importDeclaration.get(key), null, new NullProgressMonitor());
 										}
 
+										if(isExtendVoSuperclass) {
+											compilationUnit.createImport(voSuperclass, null, new NullProgressMonitor());
+
+											ASTParser voParser = ASTParser.newParser(AST.JLS8);
+											voParser.setSource(compilationUnit);
+										    voParser.setResolveBindings(true);
+
+										    CompilationUnit voParserCompilationUnit = (CompilationUnit) voParser.createAST(null);
+
+											AST voAst = voParserCompilationUnit.getAST();
+											TypeDeclaration voTypeDeclaration = (TypeDeclaration) voParserCompilationUnit.types().get(0);
+											voTypeDeclaration.setSuperclassType(voAst.newSimpleType(voAst.newSimpleName(voSuperclass.substring(voSuperclass.lastIndexOf(".") + 1))));
+
+											TextEdit voTextEdit = codeFormatter.format(CodeFormatter.K_COMPILATION_UNIT, voParserCompilationUnit.toString(), 0, voParserCompilationUnit.toString().length(), 0, null);
+											Document voDocument = new Document(voParserCompilationUnit.toString());
+
+											voTextEdit.apply(voDocument);
+
+											compilationUnit.getBuffer().setContents(voDocument.get());
+										}
+
 										compilationUnit.save(null, true);
 
 										if(isCreateSearchVo && searchVoFile != null) {
@@ -468,7 +551,28 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 												compilationSearchUnit.createImport(importDeclaration.get(key), null, new NullProgressMonitor());
 											}
 
+											if(isExtendVoSuperclass) {
+												ASTParser searchVoParser = ASTParser.newParser(AST.JLS8);
+												searchVoParser.setSource(compilationSearchUnit);
+												searchVoParser.setResolveBindings(true);
+
+												CompilationUnit searchVoParserCompilationUnit = (CompilationUnit) searchVoParser.createAST(null);
+
+												AST searchVoAst = searchVoParserCompilationUnit.getAST();
+												TypeDeclaration searchVoTypeDeclaration = (TypeDeclaration) searchVoParserCompilationUnit.types().get(0);
+												searchVoTypeDeclaration.setSuperclassType(searchVoAst.newSimpleType(searchVoAst.newSimpleName(voSuperclass.substring(voSuperclass.lastIndexOf(".") + 1))));
+
+												TextEdit searchVoTextEdit = codeFormatter.format(CodeFormatter.K_COMPILATION_UNIT, searchVoParserCompilationUnit.toString(), 0, searchVoParserCompilationUnit.toString().length(), 0, null);
+												Document searchVoDocument = new Document(searchVoParserCompilationUnit.toString());
+
+												searchVoTextEdit.apply(searchVoDocument);
+
+												compilationSearchUnit.getBuffer().setContents(searchVoDocument.get());
+											}
+
 											compilationSearchUnit.save(null, true);
+
+											addSerialVersionUIDList.add(new SerialVersionUIDItem(compilationSearchUnit, voPackage + ".Search" + capitalizePrefix + "Vo"));
 										}
 
 										addSerialVersionUIDList.add(new SerialVersionUIDItem(compilationUnit, voPackage + "." + capitalizePrefix + "Vo"));
@@ -527,7 +631,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 									        }
 											transformer.transform(new DOMSource(myBatisSettingDocument), new StreamResult(writer));
 
-											IFile _myBatisSettingFile = newFolder.getWorkspace().getRoot().getFile(Path.fromOSString(myBatisSettingFile));
+											IFile _myBatisSettingFile = newJavaFolder.getWorkspace().getRoot().getFile(Path.fromOSString(myBatisSettingFile));
 
 											if(_myBatisSettingFile.exists()) {
 												_myBatisSettingFile.create(new ByteArrayInputStream(myBatisSettingDocument.toString().getBytes("UTF-8")) ,true, new NullProgressMonitor());
@@ -567,10 +671,10 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 									}
 
 									daoPackage = daoPackage + "." + daoFolderName;
-									daoFolder = newFolder.getFolder(new Path(daoFolderName));
+									daoFolder = newJavaFolder.getFolder(new Path(daoFolderName));
 									if(!daoFolder.exists()) daoFolder.create(true ,true, new NullProgressMonitor());
 								} else {
-									daoFolder = newFolder;
+									daoFolder = newJavaFolder;
 								}
 								/* E : Dao 폴더를 생성한다. */
 
@@ -590,6 +694,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 								daoContent = StringUtils.replaceReservedWord(propertiesItem, prefix, daoContent);
 								daoContent = StringUtils.replaceParameter(parameterType, daoContent);
 								daoContent = StringUtils.replaceReturn(returnType, daoContent);
+								if(connectionProfile != null) daoContent = StringUtils.replaceRepeatWord(daoContent, columns);
 								/* S: Dao 파일을 생성한다. */
 								ByteArrayInputStream daoFileStream = new ByteArrayInputStream(daoContent.getBytes("UTF-8"));
 
@@ -600,6 +705,56 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 								if(importParameterVo != null) daoCompilationUnit.createImport(importParameterVo, null, new NullProgressMonitor());
 								if(importReturnVo != null) daoCompilationUnit.createImport(importReturnVo, null, new NullProgressMonitor());
 								daoCompilationUnit.save(null, true);
+
+								if(isCreateTestDao) {
+									String testDaoPackage = rootTestPackagePath;
+									String testDaoFolderName = "";
+									IFolder testDaoFolder = null;
+
+									if(isCreateTestDaoFolder && isCreateDaoFolder) {
+
+									  if(isAddPrefixDaoFolder)  {
+									    testDaoFolderName += prefix;
+									    testDaoFolderName += "Dao";
+									  } else {
+									    testDaoFolderName += "dao";
+									  }
+
+									  testDaoPackage = testDaoPackage + "." + testDaoFolderName;
+									  testDaoFolder = newJavaTestFolder.getFolder(new Path(testDaoFolderName));
+									  if(!testDaoFolder.exists()) testDaoFolder.create(true ,true, new NullProgressMonitor());
+									} else {
+									  testDaoFolder = newJavaTestFolder;
+									}
+									/* E : Dao 폴더를 생성한다. */
+
+									if(isCreateDaoSubFolder) {
+									  testDaoPackage = testDaoPackage + "." + prefix;
+									  testDaoFolder = testDaoFolder.getFolder(new Path(prefix));
+									  if(!testDaoFolder.exists()) testDaoFolder.create(true ,true, new NullProgressMonitor());
+									}
+
+									if(testDaoTemplateFile == null || "".equals(testDaoTemplateFile)) {
+									  testDaoTemplateFile = "platform:/plugin/kr.pe.maun.csdgenerator/resource/template/testDaoClassTemplate.txt";
+									}
+
+									/* Dao 파일내용을 가져온다.. */
+									String testDaoContent = getSource(testDaoTemplateFile);
+									testDaoContent = testDaoContent.replaceAll("\\[packagePath\\]", testDaoPackage);
+									testDaoContent = StringUtils.replaceReservedWord(propertiesItem, prefix, testDaoContent);
+									testDaoContent = StringUtils.replaceParameter(parameterType, testDaoContent);
+									testDaoContent = StringUtils.replaceReturn(returnType, testDaoContent);
+									/* S: Dao 파일을 생성한다. */
+									ByteArrayInputStream testDaoFileStream = new ByteArrayInputStream(testDaoContent.getBytes("UTF-8"));
+
+									IFile testDaoFile = testDaoFolder.getFile(new Path("Test" + capitalizePrefix + "Dao.java"));
+									if(!testDaoFile.exists()) testDaoFile.create(testDaoFileStream ,true, new NullProgressMonitor());
+
+									ICompilationUnit testDaoCompilationUnit = JavaCore.createCompilationUnitFrom(testDaoFile);
+									if(importParameterVo != null) testDaoCompilationUnit.createImport(importParameterVo, null, new NullProgressMonitor());
+									if(importReturnVo != null) testDaoCompilationUnit.createImport(importReturnVo, null, new NullProgressMonitor());
+									testDaoCompilationUnit.save(null, true);
+								}
 
 								System.out.println("Dao 생성 : " + (System.currentTimeMillis() - lapTime) + " milliseconds");
 								lapTime = System.currentTimeMillis();
@@ -625,11 +780,11 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 									}
 
 									servicePackage = servicePackage + "." + serviceFolderName;
-									serviceFolder = newFolder.getFolder(new Path(serviceFolderName));
+									serviceFolder = newJavaFolder.getFolder(new Path(serviceFolderName));
 
 									if(!serviceFolder.exists()) serviceFolder.create(true ,true, new NullProgressMonitor());
 								} else {
-									serviceFolder = newFolder;
+									serviceFolder = newJavaFolder;
 								}
 								/* E : Service 폴더를 생성한다. */
 
@@ -653,7 +808,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 									if(!serviceImplFolder.exists()) serviceImplFolder.create(true ,true, new NullProgressMonitor());
 								} else {
-									serviceImplFolder = newFolder;
+									serviceImplFolder = newJavaFolder;
 								}
 
 								/* E : ServiceImpl 폴더를 생성한다. */
@@ -668,6 +823,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 								serviceContent = StringUtils.replaceReservedWord(propertiesItem, prefix, serviceContent);
 								serviceContent = StringUtils.replaceParameter(parameterType, serviceContent);
 								serviceContent = StringUtils.replaceReturn(returnType, serviceContent);
+								if(connectionProfile != null) serviceContent = StringUtils.replaceRepeatWord(serviceContent, columns);
 								/* S: Service 파일을 생성한다. */
 								ByteArrayInputStream serviceFileStream = new ByteArrayInputStream(serviceContent.getBytes("UTF-8"));
 
@@ -682,8 +838,6 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 								}
 
 								if(isCreateServiceImpl) {
-
-									CodeFormatter codeFormatter = ToolFactory.createCodeFormatter(null);
 
 									ASTParser serviceParser = ASTParser.newParser(AST.JLS8);
 									serviceParser.setSource(serviceCompilationUnit);
@@ -739,7 +893,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 									serviceImplContent = StringUtils.replaceReservedWord(propertiesItem, prefix, serviceImplContent);
 									serviceImplContent = StringUtils.replaceParameter(parameterType, serviceImplContent);
 									serviceImplContent = StringUtils.replaceReturn(returnType, serviceImplContent);
-
+									if(connectionProfile != null) serviceImplContent = StringUtils.replaceRepeatWord(serviceImplContent, columns);
 									ByteArrayInputStream serviceImplFileStream = new ByteArrayInputStream(serviceImplContent.getBytes("UTF-8"));
 
 									IFile serviceImplFile = serviceImplFolder.getFile(new Path(capitalizePrefix + "ServiceImpl.java"));
@@ -783,6 +937,54 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 									}
 								}
 
+								if(isCreateTestService) {
+									/* S : Service 폴더를 생성한다. */
+									String testServicePackage = rootTestPackagePath;
+									String testServiceFolderName = "";
+									IFolder testServiceFolder = null;
+
+									if(isCreateTestServiceFolder && isCreateServiceFolder) {
+
+									  if(isAddPrefixServiceFolder) {
+									    testServiceFolderName += prefix;
+									    testServiceFolderName += "Service";
+									  } else {
+									    testServiceFolderName += "service";
+									  }
+
+									  testServicePackage = testServicePackage + "." + testServiceFolderName;
+									  testServiceFolder = newJavaTestFolder.getFolder(new Path(testServiceFolderName));
+
+									  if(!testServiceFolder.exists()) testServiceFolder.create(true ,true, new NullProgressMonitor());
+									} else {
+									  testServiceFolder = newJavaTestFolder;
+									}
+									/* E : Service 폴더를 생성한다. */
+
+									if(isCreateServiceSubFolder) {
+									  testServicePackage = testServicePackage + "." + prefix;
+									  testServiceFolder = testServiceFolder.getFolder(new Path(prefix));
+									  if(!testServiceFolder.exists()) testServiceFolder.create(true ,true, new NullProgressMonitor());
+									}
+
+									if(testServiceTemplateFile == null || "".equals(testServiceTemplateFile)) {
+									  testServiceTemplateFile = "platform:/plugin/kr.pe.maun.csdgenerator/resource/template/testServiceClassTemplate.txt";
+									}
+
+									/* Service 파일내용을 가져온다.. */
+									String testServiceContent = getSource(testServiceTemplateFile);
+									testServiceContent = testServiceContent.replaceAll("\\[packagePath\\]", testServicePackage);
+									testServiceContent = StringUtils.replaceReservedWord(propertiesItem, prefix, testServiceContent);
+									testServiceContent = StringUtils.replaceParameter(parameterType, testServiceContent);
+									testServiceContent = StringUtils.replaceReturn(returnType, testServiceContent);
+									if(connectionProfile != null) testServiceContent = StringUtils.replaceRepeatWord(testServiceContent, columns);
+									/* S: Service 파일을 생성한다. */
+									ByteArrayInputStream testServiceFileStream = new ByteArrayInputStream(testServiceContent.getBytes("UTF-8"));
+
+									IFile testServiceFile = testServiceFolder.getFile(new Path("Test" + capitalizePrefix + "Service.java"));
+									if(!testServiceFile.exists()) testServiceFile.create(testServiceFileStream ,true, new NullProgressMonitor());
+								}
+
 								System.out.println("Service 생성 : " + (System.currentTimeMillis() - lapTime) + " milliseconds");
 								lapTime = System.currentTimeMillis();
 							}
@@ -799,14 +1001,18 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 								if(isCreateControllerFolder) {
 
-									if(isAddPrefixControllerFolder) controllerFolderName += capitalizePrefix;
+									if(isAddPrefixControllerFolder) {
+										controllerFolderName += capitalizePrefix;
+										controllerFolderName += "Controller";
+									} else {
+										controllerFolderName += "controller";
+									}
 
-									controllerFolderName += "Controller";
 									controllerPackage = controllerPackage + "." + controllerFolderName;
-									controllerFolder = newFolder.getFolder(new Path(controllerFolderName));
+									controllerFolder = newJavaFolder.getFolder(new Path(controllerFolderName));
 									if(!controllerFolder.exists()) controllerFolder.create(true ,true, new NullProgressMonitor());
 								} else {
-									controllerFolder = newFolder;
+									controllerFolder = newJavaFolder;
 								}
 
 								/* E : Contoller 폴더를 생성한다. */
@@ -827,6 +1033,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 								controllerContent = StringUtils.replaceReservedWord(propertiesItem, prefix, controllerContent);
 								controllerContent = StringUtils.replaceParameter(parameterType, controllerContent);
 								controllerContent = StringUtils.replaceReturn(returnType, controllerContent);
+								if(connectionProfile != null) controllerContent = StringUtils.replaceRepeatWord(controllerContent, columns);
 								/* S: Contoller 파일을 생성한다. */
 								ByteArrayInputStream controllerFileStream = new ByteArrayInputStream(controllerContent.getBytes("UTF-8"));
 
@@ -843,6 +1050,53 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 									controllerCompilationUnit.createImport(servicePackage + "." + capitalizePrefix + "Service", null, new NullProgressMonitor());
 								}
 
+								if(isCreateTestController) {
+									String testControllerFolderName = "";
+									String testControllerPackage = rootTestPackagePath;
+									IFolder testControllerFolder = null;
+
+									if(isCreateTestControllerFolder && isCreateControllerFolder) {
+
+									  if(isAddPrefixControllerFolder) {
+										  testControllerFolderName += capitalizePrefix;
+										  testControllerFolderName += "Controller";
+									  } else {
+										  testControllerFolderName += "controller";
+									  }
+
+									  testControllerPackage = testControllerPackage + "." + testControllerFolderName;
+									  testControllerFolder = newJavaTestFolder.getFolder(new Path(testControllerFolderName));
+									  if(!testControllerFolder.exists()) testControllerFolder.create(true ,true, new NullProgressMonitor());
+									} else {
+									  testControllerFolder = newJavaTestFolder;
+									}
+
+									/* E : Contoller 폴더를 생성한다. */
+
+									if(isCreateControllerSubFolder) {
+									  testControllerPackage = testControllerPackage + "." + prefix;
+									  testControllerFolder = testControllerFolder.getFolder(new Path(prefix));
+									  if(!testControllerFolder.exists()) testControllerFolder.create(true ,true, new NullProgressMonitor());
+									}
+
+									if(testControllerTemplateFile == null || "".equals(testControllerTemplateFile)) {
+									  testControllerTemplateFile = "platform:/plugin/kr.pe.maun.csdgenerator/resource/template/testControllerClassTemplate.txt";
+									}
+
+									/* Contoller 파일내용을 가져온다.. */
+									String testControllerContent = getSource(testControllerTemplateFile);
+									testControllerContent = testControllerContent.replaceAll("\\[packagePath\\]", testControllerPackage);
+									testControllerContent = StringUtils.replaceReservedWord(propertiesItem, prefix, testControllerContent);
+									testControllerContent = StringUtils.replaceParameter(parameterType, testControllerContent);
+									testControllerContent = StringUtils.replaceReturn(returnType, testControllerContent);
+									if(connectionProfile != null) testControllerContent = StringUtils.replaceRepeatWord(testControllerContent, columns);
+									/* S: Contoller 파일을 생성한다. */
+									ByteArrayInputStream testControllerFileStream = new ByteArrayInputStream(testControllerContent.getBytes("UTF-8"));
+
+									IFile testControllerFile = testControllerFolder.getFile(new Path("Test" + capitalizePrefix + "Controller.java"));
+									if(!testControllerFile.exists()) testControllerFile.create(testControllerFileStream ,true, new NullProgressMonitor());
+								}
+
 								System.out.println("Controller 생성 : " + (System.currentTimeMillis() - lapTime) + " milliseconds");
 								lapTime = System.currentTimeMillis();
 							}
@@ -853,7 +1107,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 								/* S : Mapper 폴더를 생성한다. */
 
-								IFolder mapperFolder = newFolder.getWorkspace().getRoot().getFolder(new Path(mapperPath + "/" + prefix));
+								IFolder mapperFolder = newJavaFolder.getWorkspace().getRoot().getFolder(new Path(mapperPath + "/" + prefix));
 								if(!mapperFolder.exists()) mapperFolder.create(true ,true, new NullProgressMonitor());
 
 								/* E : Mapper 폴더를 생성한다. */
@@ -876,9 +1130,6 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 								if(connectionProfile != null) {
 
-									List<ColumnItem> columns = databaseResource.getColumns(databaseTableName);
-									List<String> indexColumns = databaseResource.getIndexColumns(databaseTableName);
-
 									try {
 
 										DocumentBuilder builder = factory.newDocumentBuilder();
@@ -893,14 +1144,14 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 											Node item = nodeList.item(i);
 											String content = item.getTextContent();
 											if("select".equals(item.getNodeName())) {
-												content = content.replaceAll("\\[columns\\]", selecColumn(columns));
-												content = content.replaceAll("\\[indexColumns\\]", indexColumn(indexColumns));
+												content = content.replaceAll("\\[columns\\]", StringUtils.replaceMapperSelecColumn(columns));
+												content = content.replaceAll("\\[indexColumns\\]", StringUtils.replaceMapperIndexColumn(indexColumns));
 											} else if("insert".equals(item.getNodeName())) {
-												content = content.replaceAll("\\[columns\\]", insertColumn(columns));
-												content = content.replaceAll("\\[values\\]", insertValue(columns));
+												content = content.replaceAll("\\[columns\\]", StringUtils.replaceMapperInsertColumn(columns));
+												content = content.replaceAll("\\[values\\]", StringUtils.replaceMapperInsertValue(columns));
 											} else if("update".equals(item.getNodeName())) {
-												content = content.replaceAll("\\[columns\\]", updateColumn(columns));
-												content = content.replaceAll("\\[indexColumns\\]", indexColumn(indexColumns));
+												content = content.replaceAll("\\[columns\\]", StringUtils.replaceMapperUpdateColumn(columns));
+												content = content.replaceAll("\\[indexColumns\\]", StringUtils.replaceMapperIndexColumn(indexColumns));
 											} else {
 												content = content.replaceAll("\\[columns\\]", "");
 												content = content.replaceAll("\\[indexColumns\\]", "");
@@ -956,44 +1207,57 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 								IFolder jspFolder = null;
 
-								jspFolder = newFolder.getWorkspace().getRoot().getFolder(new Path(jspPath + "/" + prefix));
+								jspFolder = newJavaFolder.getWorkspace().getRoot().getFolder(new Path(jspPath + "/" + prefix));
 								if(!jspFolder.exists()) jspFolder.create(true ,true, new NullProgressMonitor());
 
 								/* E : Jsp 폴더를 생성한다. */
 
+								/* Jsp 파일내용을 가져온다.. */
+
+								/* S : Jsp List */
 								if(jspTemplateListFile == null || "".equals(jspTemplateListFile)) {
 									jspTemplateListFile = "platform:/plugin/kr.pe.maun.csdgenerator/resource/template/jspTemplate.txt";
 								}
 
-								/* Jsp 파일내용을 가져온다.. */
 								String jspListContent = getSource(jspTemplateListFile);
+
+								if(connectionProfile != null) jspListContent = StringUtils.replaceRepeatWord(jspListContent, columns);
 
 								ByteArrayInputStream jspListFileStream = new ByteArrayInputStream(jspListContent.getBytes("UTF-8"));
 
 								IFile jspListFile = jspFolder.getFile(new Path(prefix + "List.jsp"));
 								if(!jspListFile.exists()) jspListFile.create(jspListFileStream ,true, new NullProgressMonitor());
+								/* E : Jsp List */
 
+								/* S : Jsp Post */
 								if(jspTemplatePostFile == null || "".equals(jspTemplatePostFile)) {
 									jspTemplatePostFile = "platform:/plugin/kr.pe.maun.csdgenerator/resource/template/jspTemplate.txt";
 								}
 
 								String jspPostContent = getSource(jspTemplatePostFile);
 
+								if(connectionProfile != null) jspPostContent = StringUtils.replaceRepeatWord(jspPostContent, columns);
+
 								ByteArrayInputStream jspPostFileStream = new ByteArrayInputStream(jspPostContent.getBytes("UTF-8"));
 
 								IFile jspPostFile = jspFolder.getFile(new Path(prefix + "Post.jsp"));
 								if(!jspPostFile.exists()) jspPostFile.create(jspPostFileStream ,true, new NullProgressMonitor());
+								/* E : Jsp Post */
 
+								/* S : Jsp View */
 								if(jspTemplateViewFile == null || "".equals(jspTemplateViewFile)) {
 									jspTemplateViewFile = "platform:/plugin/kr.pe.maun.csdgenerator/resource/template/jspTemplate.txt";
 								}
 
 								String jspViewContent = getSource(jspTemplateViewFile);
 
+								if(connectionProfile != null) jspViewContent = StringUtils.replaceRepeatWord(jspViewContent, columns);
+
 								ByteArrayInputStream jspViewFileStream = new ByteArrayInputStream(jspViewContent.getBytes("UTF-8"));
 
 								IFile jspViewFile = jspFolder.getFile(new Path(prefix + "View.jsp"));
 								if(!jspViewFile.exists()) jspViewFile.create(jspViewFileStream ,true, new NullProgressMonitor());
+								/* E : Jsp View */
 
 								System.out.println("Jsp 생성 : " + (System.currentTimeMillis() - lapTime) + " milliseconds");
 								lapTime = System.currentTimeMillis();
@@ -1010,7 +1274,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 							project.build(IncrementalProjectBuilder.INCREMENTAL_BUILD, new NullProgressMonitor());
 
-							String[] classPaths = JavaRuntime.computeDefaultRuntimeClassPath(packageFragment.getJavaProject());
+							String[] classPaths = JavaRuntime.computeDefaultRuntimeClassPath(javaPackageFragment.getJavaProject());
 					        URL[] urls = new URL[classPaths.length];
 
 							for (int i = 0; i < classPaths.length; i++) {
@@ -1102,81 +1366,4 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 		return source;
 	};
 
-	private String selecColumn(List<ColumnItem> columnItems) {
-		StringBuffer result = new StringBuffer();
-		if(columnItems.size() > 0) {
-			for (int i = 0; i < columnItems.size(); i++) {
-				ColumnItem columnItem = columnItems.get(i);
-				if(i > 0) result.append("\t\t\t,");
-				result.append(columnItem.getColumnName().toUpperCase());
-				result.append(" AS ");
-				result.append(StringUtils.toCamelCase(columnItem.getColumnName()));
-				if(i < (columnItems.size() - 1)) result.append("\n");
-			}
-		}
-		return result.toString();
-	}
-
-	private String insertColumn(List<ColumnItem> columnItems) {
-		StringBuffer result = new StringBuffer();
-		if(columnItems.size() > 0) {
-			for (int i = 0; i < columnItems.size(); i++) {
-				ColumnItem columnItem = columnItems.get(i);
-				if(i > 0) result.append("\t\t\t,");
-				result.append(columnItem.getColumnName().toUpperCase());
-				if(i < (columnItems.size() - 1)) result.append("\n");
-			}
-		}
-		return result.toString();
-	}
-
-	private String insertValue(List<ColumnItem> columnItems) {
-		StringBuffer result = new StringBuffer();
-		if(columnItems.size() > 0) {
-			for (int i = 0; i < columnItems.size(); i++) {
-				ColumnItem columnItem = columnItems.get(i);
-				if(i > 0) result.append("\t\t\t,");
-				result.append("#{");
-				result.append(StringUtils.toCamelCase(columnItem.getColumnName()));
-				result.append("}");
-				if(i < (columnItems.size() - 1)) result.append("\n");
-			}
-		}
-		return result.toString();
-	}
-
-	private String updateColumn(List<ColumnItem> columnItems) {
-		StringBuffer result = new StringBuffer();
-		int size = columnItems.size();
-		if(size > 0) {
-			for (int i = 0; i < size; i++) {
-				ColumnItem columnItem = columnItems.get(i);
-				if(i > 0) result.append("\t\t\t,");
-				result.append(columnItem.getColumnName().toUpperCase());
-				result.append(" = #{");
-				result.append(StringUtils.toCamelCase(columnItem.getColumnName()));
-				result.append("}");
-				if(i < (size - 1)) result.append("\n");
-			}
-		}
-		return result.toString();
-	}
-
-	private String indexColumn(List<String> indexColumns) {
-		StringBuffer result = new StringBuffer();
-		int size = indexColumns.size();
-		if(size > 0) {
-			for (int i = 0; i < size; i++) {
-				String column = indexColumns.get(i);
-				if(i > 0) result.append("\t\t\t");
-				result.append("AND ");
-				result.append(column.toUpperCase());
-				result.append(" = #{");
-				result.append(StringUtils.toCamelCase(column));
-				result.append("}");
-				if(i < (size - 1)) result.append("\n");
-			}
-		}
-		return result.toString();
-	}
 }

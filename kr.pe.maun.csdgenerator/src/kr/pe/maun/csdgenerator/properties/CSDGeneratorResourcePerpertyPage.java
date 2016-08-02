@@ -10,14 +10,17 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.datatools.connectivity.IConnectionProfile;
 import org.eclipse.datatools.connectivity.ProfileManager;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.core.SourceType;
+import org.eclipse.jdt.ui.IJavaElementSearchConstants;
 import org.eclipse.jdt.ui.JavaUI;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Device;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -36,9 +39,9 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IWorkbenchPropertyPage;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 import org.eclipse.ui.dialogs.PropertyPage;
+import org.eclipse.ui.dialogs.SelectionDialog;
 
 import kr.pe.maun.csdgenerator.CSDGeneratorPlugin;
 import kr.pe.maun.csdgenerator.db.DatabaseResource;
@@ -49,6 +52,7 @@ import kr.pe.maun.csdgenerator.dialogs.PropertiesGeneralTemplateDialog;
 import kr.pe.maun.csdgenerator.dialogs.PropertiesJspTemplateDialog;
 import kr.pe.maun.csdgenerator.dialogs.PropertiesMapperTemplateDialog;
 import kr.pe.maun.csdgenerator.dialogs.PropertiesServiceTemplateDialog;
+import kr.pe.maun.csdgenerator.dialogs.PropertiesTestTemplateDialog;
 import kr.pe.maun.csdgenerator.model.CSDGeneratorPropertiesItem;
 
 public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
@@ -59,6 +63,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 	IProject project;
 
 	String[] generalTemplateGroupNames;
+	String[] testTemplateGroupNames;
 	String[] controllerTemplateNames;
 	String[] serviceTemplateNames;
 	String[] daoTemplateNames;
@@ -67,6 +72,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 	String[] dataTypes;
 
 	Tree generalTemplateTree;
+	Tree testTemplateTree;
 	Tree controllerTemplateTree;
 	Tree serviceTemplateTree;
 	Tree daoTemplateTree;
@@ -82,13 +88,17 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 	/*private Text controllerTemplateFileName;*/
 	private Button controllerTemplateFileButton;
 
-	private Text serviceTemplateFileName;
+	private Text serviceTemplateFileText;
 	private Button serviceTemplateFileButton;
 
-	private Text daoTemplateFileName;
+	private Text daoTemplateFileText;
 	private Button daoTemplateFileButton;
 
 	private Button specificSettings;
+
+	private Button createTestControllerFolderButton;
+	private Button createTestServiceFolderButton;
+	private Button createTestDaoFolderButton;
 
 	private Button createControllerFolderButton;
 	private Button addPrefixControllerFolderButton;
@@ -106,23 +116,34 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 	private Button createMapper;
 
-	private Text mapperPathName;
+	private Text mapperPathText;
 	private Button mapperPathButton;
 
-	private Button createVo;
-	private Button createSearchVo;
+	private Button createVoButton;
+	private Button createSearchVoButton;
 
-	private Text voPathName;
+	private Text voFolderText;
+	private Button createVoFolderButton;
+
+	private Text voPathText;
 	private Button voPathButton;
-	private Text myBatisSettingsFileName;
+
+	private Text voSuperclassText;
+	private Button voSuperclassButton;
+
+	private Text myBatisSettingsFileText;
 	private Button myBatisSettingsFileButton;
 
 	Table dataTypeMappingTable;
 
-	private Button createJsp;
+	private Button createJspButton;
 
 	private Text jspPathName;
 	private Button jspPathButton;
+
+	private Button createTestButton;
+	private Text testPathText;
+	private Button testPathButton;
 
 	Combo connectionCombo;
 
@@ -185,7 +206,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 		Label separator = new Label(panel, SWT.HORIZONTAL | SWT.SEPARATOR);
 	    separator.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 0));
-*/
+
 		org.eclipse.jdt.ui.ISharedImages sharedImages = JavaUI.getSharedImages();
 		org.eclipse.ui.ISharedImages workbenchSharedImages = PlatformUI.getWorkbench().getSharedImages();
 
@@ -193,7 +214,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 		Image packageIcon = sharedImages.getImage(org.eclipse.jdt.ui.ISharedImages.IMG_OBJS_PACKAGE);
 		Image javaIcon = sharedImages.getImage(org.eclipse.jdt.ui.ISharedImages.IMG_OBJS_CUNIT);
 		Image fileIcon = workbenchSharedImages.getImage(org.eclipse.ui.ISharedImages.IMG_OBJ_FILE);
-
+*/
 	    TabFolder tabFolder = new TabFolder(panel, SWT.NONE);
 	    tabFolder.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 3, 0));
 
@@ -663,6 +684,298 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 		generalTab.setControl(generalComposite);
 
 /* E : General Tab Folder */
+
+/* S : Test Tab Folder */
+
+	    TabItem testTab = new TabItem(tabFolder, SWT.NONE);
+	    testTab.setText("Test");
+
+	    Composite testComposite = new Composite(tabFolder, SWT.NULL);
+	    testComposite.setLayout(new GridLayout(3, false));
+	    testComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+
+		createTestButton = new Button(testComposite, SWT.CHECK);
+		createTestButton.setText("Create test");
+		createTestButton.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 0));
+		if(!isSpecificSettings) createTestButton.setEnabled(false);
+		createTestButton.addSelectionListener(new SelectionListener() {
+				@Override public void widgetSelected(SelectionEvent e) {
+					Button button = (Button) e.widget;
+					if(button.getSelection()) {
+						setEnabledCreateTestControllerFolder();
+						setEnabledCreateTestServiceFolder();
+						setEnabledCreateTestDaoFolder();
+						setEnabledTestPath();
+					} else {
+						setDisabledCreateTestControllerFolder();
+						setDisabledCreateTestServiceFolder();
+						setDisabledCreateTestDaoFolder();
+						setDisabledTestPath();
+					}
+				}
+				@Override public void widgetDefaultSelected(SelectionEvent e) {
+					widgetSelected(e);
+				}
+			}
+		);
+		createTestButton.setSelection(isCreateTest());
+
+		createTestControllerFolderButton = new Button(testComposite, SWT.CHECK);
+		createTestControllerFolderButton.setText("Create test controller folder");
+		createTestControllerFolderButton.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 0));
+		if(!isSpecificSettings) createTestControllerFolderButton.setEnabled(false);
+		createTestControllerFolderButton.setSelection(isCreateTestControllerFolder());
+
+		createTestServiceFolderButton = new Button(testComposite, SWT.CHECK);
+		createTestServiceFolderButton.setText("Create test service folder");
+		createTestServiceFolderButton.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 0));
+		if(!isSpecificSettings) createTestServiceFolderButton.setEnabled(false);
+		createTestServiceFolderButton.setSelection(isCreateTestServiceFolder());
+
+		createTestDaoFolderButton = new Button(testComposite, SWT.CHECK);
+		createTestDaoFolderButton.setText("Create test dao folder");
+		createTestDaoFolderButton.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 0));
+		if(!isSpecificSettings) createTestDaoFolderButton.setEnabled(false);
+		createTestDaoFolderButton.setSelection(isCreateTestDaoFolder());
+
+		/* S : select test path */
+		Label testPathLabel = new Label(testComposite, SWT.NONE);
+		testPathLabel.setText("Test Path:");
+		testPathLabel.setLayoutData(new GridData(GridData.END, GridData.CENTER, false, false));
+
+		testPathText = new Text(testComposite, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
+		testPathText.setLayoutData(defaultLayoutData);
+		testPathText.setText(getTestPath());
+		if(!isSpecificSettings || !isCreateTest()) testPathText.setEnabled(false);
+		testPathText.setBackground(new Color(device, 255, 255, 255));
+
+		testPathButton = new Button(testComposite, SWT.PUSH);
+		testPathButton.setText("Browse...");
+		testPathButton.setLayoutData(new GridData(100, 24));
+
+		testPathButton.addSelectionListener(new SelectionListener() {
+		    @Override public void widgetSelected(SelectionEvent e) {
+		      ContainerSelectionDialog dialog = new ContainerSelectionDialog(getShell(), project.getParent(), false, "Test Path Selection:");
+		      dialog.open();
+		      Object[] result=dialog.getResult();
+		      if (result != null && result.length == 1) testPathText.setText(((IPath) result[0]).toString());
+		    }
+		    @Override public void widgetDefaultSelected(SelectionEvent e) {
+		      widgetSelected(e);
+		    }
+		  }
+		);
+		if(!isSpecificSettings || !isCreateTest()) testPathButton.setEnabled(false);
+		/* E : select test path */
+
+		Label testTemplateLabel = new Label(testComposite, SWT.NONE);
+		testTemplateLabel.setText("Template Group:");
+		testTemplateLabel.setLayoutData(new GridData(SWT.END, SWT.TOP, false, false));
+
+	    testTemplateTree = new Tree(testComposite, SWT.SINGLE | SWT.BORDER);
+	    testTemplateTree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+
+	    Composite testButtonComposite = new Composite(testComposite, SWT.NONE);
+		GridLayout testButtonLayout = new GridLayout(1, false);
+		testButtonLayout.marginHeight = 0;
+		testButtonLayout.marginWidth = 0;
+		testButtonComposite.setLayout(testButtonLayout);
+		testButtonComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false));
+
+		testTemplateGroupNames = propertiesHelper.getTestTemplateGroupNames();
+		for(String key : testTemplateGroupNames) {
+			TreeItem testTemplateNameTreeItem = new TreeItem(testTemplateTree, SWT.NULL);
+			testTemplateNameTreeItem.setText(key);
+			TreeItem testTemplateControllerTreeItem = new TreeItem(testTemplateNameTreeItem, SWT.NULL);
+			testTemplateControllerTreeItem.setText("Controller: " + propertiesHelper.getTestTemplateController(key));
+			testTemplateControllerTreeItem.setData(propertiesHelper.getTestTemplateController(key));
+			TreeItem testTemplateServiceTreeItem = new TreeItem(testTemplateNameTreeItem, SWT.NULL);
+			testTemplateServiceTreeItem.setText("Service: " + propertiesHelper.getTestTemplateService(key));
+			testTemplateServiceTreeItem.setData(propertiesHelper.getTestTemplateService(key));
+			TreeItem testTemplateDaoTreeItem = new TreeItem(testTemplateNameTreeItem, SWT.NULL);
+			testTemplateDaoTreeItem.setText("Dao: " + propertiesHelper.getTestTemplateDao(key));
+			testTemplateDaoTreeItem.setData(propertiesHelper.getTestTemplateDao(key));
+		}
+
+		Button addTestTemplateButton = new Button(testButtonComposite, SWT.NONE);
+		addTestTemplateButton.setText("Add Template...");
+		addTestTemplateButton.setLayoutData(new GridData(100, 24));
+		addTestTemplateButton.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				PropertiesTestTemplateDialog propertiesTestTemplateDialog = new PropertiesTestTemplateDialog(getShell());
+				propertiesTestTemplateDialog.setTemplateGroupNames(testTemplateGroupNames);
+
+				propertiesTestTemplateDialog.setControllerTemplateNames(controllerTemplateNames);
+				propertiesTestTemplateDialog.setServiceTemplateNames(serviceTemplateNames);
+				propertiesTestTemplateDialog.setDaoTemplateNames(daoTemplateNames);
+
+				if(propertiesTestTemplateDialog.open() == Window.OK) {
+
+					IPath templatePath = propertiesTestTemplateDialog.getTemplatePath();
+
+					if(templatePath != null) {
+
+						String controllerTemplateName = "";
+						String serviceTemplateName = "";
+						String daoTemplateName = "";
+						String mapperTemplateName = "";
+						String jspTemplateName = "";
+
+						try {
+							IFolder templateFolder = project.getWorkspace().getRoot().getFolder(templatePath);
+							IResource[] members = templateFolder.members();
+
+							for(IResource member : members) {
+								File templateFile = member.getLocation().toFile();
+								if(templateFile.exists()) {
+									String name = member.getName();
+									if(name.indexOf("controller") > -1) {
+										controllerTemplateName = templateFolder.getName() + name.substring(0, name.indexOf(".")).replace("_controller", "");
+										TreeItem controllerTemplateNameTreeItem = new TreeItem(controllerTemplateTree, SWT.NULL);
+										controllerTemplateNameTreeItem.setText(controllerTemplateName);
+										TreeItem controllerTemplatePathTreeItem = new TreeItem(controllerTemplateNameTreeItem, SWT.NULL);
+										controllerTemplatePathTreeItem.setText(templateFile.getAbsolutePath());
+										controllerTemplateNameTreeItem.setExpanded(true);
+										controllerTemplateNames = propertiesHelper.controllerPropertiesFlush(controllerTemplateTree);
+									} else if(name.indexOf("service") > -1) {
+										serviceTemplateName =  templateFolder.getName() + name.substring(0, name.indexOf(".")).replace("_service", "");
+										TreeItem serviceTemplateNameTreeItem = new TreeItem(serviceTemplateTree, SWT.NULL);
+										serviceTemplateNameTreeItem.setText(serviceTemplateName);
+										TreeItem serviceTemplatePathTreeItem = new TreeItem(serviceTemplateNameTreeItem, SWT.NULL);
+										serviceTemplatePathTreeItem.setText(templateFile.getAbsolutePath());
+										serviceTemplateNameTreeItem.setExpanded(true);
+										serviceTemplateNames = propertiesHelper.servicePropertiesFlush(serviceTemplateTree);
+									} else if(name.indexOf("dao") > -1) {
+										daoTemplateName =  templateFolder.getName() + name.substring(0, name.indexOf(".")).replace("_dao", "");
+										TreeItem daoTemplateNameTreeItem = new TreeItem(daoTemplateTree, SWT.NULL);
+										daoTemplateNameTreeItem.setText(daoTemplateName);
+										TreeItem daoTemplatePathTreeItem = new TreeItem(daoTemplateNameTreeItem, SWT.NULL);
+										daoTemplatePathTreeItem.setText(templateFile.getAbsolutePath());
+										daoTemplateNameTreeItem.setExpanded(true);
+										daoTemplateNames = propertiesHelper.daoPropertiesFlush(daoTemplateTree);
+									}
+								}
+							}
+						} catch (CoreException e1) {
+							e1.printStackTrace();
+						}
+
+						if(!"".equals(controllerTemplateName) || !"".equals(serviceTemplateName) || !"".equals(daoTemplateName) || !"".equals(mapperTemplateName) || !"".equals(jspTemplateName)) {
+							TreeItem testTemplateNameTreeItem = new TreeItem(testTemplateTree, SWT.NULL);
+							testTemplateNameTreeItem.setText(propertiesTestTemplateDialog.getTemplateGroupName());
+							TreeItem testTemplateControllerTreeItem = new TreeItem(testTemplateNameTreeItem, SWT.NULL);
+							testTemplateControllerTreeItem.setText("Controller: " + controllerTemplateName);
+							testTemplateControllerTreeItem.setData(controllerTemplateName);
+							TreeItem testTemplateServiceTreeItem = new TreeItem(testTemplateNameTreeItem, SWT.NULL);
+							testTemplateServiceTreeItem.setText("Service: " + serviceTemplateName);
+							testTemplateServiceTreeItem.setData(serviceTemplateName);
+							TreeItem testTemplateDaoTreeItem = new TreeItem(testTemplateNameTreeItem, SWT.NULL);
+							testTemplateDaoTreeItem.setText("Dao: " + daoTemplateName);
+							testTemplateDaoTreeItem.setData(daoTemplateName);
+							testTemplateNameTreeItem.setExpanded(true);
+							testTemplateGroupNames = propertiesHelper.testPropertiesFlush(testTemplateTree);
+						}
+					} else {
+						TreeItem testTemplateNameTreeItem = new TreeItem(testTemplateTree, SWT.NULL);
+						testTemplateNameTreeItem.setText(propertiesTestTemplateDialog.getTemplateGroupName());
+						TreeItem testTemplateControllerTreeItem = new TreeItem(testTemplateNameTreeItem, SWT.NULL);
+						testTemplateControllerTreeItem.setText("Controller: " + propertiesTestTemplateDialog.getControllerTemplateName());
+						testTemplateControllerTreeItem.setData(propertiesTestTemplateDialog.getControllerTemplateName());
+						TreeItem testTemplateServiceTreeItem = new TreeItem(testTemplateNameTreeItem, SWT.NULL);
+						testTemplateServiceTreeItem.setText("Service: " + propertiesTestTemplateDialog.getServiceTemplateName());
+						testTemplateServiceTreeItem.setData(propertiesTestTemplateDialog.getServiceTemplateName());
+						TreeItem testTemplateDaoTreeItem = new TreeItem(testTemplateNameTreeItem, SWT.NULL);
+						testTemplateDaoTreeItem.setText("Dao: " + propertiesTestTemplateDialog.getDaoTemplateName());
+						testTemplateDaoTreeItem.setData(propertiesTestTemplateDialog.getDaoTemplateName());
+						testTemplateNameTreeItem.setExpanded(true);
+						testTemplateGroupNames = propertiesHelper.testPropertiesFlush(testTemplateTree);
+					}
+				}
+			}
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				widgetSelected(e);
+			}
+		});
+
+		Button editTestTemplateButton = new Button(testButtonComposite, SWT.NONE);
+		editTestTemplateButton.setText("Edit...");
+		editTestTemplateButton.setLayoutData(new GridData(100, 24));
+		editTestTemplateButton.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if(testTemplateTree.getSelection().length > 0) {
+					PropertiesTestTemplateDialog propertiesTestTemplateDialog = new PropertiesTestTemplateDialog(getShell());
+					propertiesTestTemplateDialog.setTemplateGroupNames(testTemplateGroupNames);
+
+					TreeItem selectItem = testTemplateTree.getSelection()[0];
+					TreeItem templateGroupName;
+					TreeItem controllerTemplateName;
+					TreeItem serviceTemplateName;
+					TreeItem daoTemplateName;
+					if(selectItem.getParentItem() == null) {
+						templateGroupName = selectItem;
+					} else {
+						templateGroupName = selectItem.getParentItem();
+					}
+
+					controllerTemplateName = templateGroupName.getItems()[0];
+					serviceTemplateName = templateGroupName.getItems()[1];
+					daoTemplateName = templateGroupName.getItems()[2];
+
+					propertiesTestTemplateDialog.setTemplateGroupNames(testTemplateGroupNames);
+					propertiesTestTemplateDialog.setControllerTemplateNames(controllerTemplateNames);
+					propertiesTestTemplateDialog.setServiceTemplateNames(serviceTemplateNames);
+					propertiesTestTemplateDialog.setDaoTemplateNames(daoTemplateNames);
+
+					propertiesTestTemplateDialog.setTemplateGroupName((String) templateGroupName.getText());
+					propertiesTestTemplateDialog.setControllerTemplateName((String) controllerTemplateName.getData());
+					propertiesTestTemplateDialog.setServiceTemplateName((String) serviceTemplateName.getData());
+					propertiesTestTemplateDialog.setDaoTemplateName((String) daoTemplateName.getData());
+
+					if(propertiesTestTemplateDialog.open() == Window.OK) {
+						templateGroupName.getItems()[0].setText("Controller: " + propertiesTestTemplateDialog.getControllerTemplateName());
+						templateGroupName.getItems()[0].setData(propertiesTestTemplateDialog.getControllerTemplateName());
+						templateGroupName.getItems()[1].setText("Service: " + propertiesTestTemplateDialog.getServiceTemplateName());
+						templateGroupName.getItems()[1].setData(propertiesTestTemplateDialog.getServiceTemplateName());
+						templateGroupName.getItems()[2].setText("Dao: " + propertiesTestTemplateDialog.getDaoTemplateName());
+						templateGroupName.getItems()[2].setData(propertiesTestTemplateDialog.getDaoTemplateName());
+						testTemplateGroupNames = propertiesHelper.testPropertiesFlush(testTemplateTree);
+					}
+				}
+			}
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				widgetSelected(e);
+			}
+		});
+
+		Button removeTestTemplateButton = new Button(testButtonComposite, SWT.NONE);
+		removeTestTemplateButton.setText("Remove");
+		removeTestTemplateButton.setLayoutData(new GridData(100, 24));
+		removeTestTemplateButton.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if(testTemplateTree.getSelection().length > 0) {
+					TreeItem treeItem = testTemplateTree.getSelection()[0];
+					TreeItem parentItem = treeItem.getParentItem();
+					treeItem.dispose();
+					if(parentItem != null) {
+						parentItem.dispose();
+					}
+					propertiesHelper.testPropertiesFlush(testTemplateTree);
+				}
+			}
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				widgetSelected(e);
+			}
+		});
+
+		testTab.setControl(testComposite);
+
+/* E : Test Tab Folder */
 
 /* S : Controller Tab Folder */
 	    TabItem controllerTab = new TabItem(tabFolder, SWT.NONE);
@@ -1180,20 +1493,20 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 		mapperPathLabel.setText("Mapper Path:");
 		mapperPathLabel.setLayoutData(new GridData(GridData.END, GridData.CENTER, false, false));
 
-		mapperPathName=new Text(mapperComposite, SWT.SINGLE | SWT.BORDER);
-		mapperPathName.setLayoutData(defaultLayoutData);
-		if(!isSpecificSettings || !isCreateMapper()) mapperPathName.setEnabled(false);
-		mapperPathName.setText(getMapperPath());
+		mapperPathText=new Text(mapperComposite, SWT.SINGLE | SWT.BORDER);
+		mapperPathText.setLayoutData(defaultLayoutData);
+		if(!isSpecificSettings || !isCreateMapper()) mapperPathText.setEnabled(false);
+		mapperPathText.setText(getMapperPath());
 
 		mapperPathButton = new Button(mapperComposite, SWT.PUSH);
 		mapperPathButton.setText("Browse...");
 		mapperPathButton.setLayoutData(new GridData(100, 24));
 		mapperPathButton.addSelectionListener(new SelectionListener() {
 				@Override public void widgetSelected(SelectionEvent e) {
-					ContainerSelectionDialog dialog = new ContainerSelectionDialog(getShell(), null, false, "");
+					ContainerSelectionDialog dialog = new ContainerSelectionDialog(getShell(), project.getParent(), false, "Mapper Path Selection:");
 					dialog.open();
 					Object[] result=dialog.getResult();
-					if (result != null && result.length == 1) mapperPathName.setText(((IPath) result[0]).toString());
+					if (result != null && result.length == 1) mapperPathText.setText(((IPath) result[0]).toString());
 				}
 				@Override public void widgetDefaultSelected(SelectionEvent e) {
 					widgetSelected(e);
@@ -1319,21 +1632,30 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 	    Composite voComposite = new Composite(tabFolder, SWT.NULL);
 	    voComposite.setLayout(new GridLayout(3, false));
 
-		createVo = new Button(voComposite, SWT.CHECK);
-		createVo.setText("Create Vo");
-		createVo.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 0));
-		createVo.setSelection(isCreateVo());
-		if(!isSpecificSettings) createVo.setEnabled(false);
-		createVo.addSelectionListener(new SelectionListener() {
+		createVoButton = new Button(voComposite, SWT.CHECK);
+		createVoButton.setText("Create Vo");
+		createVoButton.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 0));
+		createVoButton.setSelection(isCreateVo());
+		if(!isSpecificSettings) createVoButton.setEnabled(false);
+		createVoButton.addSelectionListener(new SelectionListener() {
 				@Override public void widgetSelected(SelectionEvent e) {
 					Button button = (Button) e.widget;
 					if(button.getSelection()) {
 						setEnabledCreateSearchVo();
-						setEnabledVoPath();
+						setEnabledCreateVoFolder();
+						if(isCreateVoFolder()) {
+							setEnabledVoFolder();
+						} else {
+							setEnabledVoPath();
+						}
+						setEnabledVoSuperclass();
 						setEnabledMyBatisSettingsFile();
 					} else {
 						setDisabledCreateSearchVo();
+						setDisabledCreateVoFolder();
+						setDisabledVoFolder();
 						setDisabledVoPath();
+						setDisabledVoSuperclass();
 						setDisabledMyBatisSettingsFile();
 					}
 				}
@@ -1343,22 +1665,56 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 			}
 		);
 
-		createSearchVo = new Button(voComposite, SWT.CHECK);
-		createSearchVo.setText("Create Search Vo");
-		createSearchVo.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 0));
-		createSearchVo.setSelection(isCreateSearchVo());
-		if(!isSpecificSettings || !isCreateVo()) createSearchVo.setEnabled(false);
+		createSearchVoButton = new Button(voComposite, SWT.CHECK);
+		createSearchVoButton.setText("Create Search Vo");
+		createSearchVoButton.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 0));
+		createSearchVoButton.setSelection(isCreateSearchVo());
+		if(!isSpecificSettings || !isCreateVo()) createSearchVoButton.setEnabled(false);
+
+		createVoFolderButton = new Button(voComposite, SWT.CHECK);
+		createVoFolderButton.setText("Create vo folder");
+		createVoFolderButton.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 0));
+		createVoFolderButton.setSelection(isCreateVoFolder());
+		if(!isSpecificSettings || !isCreateVo()) createVoFolderButton.setEnabled(false);
+		createVoFolderButton.addSelectionListener(new SelectionListener() {
+				@Override public void widgetSelected(SelectionEvent e) {
+					Button button = (Button) e.widget;
+					if(button.getSelection()) {
+						setEnabledVoFolder();
+						setDisabledVoPath();
+					} else {
+						setDisabledVoFolder();
+						setEnabledVoPath();
+					}
+				}
+				@Override public void widgetDefaultSelected(SelectionEvent e) {
+					widgetSelected(e);
+				}
+			}
+		);
+
+		Label voFolderLabel = new Label(voComposite, SWT.NONE);
+		voFolderLabel.setText("Vo Folder Name:");
+		voFolderLabel.setLayoutData(new GridData(GridData.END, GridData.CENTER, false, false));
+
+		voFolderText = new Text(voComposite, SWT.SINGLE | SWT.BORDER);
+		voFolderText.setLayoutData(defaultLayoutData);
+		voFolderText.setText(getVoFolder());
+		if(!isSpecificSettings || !isCreateVo() || !isCreateVoFolder()) voFolderText.setEnabled(false);
+		voFolderText.setBackground(new Color(device, 255, 255, 255));
+
+		new Label(voComposite, SWT.NONE);
 
 		/* S : select vo path */
 		Label voPathLabel = new Label(voComposite, SWT.NONE);
 		voPathLabel.setText("Vo Path:");
 		voPathLabel.setLayoutData(new GridData(GridData.END, GridData.CENTER, false, false));
 
-		voPathName=new Text(voComposite, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
-		voPathName.setLayoutData(defaultLayoutData);
-		voPathName.setText(getVoPath());
-		if(!isSpecificSettings || !isCreateVo()) voPathName.setEnabled(false);
-		voPathName.setBackground(new Color(device, 255, 255, 255));
+		voPathText = new Text(voComposite, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
+		voPathText.setLayoutData(defaultLayoutData);
+		voPathText.setText(getVoPath());
+		if(!isSpecificSettings || !isCreateVo() || isCreateVoFolder()) voPathText.setEnabled(false);
+		voPathText.setBackground(new Color(device, 255, 255, 255));
 
 		voPathButton = new Button(voComposite, SWT.PUSH);
 		voPathButton.setText("Browse...");
@@ -1366,29 +1722,67 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 		voPathButton.addSelectionListener(new SelectionListener() {
 				@Override public void widgetSelected(SelectionEvent e) {
-					ContainerSelectionDialog dialog = new ContainerSelectionDialog(getShell(), null, false, "");
+					ContainerSelectionDialog dialog = new ContainerSelectionDialog(getShell(), project.getParent(), false, "Vo Path Selection:");
 					dialog.open();
 					Object[] result=dialog.getResult();
-					if (result != null && result.length == 1) voPathName.setText(((IPath) result[0]).toString());
+					if (result != null && result.length == 1) voPathText.setText(((IPath) result[0]).toString());
 				}
 				@Override public void widgetDefaultSelected(SelectionEvent e) {
 					widgetSelected(e);
 				}
 			}
 		);
-		if(!isSpecificSettings || !isCreateVo()) voPathButton.setEnabled(false);
+		if(!isSpecificSettings || !isCreateVo() || isCreateVoFolder()) voPathButton.setEnabled(false);
 		/* E : select vo path */
+
+		Label voSuperclassLabel = new Label(voComposite, SWT.NONE);
+		voSuperclassLabel.setText("Superclass:");
+		voSuperclassLabel.setLayoutData(new GridData(GridData.END, GridData.CENTER, false, false));
+
+		voSuperclassText = new Text(voComposite, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
+		voSuperclassText.setLayoutData(defaultLayoutData);
+		voSuperclassText.setText(getVoSuperclass());
+		if(!isSpecificSettings || !isCreateVo()) voSuperclassText.setEnabled(false);
+		voSuperclassText.setBackground(new Color(device, 255, 255, 255));
+
+		voSuperclassButton = new Button(voComposite, SWT.PUSH);
+		voSuperclassButton.setText("Browse...");
+		voSuperclassButton.setLayoutData(new GridData(100, 24));
+
+		voSuperclassButton.addSelectionListener(new SelectionListener() {
+		    @SuppressWarnings("restriction")
+			@Override public void widgetSelected(SelectionEvent e) {
+				try {
+					SelectionDialog dialog = JavaUI.createTypeDialog(getShell(),
+					          new ProgressMonitorDialog(getShell()),
+					          project,
+					          IJavaElementSearchConstants.CONSIDER_CLASSES,
+					          false);
+					  dialog.setTitle("Superclass Selection");
+				      dialog.open();
+				      Object[] result = dialog.getResult();
+				      if (result != null && result.length == 1) voSuperclassText.setText(((SourceType) result[0]).getFullyQualifiedName());
+				} catch (JavaModelException e1) {
+					e1.printStackTrace();
+				}
+		    }
+		    @Override public void widgetDefaultSelected(SelectionEvent e) {
+		      widgetSelected(e);
+		    }
+		  }
+		);
+		if(!isSpecificSettings || !isCreateVo()) voSuperclassButton.setEnabled(false);
 
 		/* S : select vo path */
 		Label myBatisSettingsFileLabel = new Label(voComposite, SWT.NONE);
 		myBatisSettingsFileLabel.setText("MyBatis Setting File:");
 		myBatisSettingsFileLabel.setLayoutData(new GridData(GridData.END, GridData.CENTER, false, false));
 
-		myBatisSettingsFileName=new Text(voComposite, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
-		myBatisSettingsFileName.setLayoutData(defaultLayoutData);
-		myBatisSettingsFileName.setText(getMyBatisSettingFile());
-		if(!isSpecificSettings || !isCreateVo()) myBatisSettingsFileName.setEnabled(false);
-		myBatisSettingsFileName.setBackground(new Color(device, 255, 255, 255));
+		myBatisSettingsFileText=new Text(voComposite, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
+		myBatisSettingsFileText.setLayoutData(defaultLayoutData);
+		myBatisSettingsFileText.setText(getMyBatisSettingFile());
+		if(!isSpecificSettings || !isCreateVo()) myBatisSettingsFileText.setEnabled(false);
+		myBatisSettingsFileText.setBackground(new Color(device, 255, 255, 255));
 
 		myBatisSettingsFileButton = new Button(voComposite, SWT.PUSH);
 		myBatisSettingsFileButton.setText("Browse...");
@@ -1399,7 +1793,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 					dialog.setFilterExtensions(new String[]{"*.xml"});
 					String fileName = dialog.open();
 					if (fileName != null) {
-						myBatisSettingsFileName.setText(fileName);
+						myBatisSettingsFileText.setText(fileName);
 					}
 				}
 				@Override public void widgetDefaultSelected(SelectionEvent e) {
@@ -1510,11 +1904,11 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 	    Composite jspComposite = new Composite(tabFolder, SWT.NULL);
 	    jspComposite.setLayout(new GridLayout(3, false));
 
-		createJsp = new Button(jspComposite, SWT.CHECK);
-		createJsp.setText("Create Jsp");
-		createJsp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 0));
-		if(!isSpecificSettings) createJsp.setEnabled(false);
-		createJsp.addSelectionListener(new SelectionListener() {
+		createJspButton = new Button(jspComposite, SWT.CHECK);
+		createJspButton.setText("Create Jsp");
+		createJspButton.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 0));
+		if(!isSpecificSettings) createJspButton.setEnabled(false);
+		createJspButton.addSelectionListener(new SelectionListener() {
 				@Override public void widgetSelected(SelectionEvent e) {
 					Button button = (Button) e.widget;
 					if(button.getSelection()) {
@@ -1528,7 +1922,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 				}
 			}
 		);
-		createJsp.setSelection(isCreateJsp());
+		createJspButton.setSelection(isCreateJsp());
 
 		/* S : select jsp path */
 		Label jspPathLabel = new Label(jspComposite, SWT.NONE);
@@ -1545,7 +1939,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 		jspPathButton.setLayoutData(new GridData(100, 24));
 		jspPathButton.addSelectionListener(new SelectionListener() {
 				@Override public void widgetSelected(SelectionEvent e) {
-					ContainerSelectionDialog dialog = new ContainerSelectionDialog(getShell(), null, false, "");
+					ContainerSelectionDialog dialog = new ContainerSelectionDialog(getShell(), project.getParent(), false, "Jsp Path Selection:");
 					dialog.open();
 					Object[] result=dialog.getResult();
 					if (result != null && result.length == 1) jspPathName.setText(((IPath) result[0]).toString());
@@ -1711,6 +2105,12 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 		setCompany(companyText.getText());
 		setAuthor(authorText.getText());
 
+		setCreateTest(createTestButton.getSelection());
+		setCreateTestControllerFolder(createTestControllerFolderButton.getSelection());
+		setCreateTestServiceFolder(createTestServiceFolderButton.getSelection());
+		setCreateTestDaoFolder(createTestDaoFolderButton.getSelection());
+		setTestPath(testPathText.getText());
+
 		setCreateControllerFolder(createControllerFolderButton.getSelection());
 		setAddPrefixControllerFolder(addPrefixControllerFolderButton.getSelection());
 		setCreateControllerSubFolder(createControllerSubFolderButton.getSelection());
@@ -1728,14 +2128,17 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 		setCreateDaoSubFolder(createDaoSubFolderButton.getSelection());
 
 		setCreateMapper(createMapper.getSelection());
-		setMapperPath(mapperPathName.getText());
+		setMapperPath(mapperPathText.getText());
 
-		setCreateVo(createVo.getSelection());
-		setCreateSearchVo(createSearchVo.getSelection());
-		setVoPath(voPathName.getText());
-		setMyBatisSettingFile(myBatisSettingsFileName.getText());
+		setCreateVo(createVoButton.getSelection());
+		setCreateSearchVo(createSearchVoButton.getSelection());
+		setCreateVoFolder(createVoFolderButton.getSelection());
+		setVoFolder(voFolderText.getText());
+		setVoPath(voPathText.getText());
+		setVoSuperclass(voSuperclassText.getText());
+		setMyBatisSettingFile(myBatisSettingsFileText.getText());
 
-		setCreateJsp(createJsp.getSelection());
+		setCreateJsp(createJspButton.getSelection());
 		setJspPath(jspPathName.getText());
 
 		return super.performOk();
@@ -1864,6 +2267,146 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 	    } catch (CoreException e) {
 	    	e.printStackTrace();
 	    }
+	}
+
+	public boolean isCreateTest() {
+		IResource resource = (IResource) getElement().getAdapter(IResource.class);
+
+		try {
+			String value = resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_TEST);
+			if("true".equals(value)) {
+				return true;
+			}
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+
+		return false;
+	}
+
+	public void setCreateTest(boolean createTest) {
+		IResource resource = (IResource) getElement().getAdapter(IResource.class);
+		try {
+			if(createTest) {
+				resource.setPersistentProperty(CSDGeneratorPropertiesItem.CREATE_TEST, "true");
+			} else {
+				resource.setPersistentProperty(CSDGeneratorPropertiesItem.CREATE_TEST, "false");
+			}
+		}
+		catch (CoreException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public String getTestPath() {
+		IResource resource = (IResource) getElement().getAdapter(IResource.class);
+
+		try {
+			String value = resource.getPersistentProperty(CSDGeneratorPropertiesItem.TEST_PATH);
+			if(value != null && !"".equals(value)) return value;
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+
+		return "";
+	}
+
+	public void setTestPath(String company) {
+		IResource resource = (IResource) getElement().getAdapter(IResource.class);
+		try {
+			if(!"".equals(company)) {
+				resource.setPersistentProperty(CSDGeneratorPropertiesItem.TEST_PATH, company);
+			}
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public boolean isCreateTestControllerFolder() {
+		IResource resource = (IResource) getElement().getAdapter(IResource.class);
+
+		try {
+			String value = resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_TEST_CONTROLLER_FOLDER);
+			if("true".equals(value)) {
+				return true;
+			}
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+
+		return false;
+	}
+
+	public void setCreateTestControllerFolder(boolean createTestControllerFolder) {
+		IResource resource = (IResource) getElement().getAdapter(IResource.class);
+		try {
+			if(createTestControllerFolder) {
+				resource.setPersistentProperty(CSDGeneratorPropertiesItem.CREATE_TEST_CONTROLLER_FOLDER, "true");
+			} else {
+				resource.setPersistentProperty(CSDGeneratorPropertiesItem.CREATE_TEST_CONTROLLER_FOLDER, "false");
+			}
+		}
+		catch (CoreException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public boolean isCreateTestServiceFolder() {
+		IResource resource = (IResource) getElement().getAdapter(IResource.class);
+
+		try {
+			String value = resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_TEST_SERVICE_FOLDER);
+			if("true".equals(value)) {
+				return true;
+			}
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+
+		return false;
+	}
+
+	public void setCreateTestServiceFolder(boolean createTestServiceFolder) {
+		IResource resource = (IResource) getElement().getAdapter(IResource.class);
+		try {
+			if(createTestServiceFolder) {
+				resource.setPersistentProperty(CSDGeneratorPropertiesItem.CREATE_TEST_SERVICE_FOLDER, "true");
+			} else {
+				resource.setPersistentProperty(CSDGeneratorPropertiesItem.CREATE_TEST_SERVICE_FOLDER, "false");
+			}
+		}
+		catch (CoreException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public boolean isCreateTestDaoFolder() {
+		IResource resource = (IResource) getElement().getAdapter(IResource.class);
+
+		try {
+			String value = resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_TEST_DAO_FOLDER);
+			if("true".equals(value)) {
+				return true;
+			}
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+
+		return false;
+	}
+
+	public void setCreateTestDaoFolder(boolean createTestDaoFolder) {
+		IResource resource = (IResource) getElement().getAdapter(IResource.class);
+		try {
+			if(createTestDaoFolder) {
+				resource.setPersistentProperty(CSDGeneratorPropertiesItem.CREATE_TEST_DAO_FOLDER, "true");
+			} else {
+				resource.setPersistentProperty(CSDGeneratorPropertiesItem.CREATE_TEST_DAO_FOLDER, "false");
+			}
+		}
+		catch (CoreException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public boolean isCreateControllerFolder() {
@@ -2296,6 +2839,60 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 	      }
 	}
 
+	public boolean isCreateVoFolder() {
+		IResource resource = (IResource) getElement().getAdapter(IResource.class);
+
+		try {
+			String value = resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_VO_FOLDER);
+			if("true".equals(value)) {
+				return true;
+			}
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+
+		return false;
+	}
+
+	public void setCreateVoFolder(boolean createVo) {
+	      IResource resource = (IResource) getElement().getAdapter(IResource.class);
+	      try {
+	    	  if(createVo) {
+	    		  resource.setPersistentProperty(CSDGeneratorPropertiesItem.CREATE_VO_FOLDER, "true");
+	    	  } else {
+	    		  resource.setPersistentProperty(CSDGeneratorPropertiesItem.CREATE_VO_FOLDER, "false");
+	    	  }
+	      }
+	      catch (CoreException e) {
+	    	  e.printStackTrace();
+	      }
+	}
+
+	public String getVoFolder() {
+			IResource resource = (IResource) getElement().getAdapter(IResource.class);
+
+			try {
+				String value = resource.getPersistentProperty(CSDGeneratorPropertiesItem.VO_FOLDER);
+				if(value != null && !"".equals(value)) return value;
+			} catch (CoreException e) {
+				e.printStackTrace();
+			}
+
+			return "";
+	}
+
+	public void setVoFolder(String voFolder) {
+	      IResource resource = (IResource) getElement().getAdapter(IResource.class);
+	      try {
+	    	  if(!"".equals(voFolder)) {
+	    		  resource.setPersistentProperty(CSDGeneratorPropertiesItem.VO_FOLDER, voFolder);
+	    	  }
+	      }
+	      catch (CoreException e) {
+	    	  e.printStackTrace();
+	      }
+	}
+
 	public String getVoPath() {
 			IResource resource = (IResource) getElement().getAdapter(IResource.class);
 
@@ -2314,6 +2911,31 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 	      try {
 	    	  if(!"".equals(voPath)) {
 	    		  resource.setPersistentProperty(CSDGeneratorPropertiesItem.VO_PATH, voPath);
+	    	  }
+	      }
+	      catch (CoreException e) {
+	    	  e.printStackTrace();
+	      }
+	}
+
+	public String getVoSuperclass() {
+			IResource resource = (IResource) getElement().getAdapter(IResource.class);
+
+			try {
+				String value = resource.getPersistentProperty(CSDGeneratorPropertiesItem.VO_SUPERCLASS);
+				if(value != null && !"".equals(value)) return value;
+			} catch (CoreException e) {
+				e.printStackTrace();
+			}
+
+			return "";
+	}
+
+	public void setVoSuperclass(String voSuperclass) {
+	      IResource resource = (IResource) getElement().getAdapter(IResource.class);
+	      try {
+	    	  if(!"".equals(voSuperclass)) {
+	    		  resource.setPersistentProperty(CSDGeneratorPropertiesItem.VO_SUPERCLASS, voSuperclass);
 	    	  }
 	      }
 	      catch (CoreException e) {
@@ -2425,6 +3047,40 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 	      }
 	}
 
+	private void setEnabledCreateTestControllerFolder() {
+	    createTestControllerFolderButton.setEnabled(true);
+	}
+
+	private void setDisabledCreateTestControllerFolder() {
+	  createTestControllerFolderButton.setEnabled(false);
+	}
+
+	private void setEnabledCreateTestServiceFolder() {
+	    createTestServiceFolderButton.setEnabled(true);
+	}
+
+	private void setDisabledCreateTestServiceFolder() {
+	  createTestServiceFolderButton.setEnabled(false);
+	}
+
+	private void setEnabledCreateTestDaoFolder() {
+	    createTestDaoFolderButton.setEnabled(true);
+	}
+
+	private void setDisabledCreateTestDaoFolder() {
+	  createTestDaoFolderButton.setEnabled(false);
+	}
+
+	private void setEnabledTestPath() {
+		testPathText.setEnabled(true);
+		testPathButton.setEnabled(true);
+	}
+
+	private void setDisabledTestPath() {
+		testPathText.setEnabled(false);
+		testPathButton.setEnabled(false);
+	}
+
 	private void setEnabledAddPrefixControllerFolder() {
 		addPrefixControllerFolderButton.setEnabled(true);
 	}
@@ -2482,40 +3138,56 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 	}
 
 	private void setEnabledMapperPath() {
-		mapperPathName.setEnabled(true);
+		mapperPathText.setEnabled(true);
 		mapperPathButton.setEnabled(true);
 	}
 
 	private void setDisabledMapperPath() {
-		mapperPathName.setEnabled(false);
+		mapperPathText.setEnabled(false);
 		mapperPathButton.setEnabled(false);
 	}
 
 	private void setEnabledCreateSearchVo() {
-		createSearchVo.setEnabled(true);
+		createSearchVoButton.setEnabled(true);
 	}
 
 	private void setDisabledCreateSearchVo() {
-		createSearchVo.setEnabled(false);
+		createSearchVoButton.setEnabled(false);
+	}
+
+	private void setEnabledCreateVoFolder() {
+		createVoFolderButton.setEnabled(true);
+	}
+
+	private void setDisabledCreateVoFolder() {
+		createVoFolderButton.setEnabled(false);
 	}
 
 	private void setEnabledMyBatisSettingsFile() {
-		myBatisSettingsFileName.setEnabled(true);
+		myBatisSettingsFileText.setEnabled(true);
 		myBatisSettingsFileButton.setEnabled(true);
 	}
 
 	private void setDisabledMyBatisSettingsFile() {
-		myBatisSettingsFileName.setEnabled(false);
+		myBatisSettingsFileText.setEnabled(false);
 		myBatisSettingsFileButton.setEnabled(false);
 	}
 
+	private void setEnabledVoFolder() {
+	  voFolderText.setEnabled(true);
+	}
+
+	private void setDisabledVoFolder() {
+	  voFolderText.setEnabled(false);
+	}
+
 	private void setEnabledVoPath() {
-		voPathName.setEnabled(true);
+		voPathText.setEnabled(true);
 		voPathButton.setEnabled(true);
 	}
 
 	private void setDisabledVoPath() {
-		voPathName.setEnabled(false);
+		voPathText.setEnabled(false);
 		voPathButton.setEnabled(false);
 	}
 
@@ -2527,6 +3199,16 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 	private void setDisabledJspPath() {
 		jspPathName.setEnabled(false);
 		jspPathButton.setEnabled(false);
+	}
+
+	private void setEnabledVoSuperclass() {
+		voSuperclassText.setEnabled(true);
+		voSuperclassButton.setEnabled(true);
+	}
+
+	private void setDisabledVoSuperclass() {
+		voSuperclassText.setEnabled(false);
+		voSuperclassButton.setEnabled(false);
 	}
 
 	private void setEnabledSettings() {
@@ -2541,7 +3223,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 		createServiceFolderButton.setEnabled(true);
 		if(createServiceFolderButton.getSelection()) addPrefixServiceFolderButton.setEnabled(true);
-		serviceTemplateFileName.setEnabled(true);
+		serviceTemplateFileText.setEnabled(true);
 		serviceTemplateFileButton.setEnabled(true);
 
 		createServiceImplButton.setEnabled(true);
@@ -2551,25 +3233,25 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 		createDaoFolderButton.setEnabled(true);
 		if(createDaoFolderButton.getSelection()) addPrefixDaoFolderButton.setEnabled(true);
-		daoTemplateFileName.setEnabled(true);
+		daoTemplateFileText.setEnabled(true);
 		daoTemplateFileButton.setEnabled(true);
 
 		createMapper.setEnabled(true);
 		if(createMapper.getSelection()) {
 			mapperPathButton.setEnabled(true);
-			mapperPathName.setEnabled(true);
+			mapperPathText.setEnabled(true);
 		}
 
-		createVo.setEnabled(true);
-		if(createVo.getSelection()) {
+		createVoButton.setEnabled(true);
+		if(createVoButton.getSelection()) {
 			voPathButton.setEnabled(true);
-			voPathName.setEnabled(true);
-			myBatisSettingsFileName.setEnabled(true);
+			voPathText.setEnabled(true);
+			myBatisSettingsFileText.setEnabled(true);
 			myBatisSettingsFileButton.setEnabled(true);
 		}
 
-		createJsp.setEnabled(true);
-		if(createJsp.getSelection()) {
+		createJspButton.setEnabled(true);
+		if(createJspButton.getSelection()) {
 			jspPathButton.setEnabled(true);
 			jspPathName.setEnabled(true);
 		}
@@ -2585,11 +3267,11 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 		controllerTemplateFileButton.setEnabled(false);
 
 		addPrefixServiceFolderButton.setEnabled(false);
-		serviceTemplateFileName.setEnabled(false);
+		serviceTemplateFileText.setEnabled(false);
 		serviceTemplateFileButton.setEnabled(false);
 
 		addPrefixDaoFolderButton.setEnabled(false);
-		daoTemplateFileName.setEnabled(false);
+		daoTemplateFileText.setEnabled(false);
 		daoTemplateFileButton.setEnabled(false);
 
 		createControllerFolderButton.setEnabled(false);
@@ -2602,15 +3284,15 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 		createMapper.setEnabled(false);
 		mapperPathButton.setEnabled(false);
-		mapperPathName.setEnabled(false);
+		mapperPathText.setEnabled(false);
 
-		createVo.setEnabled(false);
+		createVoButton.setEnabled(false);
 		voPathButton.setEnabled(false);
-		voPathName.setEnabled(false);
-		myBatisSettingsFileName.setEnabled(false);
+		voPathText.setEnabled(false);
+		myBatisSettingsFileText.setEnabled(false);
 		myBatisSettingsFileButton.setEnabled(false);
 
-		createJsp.setEnabled(false);
+		createJspButton.setEnabled(false);
 		jspPathButton.setEnabled(false);
 		jspPathName.setEnabled(false);
 	}

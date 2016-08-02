@@ -313,6 +313,15 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 
 					if(!"".equals(javaVoBuildPath)) voPackage = voPath.replace("/", ".").substring(voPath.lastIndexOf(javaVoBuildPath) + javaVoBuildPath.length() + 1);
 
+					List<ColumnItem> columns = null;
+					List<String> indexColumns = null;
+
+					if(connectionProfile != null) {
+						columns = databaseResource.getColumns(databaseTableName);
+						indexColumns = databaseResource.getIndexColumns(databaseTableName);
+					}
+
+
 					String importParameterVo = null;
 					String importReturnVo = null;
 
@@ -331,8 +340,6 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 							returnType = capitalizePrefix + "Vo";
 							importParameterVo = voPackage + "." + capitalizePrefix + "Vo";
 							importReturnVo = voPackage + "." + capitalizePrefix + "Vo";
-
-							List<ColumnItem> columns = databaseResource.getColumns(databaseTableName);
 
 							IFolder voFolder = project.getWorkspace().getRoot().getFolder(new Path(voPath + "/"));
 							if(!voFolder.exists()) voFolder.create(true ,true, new NullProgressMonitor());
@@ -608,6 +615,7 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 
 							serviceTemplate = StringUtils.replaceParameter(parameterType, serviceTemplate);
 							serviceTemplate = StringUtils.replaceReturn(returnType, serviceTemplate);
+							if(connectionProfile != null) serviceTemplate = StringUtils.replaceRepeatWord(serviceTemplate, columns);
 							serviceTemplate = serviceTemplate.replaceAll(prefix + "Dao", prefixDao.substring(0, 1).toLowerCase() + prefixDao.substring(1) + "Dao");
 
 							if(importParameterVo != null) serviceCompilationUnit.createImport(importParameterVo, null, new NullProgressMonitor());
@@ -801,33 +809,30 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 					if(isCreateMapper && databaseTableName != null && connectionProfile != null) {
 						try {
 
-							List<ColumnItem> columns = databaseResource.getColumns(databaseTableName);
-							List<String> indexColumns = databaseResource.getIndexColumns(databaseTableName);
-
 							if(isCreateSelectCount) {
 								mapperTemplate += StringUtils.appedFirstAndEndNewLine(StringUtils.replaceReservedWord(propertiesItem, prefix, mapperSelectCountTemplate));
-								mapperTemplate = mapperTemplate.replaceAll("\\[columns\\]", selecColumn(columns));
+								mapperTemplate = mapperTemplate.replaceAll("\\[columns\\]", StringUtils.replaceMapperSelecColumn(columns));
 							}
 
 							if(isCreateSelectList) {
 								mapperTemplate += StringUtils.appedFirstAndEndNewLine(StringUtils.replaceReservedWord(propertiesItem, prefix, mapperSelectListTemplate));
-								mapperTemplate = mapperTemplate.replaceAll("\\[columns\\]", selecColumn(columns));
+								mapperTemplate = mapperTemplate.replaceAll("\\[columns\\]", StringUtils.replaceMapperSelecColumn(columns));
 							}
 
 							if(isCreateSelectOne) {
 								mapperTemplate += StringUtils.appedFirstAndEndNewLine(StringUtils.replaceReservedWord(propertiesItem, prefix, mapperSelectOneTemplate));
-								mapperTemplate = mapperTemplate.replaceAll("\\[columns\\]", selecColumn(columns));
+								mapperTemplate = mapperTemplate.replaceAll("\\[columns\\]", StringUtils.replaceMapperSelecColumn(columns));
 							}
 
 							if(isCreateInsert) {
 								mapperTemplate += StringUtils.appedFirstAndEndNewLine(StringUtils.replaceReservedWord(propertiesItem, prefix, mapperInsertTemplate));
-								mapperTemplate = mapperTemplate.replaceAll("\\[columns\\]", insertColumn(columns));
-								mapperTemplate = mapperTemplate.replaceAll("\\[values\\]", insertValue(columns));
+								mapperTemplate = mapperTemplate.replaceAll("\\[columns\\]", StringUtils.replaceMapperInsertColumn(columns));
+								mapperTemplate = mapperTemplate.replaceAll("\\[values\\]", StringUtils.replaceMapperInsertValue(columns));
 							}
 
 							if(isCreateUpdate) {
 								mapperTemplate += StringUtils.replaceReservedWord(propertiesItem, prefix, StringUtils.appedFirstAndEndNewLine(mapperUpdateTemplate));
-								mapperTemplate = mapperTemplate.replaceAll("\\[columns\\]", updateColumn(columns));
+								mapperTemplate = mapperTemplate.replaceAll("\\[columns\\]", StringUtils.replaceMapperUpdateColumn(columns));
 							}
 
 							if(isCreateDelete) {
@@ -835,7 +840,7 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 							}
 
 							mapperTemplate = mapperTemplate.replaceAll("\\[table\\]", databaseTableName);
-							mapperTemplate = mapperTemplate.replaceAll("\\[indexColumns\\]", indexColumn(indexColumns));
+							mapperTemplate = mapperTemplate.replaceAll("\\[indexColumns\\]", StringUtils.replaceMapperIndexColumn(indexColumns));
 
 							if(parameterType.toLowerCase().indexOf("hashmap") == -1) {
 								mapperTemplate = mapperTemplate.replaceAll("\\[paramType\\]", parameterType.toLowerCase().charAt(0) + parameterType.substring(1));
@@ -928,83 +933,5 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 
 		return source;
 	};
-
-	private String selecColumn(List<ColumnItem> columnItems) {
-		StringBuffer result = new StringBuffer();
-		if(columnItems.size() > 0) {
-			for (int i = 0; i < columnItems.size(); i++) {
-				ColumnItem columnItem = columnItems.get(i);
-				if(i > 0) result.append("\t\t\t,");
-				result.append(columnItem.getColumnName());
-				result.append(" AS ");
-				result.append(StringUtils.toCamelCase(columnItem.getColumnName()));
-				if(i < (columnItems.size() - 1)) result.append("\n");
-			}
-		}
-		return result.toString();
-	}
-
-	private String insertColumn(List<ColumnItem> columnItems) {
-		StringBuffer result = new StringBuffer();
-		if(columnItems.size() > 0) {
-			for (int i = 0; i < columnItems.size(); i++) {
-				ColumnItem columnItem = columnItems.get(i);
-				if(i > 0) result.append("\t\t\t,");
-				result.append(columnItem.getColumnName());
-				if(i < (columnItems.size() - 1)) result.append("\n");
-			}
-		}
-		return result.toString();
-	}
-
-	private String insertValue(List<ColumnItem> columnItems) {
-		StringBuffer result = new StringBuffer();
-		if(columnItems.size() > 0) {
-			for (int i = 0; i < columnItems.size(); i++) {
-				ColumnItem columnItem = columnItems.get(i);
-				if(i > 0) result.append("\t\t\t,");
-				result.append("#{");
-				result.append(StringUtils.toCamelCase(columnItem.getColumnName()));
-				result.append("}");
-				if(i < (columnItems.size() - 1)) result.append("\n");
-			}
-		}
-		return result.toString();
-	}
-
-	private String updateColumn(List<ColumnItem> columnItems) {
-		StringBuffer result = new StringBuffer();
-		int size = columnItems.size();
-		if(size > 0) {
-			for (int i = 0; i < size; i++) {
-				ColumnItem columnItem = columnItems.get(i);
-				if(i > 0) result.append("\t\t\t,");
-				result.append(columnItem.getColumnName());
-				result.append(" = #{");
-				result.append(StringUtils.toCamelCase(columnItem.getColumnName()));
-				result.append("}");
-				if(i < (size - 1)) result.append("\n");
-			}
-		}
-		return result.toString();
-	}
-
-	private String indexColumn(List<String> indexColumns) {
-		StringBuffer result = new StringBuffer();
-		int size = indexColumns.size();
-		if(size > 0) {
-			for (int i = 0; i < size; i++) {
-				String column = indexColumns.get(i);
-				if(i > 0) result.append("\t\t\t");
-				result.append("AND ");
-				result.append(column);
-				result.append(" = #{");
-				result.append(StringUtils.toCamelCase(column));
-				result.append("}");
-				if(i < (size - 1)) result.append("\n");
-			}
-		}
-		return result.toString();
-	}
 
 }

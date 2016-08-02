@@ -19,6 +19,12 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 
 	public static final QualifiedName DATABASE_CONNECTION_PROFILE_NAME = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_DATABASE_CONNECTION_PROFILE_NAME);
 
+	public static final QualifiedName CREATE_TEST = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_CREATE_TEST);
+	public static final QualifiedName CREATE_TEST_CONTROLLER_FOLDER = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_CREATE_TEST_CONTROLLER_FOLDER);
+	public static final QualifiedName CREATE_TEST_SERVICE_FOLDER = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_CREATE_TEST_SERVICE_FOLDER);
+	public static final QualifiedName CREATE_TEST_DAO_FOLDER = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_CREATE_TEST_DAO_FOLDER);
+	public static final QualifiedName TEST_PATH = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_TEST_PATH);
+
 	public static final QualifiedName CREATE_CONTROLLER_FOLDER = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_CREATE_CONTROLLER_FOLDER);
 	public static final QualifiedName ADD_PREFIX_CONTROLLER_FOLDER = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_ADD_PREFIX_CONTROLLER_FOLDER);
 	public static final QualifiedName CREATE_CONTROLLER_SUB_FOLDER = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_CREATE_CONTROLLER_SUB_FOLDER);
@@ -39,7 +45,10 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 
 	public static final QualifiedName CREATE_VO = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_CREATE_VO);
 	public static final QualifiedName CREATE_SEARCH_VO = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_CREATE_SEARCH_VO);
+	public static final QualifiedName CREATE_VO_FOLDER = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_CREATE_VO_FOLDER);
+	public static final QualifiedName VO_FOLDER = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_VO_FOLDER);
 	public static final QualifiedName VO_PATH = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_VO_PATH);
+	public static final QualifiedName VO_SUPERCLASS = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_VO_SUPERCLASS);
 	public static final QualifiedName MYBATIS_SETTING_FILE = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_MYBATIS_SETTING_FILE);
 
 	public static final QualifiedName CREATE_JSP = new QualifiedName(CSDGeneratorPlugin.PLUGIN_ID, PreferenceConstants.CSDGENERATOR_CREATE_JSP);
@@ -54,6 +63,12 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 	private String author;
 
 	private String databaseConnectionProfileName;
+
+	private boolean createTest;
+	private boolean createTestControllerFolder;
+	private boolean createTestServiceFolder;
+	private boolean createTestDaoFolder;
+	private String testPath;
 
 	private boolean createControllerFolder;
 	private boolean addPrefixControllerFolder;
@@ -75,7 +90,10 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 
 	private boolean createVo;
 	private boolean createSearchVo;
+	private boolean createVoFolder;
+	private String voFolder;
 	private String voPath;
+	private String voSuperclass;
 	private String myBatisSettingFile;
 
 	private boolean createJsp;
@@ -104,6 +122,12 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 
 				databaseConnectionProfileName = resource.getPersistentProperty(CSDGeneratorPropertiesItem.DATABASE_CONNECTION_PROFILE_NAME);
 
+				createTest = "true".equals(resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_TEST));
+				createTestControllerFolder = "true".equals(resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_TEST_CONTROLLER_FOLDER));
+				createTestServiceFolder = "true".equals(resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_TEST_SERVICE_FOLDER));
+				createTestDaoFolder = "true".equals(resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_TEST_DAO_FOLDER));
+				testPath = resource.getPersistentProperty(CSDGeneratorPropertiesItem.TEST_PATH);
+
 				createControllerFolder = "true".equals(resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_CONTROLLER_FOLDER));
 				addPrefixControllerFolder = "true".equals(resource.getPersistentProperty(CSDGeneratorPropertiesItem.ADD_PREFIX_CONTROLLER_FOLDER));
 				createControllerSubFolder = "true".equals(resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_CONTROLLER_SUB_FOLDER));
@@ -124,7 +148,10 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 
 				createVo = "true".equals(resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_VO));
 				createSearchVo = "true".equals(resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_SEARCH_VO));
+				createVoFolder = "true".equals(resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_VO_FOLDER));
+				voFolder = resource.getPersistentProperty(CSDGeneratorPropertiesItem.VO_FOLDER);
 				voPath = resource.getPersistentProperty(CSDGeneratorPropertiesItem.VO_PATH);
+				voSuperclass = resource.getPersistentProperty(CSDGeneratorPropertiesItem.VO_SUPERCLASS);
 				myBatisSettingFile = resource.getPersistentProperty(CSDGeneratorPropertiesItem.MYBATIS_SETTING_FILE);
 
 				createJsp = "true".equals(resource.getPersistentProperty(CSDGeneratorPropertiesItem.CREATE_JSP));
@@ -203,6 +230,56 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 	@Override
 	public void setDatabaseConnectionProfileName(String databaseConnectionProfileName) {
 		this.databaseConnectionProfileName = databaseConnectionProfileName;
+	}
+
+	@Override
+	public boolean getCreateTest() {
+		return createTest;
+	}
+
+	@Override
+	public void setCreateTest(boolean createTest) {
+		this.createTest = createTest;
+	}
+
+	@Override
+	public boolean getCreateTestControllerFolder() {
+		return createTestControllerFolder;
+	}
+
+	@Override
+	public void setCreateTestControllerFolder(boolean createTestControllerFolder) {
+		this.createTestControllerFolder = createTestControllerFolder;
+	}
+
+	@Override
+	public boolean getCreateTestServiceFolder() {
+		return createTestServiceFolder;
+	}
+
+	@Override
+	public void setCreateTestServiceFolder(boolean createTestServiceFolder) {
+		this.createTestServiceFolder = createTestServiceFolder;
+	}
+
+	@Override
+	public boolean getCreateTestDaoFolder() {
+		return createTestDaoFolder;
+	}
+
+	@Override
+	public void setCreateTestDaoFolder(boolean createTestDaoFolder) {
+		this.createTestDaoFolder = createTestDaoFolder;
+	}
+
+	@Override
+	public String getTestPath() {
+		return testPath;
+	}
+
+	@Override
+	public void setTestPath(String testPath) {
+		this.testPath = testPath;
 	}
 
 	@Override
@@ -356,6 +433,26 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 	}
 
 	@Override
+	public boolean getCreateVoFolder() {
+		return createVoFolder;
+	}
+
+	@Override
+	public void setCreateVoFolder(boolean createVoFolder) {
+		this.createVoFolder = createVoFolder;
+	}
+
+	@Override
+	public String getVoFolder() {
+		return voFolder;
+	}
+
+	@Override
+	public void setVoFolderName(String voFolder) {
+		this.voFolder = voFolder;
+	}
+
+	@Override
 	public String getVoPath() {
 		return voPath;
 	}
@@ -366,12 +463,22 @@ public class CSDGeneratorPropertiesItem implements ICSDGeneratorPropertiesItem {
 	}
 
 	@Override
+	public String getVoSuperclass() {
+		return voSuperclass;
+	}
+
+	@Override
+	public void setVoSuperclass(String voSuperclass) {
+		this.voSuperclass = voSuperclass;
+	}
+
+	@Override
 	public String getMyBatisSettingFile() {
 		return myBatisSettingFile;
 	}
 
 	@Override
-	public void setMyBatisSettingFile(String myBatisSettingFilev) {
+	public void setMyBatisSettingFile(String myBatisSettingFile) {
 		this.myBatisSettingFile = myBatisSettingFile;
 	}
 

@@ -1,26 +1,34 @@
 package kr.pe.maun.csdgenerator.model;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.ui.JavaUI;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.ui.PlatformUI;
+
 import kr.pe.maun.csdgenerator.GeneratorItemConstants;
 
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.swt.graphics.Image;
+public class GeneratorTreeItem {
 
-public class GeneratorItem implements Serializable {
+	private static final org.eclipse.jdt.ui.ISharedImages sharedImages = JavaUI.getSharedImages();
+	private static final org.eclipse.ui.ISharedImages workbenchSharedImages = PlatformUI.getWorkbench().getSharedImages();
 
-	private static final long serialVersionUID = 2214068803450274465L;
+	private static final Image packageRootIcon = sharedImages.getImage(org.eclipse.jdt.ui.ISharedImages.IMG_OBJS_PACKFRAG_ROOT);
+	private static final Image packageIcon = sharedImages.getImage(org.eclipse.jdt.ui.ISharedImages.IMG_OBJS_PACKAGE);
+	private static final Image javaIcon = sharedImages.getImage(org.eclipse.jdt.ui.ISharedImages.IMG_OBJS_CUNIT);
+	private static final Image folderIcon = workbenchSharedImages.getImage(org.eclipse.ui.ISharedImages.IMG_OBJ_FOLDER);
+	private static final Image fileIcon = workbenchSharedImages.getImage(org.eclipse.ui.ISharedImages.IMG_OBJ_FILE);
 
-	private GeneratorItem parentItem = null;
+	private GeneratorTreeItem parentItem = null;
 	private String name;
 	private IPath path;
 	private byte type;
 	private Image image;
-	private List<GeneratorItem> childItems = new ArrayList<GeneratorItem>();
+	private List<GeneratorTreeItem> childItems = new ArrayList<GeneratorTreeItem>();
 
-	public GeneratorItem(byte type, String name, IPath path, Image image) {
+	public GeneratorTreeItem(byte type, String name, IPath path, Image image) {
 		super();
 		this.name = name;
 		this.path = path;
@@ -28,7 +36,7 @@ public class GeneratorItem implements Serializable {
 		this.image = image;
 	}
 
-	public GeneratorItem getParentItem() {
+	public GeneratorTreeItem getParentItem() {
 		return parentItem;
 	}
 
@@ -52,11 +60,11 @@ public class GeneratorItem implements Serializable {
 		return image;
 	}
 
-	public List<GeneratorItem> getChildItems() {
+	public List<GeneratorTreeItem> getChildItems() {
 		return childItems;
 	}
 
-	public void setParentItem(GeneratorItem parentItem) {
+	public void setParentItem(GeneratorTreeItem parentItem) {
 		this.parentItem = parentItem;
 	}
 
@@ -72,51 +80,52 @@ public class GeneratorItem implements Serializable {
 		this.image = image;
 	}
 
-	public void setChildItems(List<GeneratorItem> childItems) {
+	public void setChildItems(List<GeneratorTreeItem> childItems) {
 		this.childItems = childItems;
 	}
 
-	public void addChildItem(GeneratorItem generatorItem) {
-		
+	public void addChildItem(GeneratorTreeItem generatorItem) {
+
 		System.out.println("S : ------------------------------------------------------------------------------------------");
 		System.out.println("ok ---------------------> name : " + generatorItem.getName());
+		System.out.println("ok ---------------------> path : " + generatorItem.getPath());
 		System.out.println("E : ------------------------------------------------------------------------------------------");
-		
+
 		if(generatorItem.getType() == GeneratorItemConstants.PACKAGE) {
 			String[] paths = generatorItem.getName().split("\\.");
-			List<GeneratorItem> childItems = this.childItems;
+			List<GeneratorTreeItem> childItems = this.childItems;
 			for(String path : paths) {
 
-				GeneratorItem childItem = null;
+				GeneratorTreeItem childItem = null;
 
-				for(GeneratorItem item : childItems) {
+				for(GeneratorTreeItem item : childItems) {
 					if(item.getName().equals(path)) childItem = item;
 				}
 
 				if(childItem == null) {
-					childItem = new GeneratorItem(GeneratorItemConstants.PACKAGE, path, null, generatorItem.getImage());
+					childItem = new GeneratorTreeItem(GeneratorItemConstants.PACKAGE, path, null, generatorItem.getImage());
 					childItems.add(childItem);
 				}
 
 				childItems = childItem.getChildItems();
 			}
 		} else {
-			
+
 		}
 	}
 
-	private GeneratorItem findParentGeneratorItem(GeneratorItem generatorItem) {
-		GeneratorItem findItem = null;
+	private GeneratorTreeItem findParentGeneratorItem(GeneratorTreeItem generatorItem) {
+		GeneratorTreeItem findItem = null;
 		if(childItems.size() == 0) return this;
 		System.out.println("S : ------------------------------------------------------------------------------------------");
-		for(GeneratorItem item : childItems) {
+		for(GeneratorTreeItem item : childItems) {
 			System.out.println("name : " + item.getName());
 			if(item.getType() == GeneratorItemConstants.PACKAGE
 					&& item.getName().equals(generatorItem.getName())) {
 				findItem = item;
 				System.out.println("ok ---------------------> name : " + item.getName());
 			} else {
-				GeneratorItem findChildItem = findParentGeneratorItem(item);
+				GeneratorTreeItem findChildItem = findParentGeneratorItem(item);
 				findItem = findChildItem == null ? findItem : findChildItem;
 			}
 		}
@@ -125,7 +134,7 @@ public class GeneratorItem implements Serializable {
 		return findItem;
 	}
 
-	private String getPackagePath(GeneratorItem generatorItem) {
+	private String getPackagePath(GeneratorTreeItem generatorItem) {
 		if(generatorItem.getParentItem() != null && generatorItem.getType() == GeneratorItemConstants.PACKAGE) return getPackagePath(generatorItem.getParentItem()) + "." + generatorItem.getName();
 		return generatorItem.getName();
 	}

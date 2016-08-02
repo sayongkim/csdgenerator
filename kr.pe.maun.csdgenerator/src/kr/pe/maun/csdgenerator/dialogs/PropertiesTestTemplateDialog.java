@@ -23,14 +23,12 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 
-public class PropertiesGeneralTemplateDialog extends Dialog {
+public class PropertiesTestTemplateDialog extends Dialog {
 
 	private String[] templateGroupNames;
 	private String[] controllerTemplateNames;
 	private String[] serviceTemplateNames;
 	private String[] daoTemplateNames;
-	private String[] mapperTemplateNames;
-	private String[] jspTemplateNames;
 
 	private Text templateGroupNameField;
 
@@ -43,18 +41,14 @@ public class PropertiesGeneralTemplateDialog extends Dialog {
 	private String controllerTemplateName = "";
 	private String serviceTemplateName = "";
 	private String daoTemplateName = "";
-	private String mapperTemplateName = "";
-	private String jspTemplateName = "";
 
 	Combo controllerTempateNameCombo;
 	Combo serviceTempateNameCombo;
 	Combo daoTempateNameCombo;
-	Combo mapperTempateNameCombo;
-	Combo jspTempateNameCombo;
 
 	private Button okButton;
 
-	public PropertiesGeneralTemplateDialog(Shell parentShell) {
+	public PropertiesTestTemplateDialog(Shell parentShell) {
 		super(parentShell);
 	}
 
@@ -109,8 +103,6 @@ public class PropertiesGeneralTemplateDialog extends Dialog {
 							controllerTempateNameCombo.setEnabled(false);
 							serviceTempateNameCombo.setEnabled(false);
 							daoTempateNameCombo.setEnabled(false);
-							mapperTempateNameCombo.setEnabled(false);
-							jspTempateNameCombo.setEnabled(false);
 						}
 					}
 					@Override
@@ -178,44 +170,6 @@ public class PropertiesGeneralTemplateDialog extends Dialog {
 
 		if(!"".equals(daoTemplateName)) daoTempateNameCombo.select(daoTempateNameCombo.indexOf(daoTemplateName));
 
-		Label mapperTemplateNameLabel = new Label(container, SWT.NONE);
-		mapperTemplateNameLabel.setText("Mapper Template:");
-
-		mapperTempateNameCombo = new Combo(container, SWT.READ_ONLY);
-		mapperTempateNameCombo.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, false, 2, 0));
-		mapperTempateNameCombo.setItems(mapperTemplateNames);
-		mapperTempateNameCombo.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				mapperTemplateName = mapperTempateNameCombo.getText();
-			}
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				widgetSelected(e);
-			}
-		});
-
-		if(!"".equals(mapperTemplateName)) mapperTempateNameCombo.select(mapperTempateNameCombo.indexOf(mapperTemplateName));
-
-		Label jspTemplateNameLabel = new Label(container, SWT.NONE);
-		jspTemplateNameLabel.setText("JSP Template:");
-
-		jspTempateNameCombo = new Combo(container, SWT.READ_ONLY);
-		jspTempateNameCombo.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, false, 2, 0));
-		jspTempateNameCombo.setItems(jspTemplateNames);
-		jspTempateNameCombo.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				jspTemplateName = jspTempateNameCombo.getText();
-			}
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				widgetSelected(e);
-			}
-		});
-
-		if(!"".equals(jspTemplateName)) jspTempateNameCombo.select(jspTempateNameCombo.indexOf(jspTemplateName));
-
 		return container;
 	}
 
@@ -238,7 +192,7 @@ public class PropertiesGeneralTemplateDialog extends Dialog {
 
 	@Override
 	protected Point getInitialSize() {
-		return new Point(500, 280);
+		return new Point(500, 230);
 	}
 
 	protected void okButtonEnabled() {
@@ -276,14 +230,6 @@ public class PropertiesGeneralTemplateDialog extends Dialog {
 		return daoTemplateNames;
 	}
 
-	public String[] getMapperTemplateNames() {
-		return mapperTemplateNames;
-	}
-
-	public String[] getJspTemplateNames() {
-		return jspTemplateNames;
-	}
-
 	public String getTemplateGroupName() {
 		return templateGroupName;
 	}
@@ -298,14 +244,6 @@ public class PropertiesGeneralTemplateDialog extends Dialog {
 
 	public String getDaoTemplateName() {
 		return daoTemplateName;
-	}
-
-	public String getMapperTemplateName() {
-		return mapperTemplateName;
-	}
-
-	public String getJspTemplateName() {
-		return jspTemplateName;
 	}
 
 	public void setTemplateGroupNames(String[] templateGroupNames) {
@@ -324,14 +262,6 @@ public class PropertiesGeneralTemplateDialog extends Dialog {
 		this.daoTemplateNames = daoTemplateNames;
 	}
 
-	public void setMapperTemplateNames(String[] mapperTemplateNames) {
-		this.mapperTemplateNames = mapperTemplateNames;
-	}
-
-	public void setJspTemplateNames(String[] jspTemplateNames) {
-		this.jspTemplateNames = jspTemplateNames;
-	}
-
 	public void setTemplateGroupName(String templateGroupName) {
 		this.templateGroupName = templateGroupName;
 	}
@@ -346,14 +276,6 @@ public class PropertiesGeneralTemplateDialog extends Dialog {
 
 	public void setDaoTemplateName(String daoTemplateName) {
 		this.daoTemplateName = daoTemplateName;
-	}
-
-	public void setMapperTemplateName(String mapperTemplateName) {
-		this.mapperTemplateName = mapperTemplateName;
-	}
-
-	public void setJspTemplateName(String jspTemplateName) {
-		this.jspTemplateName = jspTemplateName;
 	}
 
 	public IPath getTemplatePath() {

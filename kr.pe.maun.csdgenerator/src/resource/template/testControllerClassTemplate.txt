@@ -1,0 +1,196 @@
+package [packagePath];
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.fileUpload;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.test.web.ModelAndViewAssert;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.servlet.ModelAndView;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration()
+@WebAppConfiguration
+public class Test[capitalizePrefix]Controller {
+
+	private MockMvc mockMvc;
+
+	@InjectMocks
+	private [capitalizePrefix]Controller [prefix]Controller;
+
+	@Autowired
+	private [capitalizePrefix]Service [prefix]Service;
+
+	@Before
+	public void setUp() {
+		MockitoAnnotations.initMocks(this);
+		ReflectionTestUtils.setField([prefix]Controller, "[prefix]Service", [prefix]Service);
+		mockMvc = MockMvcBuilders.standaloneSetup([prefix]Controller).build();
+	}
+
+	/**
+	 * Desc : 목록 조회 테스트
+	 * @Method : select[capitalizePrefix]List
+	 * @Company : [company]
+	 * @Author : [author]
+	 * @Date : [date]
+	 * @return
+	 */
+	@Test
+	public void select[capitalizePrefix]List() throws Exception {
+		mockMvc.perform(get("/[prefix]/list"))
+			.andExpect(status().isOk())
+			.andExpect(view().name("[prefix]/[prefix]"))
+			;
+	}
+
+	/**
+	 * Desc : 목록 (Ajax) 테스트
+	 * @Method : select[capitalizePrefix]ListData
+	 * @Company : [company]
+	 * @Author : [author]
+	 * @Date : [date]
+	 * @return
+	 */
+	@Test
+	public void select[capitalizePrefix]ListData() throws Exception {
+		mockMvc.perform(get("/[prefix]/list/data"))
+			.andExpect(status().isOk())
+			.andExpect(content().contentType("application/json;charset=UTF-8"))
+			.andExpect(jsonPath("$.total", equalTo(0)))
+			;
+	}
+
+	/**
+	 * Desc : 상세 페이지 테스트
+	 * @Method : select[capitalizePrefix]
+	 * @Company : [company]
+	 * @Author : [author]
+	 * @Date : [date]
+	 * @return
+	 */
+	@Test
+	public void select[prefix]() throws Exception {
+		mockMvc.perform(get("/[prefix]"))
+			.andExpect(status().isOk())
+			.andExpect(view().name("[prefix]/[prefix]View"))
+			;
+	}
+
+	/**
+	 * Desc : 등록 페이지 테스트
+	 * @Method : insert[capitalizePrefix]View
+	 * @Company : [company]
+	 * @Author : [author]
+	 * @Date : [date]
+	 * @return
+	 */
+	@Test
+	public void insert[capitalizePrefix]View() throws Exception {
+		mockMvc.perform(get("/[prefix]/post"))
+			.andExpect(status().isOk())
+			.andExpect(view().name("[prefix]/[prefix]Post"))
+		;
+	}
+
+	/**
+	 * Desc : 등록 처리 테스트
+	 * @Method : insert[capitalizePrefix]
+	 * @Company : [company]
+	 * @Author : [author]
+	 * @Date : [date]
+	 * @return
+	 */
+	@Test
+	public void insert[capitalizePrefix]() throws Exception {
+		MvcResult mvcResult = mockMvc.perform(fileUpload("/[prefix]/post")
+				/*r:s*/
+				.param("[column]", "") // [comment]
+				/*r:e*/
+				)
+			.andExpect(status().isOk())
+			.andExpect(view().name("common/replace"))
+			.andReturn()
+		;
+
+		ModelAndView modelAndView = mvcResult.getModelAndView();
+		ModelAndViewAssert.assertModelAttributeValue(modelAndView, "message", "처리되었습니다.");
+	}
+
+	/**
+	 * Desc : 등록 페이지 테스트
+	 * @Method : update[capitalizePrefix]
+	 * @Company : [company]
+	 * @Author : [author]
+	 * @Date : [date]
+	 * @return
+	 */
+	@Test
+	public void update[capitalizePrefix]View() throws Exception {
+		mockMvc.perform(get("/[prefix]/update"))
+		.andExpect(status().isOk())
+		.andExpect(view().name("[prefix]/[prefix]Post"))
+		;
+	}
+
+	/**
+	 * Desc : 수정 처리 테스트
+	 * @Method : update[capitalizePrefix]
+	 * @Company : [company]
+	 * @Author : [author]
+	 * @Date : [date]
+	 * @return
+	 */
+	@Test
+	public void update[capitalizePrefix]() throws Exception {
+		MvcResult mvcResult = mockMvc.perform(fileUpload("/[prefix]/update")
+				/*r:s*/
+				.param("[column]", "") // [comment]
+				/*r:e*/
+				)
+				.andExpect(status().isOk())
+				.andExpect(view().name("common/replace"))
+				.andReturn()
+				;
+
+		ModelAndView modelAndView = mvcResult.getModelAndView();
+		ModelAndViewAssert.assertModelAttributeValue(modelAndView, "message", "처리되었습니다.");
+	}
+
+	/**
+	 * Desc : 삭제 처리 테스트
+	 * @Method : delete[capitalizePrefix]
+	 * @Company : [company]
+	 * @Author : [author]
+	 * @Date : [date]
+	 * @return
+	 */
+	@Test
+	public void delete[capitalizePrefix]() throws Exception {
+		MvcResult mvcResult = mockMvc.perform(fileUpload("/[prefix]/delete"))
+				.andExpect(status().isOk())
+				.andExpect(view().name("common/replace"))
+				.andReturn()
+				;
+
+		ModelAndView modelAndView = mvcResult.getModelAndView();
+		ModelAndViewAssert.assertModelAttributeValue(modelAndView, "message", "삭되었습니다.");
+	}
+}

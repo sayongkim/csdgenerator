@@ -1,0 +1,111 @@
+package [packagePath];
+
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.transaction.annotation.Transactional;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = {[capitalizePrefix]Dao.class})
+@Transactional
+public class Test[capitalizePrefix]Service {
+
+	private [capitalizePrefix]Service [prefix]Service = new [capitalizePrefix]ServiceImpl();
+
+	@Autowired
+	private [capitalizePrefix]Dao [prefix]Dao;
+
+	@Before
+	public void setUp() throws Exception {
+		ReflectionTestUtils.setField([prefix]Service, "[prefix]Dao", [prefix]Dao);
+	}
+
+	/**
+	 * 총 건수 조회 테스트
+	 * @Method : select[capitalizePrefix]TotalCnt
+	 * @Company : [company]
+	 * @Author : [author]
+	 * @Date : [date]
+	 * @param [searchParamName]
+	 */
+	@Test
+	public void select[capitalizePrefix]TotalCnt() {
+		[prefix]Service.select[capitalizePrefix]TotalCnt(new [paramType]());
+	}
+
+	/**
+	 * 목록 조회 테스트
+	 * @Method : select[capitalizePrefix]List
+	 * @Company : [company]
+	 * @Author : [author]
+	 * @Date : [date]
+	 * @param [searchParamName]
+	 */
+	@Test
+	public void select[capitalizePrefix]List() {
+		[prefix]Dao.select[capitalizePrefix]List(new [paramType]());
+	}
+
+	/**
+	 * 조회 테스트
+	 * @Method : select[capitalizePrefix]
+	 * @Company : [company]
+	 * @Author : [author]
+	 * @Date : [date]
+	 * @param [searchParamName]
+	 */
+	@Test
+	public void select[capitalizePrefix]() {
+		[prefix]Dao.select[capitalizePrefix](new [paramType]());
+	}
+
+	/**
+	 * 등록 테스트
+	 * @Method : insert[capitalizePrefix]
+	 * @Company : [company]
+	 * @Author : [author]
+	 * @Date : [date]
+	 * @param [paramName]
+	 */
+	@Test
+	public void insert[capitalizePrefix]() {
+		int result = [prefix]Dao.insert[capitalizePrefix](new [paramType]());
+		assertEquals(result, 1);
+	}
+
+	/**
+	 * 수정 테스트
+	 * @Method : update[capitalizePrefix]
+	 * @Company : [company]
+	 * @Author : [author]
+	 * @Date : [date]
+	 * @param [paramName]
+	 */
+	@Test
+	public void update[capitalizePrefix]() {
+		int result = [prefix]Dao.update[capitalizePrefix](new [paramType]());
+		assertEquals(result, 1);
+	}
+
+	/**
+	 * 삭제 테스트
+	 * @Method : delete[capitalizePrefix]
+	 * @Company : [company]
+	 * @Author : [author]
+	 * @Date : [date]
+	 * @param [searchParamName]
+	 */
+	@Test
+	public void delete[capitalizePrefix]() {
+		int result = [prefix]Dao.delete[capitalizePrefix](new [paramType]());
+		assertEquals(result, 1);
+	}
+
+}

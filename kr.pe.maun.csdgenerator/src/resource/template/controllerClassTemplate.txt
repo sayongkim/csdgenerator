@@ -31,7 +31,7 @@ public class [capitalizePrefix]Controller {
 	 * @return
 	 */
 	@RequestMapping(value="/[prefix]/list", method=RequestMethod.GET)
-	public ModelAndView select[prefix]List() {
+	public ModelAndView select[capitalizePrefix]List() {
 
 		ModelAndView modelAndView = new ModelAndView("[prefix]/[prefix]");
 
@@ -48,11 +48,11 @@ public class [capitalizePrefix]Controller {
 	 */
 	@RequestMapping(value="/[prefix]/list/data", method=RequestMethod.GET)
 	@ResponseBody
-	public HashMap<String, Object> select[prefix]ListData(@ModelAttribute [searchParamType] [searchParamName]) {
+	public HashMap<String, Object> select[capitalizePrefix]ListData(@ModelAttribute [searchParamType] [searchParamName]) {
 
 		HashMap<String, Object> resultMap = new HashMap<String, Object>();
 
-		long totalCnt = [prefix]Service.select[capitalizePrefix]TotalCnt(searchMap);
+		long totalCnt = [prefix]Service.select[capitalizePrefix]TotalCnt([searchParamName]);
 		resultMap.put("total", totalCnt);
 
 		List<[returnType]> [prefix]List = [prefix]Service.select[capitalizePrefix]List([searchParamName]);
@@ -71,7 +71,7 @@ public class [capitalizePrefix]Controller {
 	 * @return
 	 */
 	@RequestMapping(value="/[prefix]", method=RequestMethod.GET)
-	public ModelAndView select[prefix](@ModelAttribute [searchParamType] [searchParamName]) {
+	public ModelAndView select[capitalizePrefix](@ModelAttribute [searchParamType] [searchParamName]) {
 
 		ModelAndView modelAndView = new ModelAndView("[prefix]/[prefix]View");
 
@@ -90,7 +90,7 @@ public class [capitalizePrefix]Controller {
 	 * @return
 	 */
 	@RequestMapping(value="/[prefix]/post", method=RequestMethod.GET)
-	public ModelAndView insert[prefix]() {
+	public ModelAndView insert[capitalizePrefix]() {
 
 		ModelAndView modelAndView = new ModelAndView("[prefix]/[prefix]Post");
 
@@ -106,7 +106,8 @@ public class [capitalizePrefix]Controller {
 	 * @return
 	 */
 	@RequestMapping(value="/[prefix]/post", method=RequestMethod.POST)
-	public ModelAndView insert[prefix](@ModelAttribute [paramType] [paramName]) {
+	public ModelAndView insert[capitalizePrefix](MultipartHttpServletRequest request,
+			@ModelAttribute [paramType] [paramName]) {
 
 		ModelAndView modelAndView = new ModelAndView("common/replace");
 
@@ -127,7 +128,7 @@ public class [capitalizePrefix]Controller {
 	 * @return
 	 */
 	@RequestMapping(value="/[prefix]/update", method=RequestMethod.GET)
-	public ModelAndView update[prefix](@ModelAttribute [searchParamType] [searchParamName]) {
+	public ModelAndView update[capitalizePrefix](@ModelAttribute [searchParamType] [searchParamName]) {
 
 		ModelAndView modelAndView = new ModelAndView("[prefix]/[prefix]Post");
 
@@ -146,12 +147,16 @@ public class [capitalizePrefix]Controller {
 	 * @return
 	 */
 	@RequestMapping(value="/[prefix]/update", method=RequestMethod.POST)
-	public ModelAndView update[prefix](MultipartHttpServletRequest request,
+	public ModelAndView update[capitalizePrefix](MultipartHttpServletRequest request,
 			 @ModelAttribute [paramType] [paramName]) {
 
 		ModelAndView modelAndView = new ModelAndView("common/replace");
 
 		[prefix]Service.update[capitalizePrefix]([paramName]);
+
+		/*r:s*/
+		[paramName].get[column](); // [comment]
+		/*r:e*/
 
 		modelAndView.addObject("message", "처리되었습니다.");
 		modelAndView.addObject("target", request.getContextPath() + "/[prefix]/post?no_seq=" + [paramName].getNoSeq());
@@ -168,7 +173,8 @@ public class [capitalizePrefix]Controller {
 	 * @return
 	 */
 	@RequestMapping(value="/[prefix]/delete", method=RequestMethod.POST)
-	public ModelAndView delete[prefix](@ModelAttribute [searchParamType] [searchParamName]) {
+	public ModelAndView delete[capitalizePrefix](MultipartHttpServletRequest request,
+			@ModelAttribute [searchParamType] [searchParamName]) {
 
 		ModelAndView modelAndView = new ModelAndView("common/replace");
 

@@ -5,6 +5,12 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import kr.pe.maun.csdgenerator.CSDGeneratorPlugin;
+import kr.pe.maun.csdgenerator.db.DatabaseResource;
+import kr.pe.maun.csdgenerator.model.CSDGeneratorPropertiesItem;
+import kr.pe.maun.csdgenerator.properties.CSDGeneratorPropertiesHelper;
+import kr.pe.maun.csdgenerator.utils.StringUtils;
+
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -54,12 +60,6 @@ import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.SelectionDialog;
-
-import kr.pe.maun.csdgenerator.CSDGeneratorPlugin;
-import kr.pe.maun.csdgenerator.db.DatabaseResource;
-import kr.pe.maun.csdgenerator.model.CSDGeneratorPropertiesItem;
-import kr.pe.maun.csdgenerator.properties.CSDGeneratorPropertiesHelper;
-import kr.pe.maun.csdgenerator.utils.StringUtils;
 
 public class CSDGeneratorDialog extends Dialog {
 
@@ -230,7 +230,7 @@ public class CSDGeneratorDialog extends Dialog {
 					String generalTemplateController = propertiesHelper.getGeneralTemplateController(templateCombo.getText());
 					String generalTemplateService = propertiesHelper.getGeneralTemplateService(templateCombo.getText());
 					String generalTemplateDao = propertiesHelper.getGeneralTemplateDao(templateCombo.getText());
-					String generalTemplateMapper = propertiesHelper.getGeneralTemplateMapper(templateCombo.getText());
+					/*String generalTemplateMapper = propertiesHelper.getGeneralTemplateMapper(templateCombo.getText());*/
 					String generalTemplateJsp = propertiesHelper.getGeneralTemplateJsp(templateCombo.getText());
 
 					if(generalTemplateController != null
@@ -672,6 +672,7 @@ public class CSDGeneratorDialog extends Dialog {
 		});
 		if(voSuperclass != null) voSuperclassField.setText(voSuperclass);
 		voSuperclassField.setEnabled(false);
+		voSuperclassField.setBackground(new Color(device, 255, 255, 255));
 
 		voSuperclassSearchButton = new Button(container, SWT.PUSH);
 		voSuperclassSearchButton.setText("Browse...");
@@ -699,7 +700,6 @@ public class CSDGeneratorDialog extends Dialog {
 			}
 		});
 		voSuperclassSearchButton.setEnabled(false);
-		voSuperclassSearchButton.setBackground(new Color(device, 255, 255, 255));
 
 		Label parameterLabel = new Label(container, SWT.NONE);
 		parameterLabel.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
@@ -992,13 +992,14 @@ public class CSDGeneratorDialog extends Dialog {
 				javaTestPackageTreeItem = javaTestBuildTreeItem;
 
 				for(String packagePathName : javaTestPackagePaths) {
+					if(!"".equals(packagePathName)) {
+						TreeItem javaTestTreeItem = new TreeItem(javaTestPackageTreeItem, SWT.NONE);
+						javaTestTreeItem.setText(packagePathName);
+						javaTestTreeItem.setImage(packageIcon);
 
-					TreeItem javaTestTreeItem = new TreeItem(javaTestPackageTreeItem, SWT.NONE);
-					javaTestTreeItem.setText(packagePathName);
-					javaTestTreeItem.setImage(packageIcon);
-
-					javaTestPackageTreeItem.setExpanded(true);
-					javaTestPackageTreeItem = javaTestTreeItem;
+						javaTestPackageTreeItem.setExpanded(true);
+						javaTestPackageTreeItem = javaTestTreeItem;
+					}
 				}
 			} else {
 				javaTestPackageTreeItem = javaPackageTreeItem;
@@ -1031,7 +1032,7 @@ public class CSDGeneratorDialog extends Dialog {
 		TreeItem serviceFolderTreeItem = null;
 		TreeItem serviceSubFolderTreeItem = null;
 		TreeItem serviceImplFolderTreeItem = null;
-		TreeItem serviceImplSubFolderTreeItem = null;
+		/*TreeItem serviceImplSubFolderTreeItem = null;*/
 		TreeItem daoFolderTreeItem = null;
 		TreeItem daoSubFolderTreeItem = null;
 		TreeItem voFolderTreeItem = null;
@@ -1562,7 +1563,7 @@ public class CSDGeneratorDialog extends Dialog {
 
 	@Override
 	protected Point getInitialSize() {
-		return new Point(700, 670);
+		return new Point(730, 670);
 	}
 
 	@Override

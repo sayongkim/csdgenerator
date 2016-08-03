@@ -373,7 +373,8 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 							if(isCreateTestController || isCreateTestService || isCreateTestDao) {
 								if(!newJavaTestFolder.exists()) newJavaTestFolder.create(true ,true, new NullProgressMonitor());
-								rootTestPackagePath = rootTestPackagePath + "." + prefix;
+								if(!"".equals(rootTestPackagePath)) rootTestPackagePath += ".";
+								rootTestPackagePath += prefix;
 							} else {
 								newJavaTestFolder = javaTestFolder;
 							}
@@ -670,7 +671,9 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 										daoFolderName += "dao";
 									}
 
-									daoPackage = daoPackage + "." + daoFolderName;
+									if(!"".equals(daoPackage)) daoPackage += ".";
+									daoPackage += daoFolderName;
+
 									daoFolder = newJavaFolder.getFolder(new Path(daoFolderName));
 									if(!daoFolder.exists()) daoFolder.create(true ,true, new NullProgressMonitor());
 								} else {
@@ -679,7 +682,9 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 								/* E : Dao 폴더를 생성한다. */
 
 								if(isCreateDaoSubFolder) {
-									daoPackage = daoPackage + "." + prefix;
+									if(!"".equals(daoPackage)) daoPackage += ".";
+									daoPackage += prefix;
+
 									daoFolder = daoFolder.getFolder(new Path(prefix));
 									if(!daoFolder.exists()) daoFolder.create(true ,true, new NullProgressMonitor());
 								}
@@ -720,7 +725,9 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 									    testDaoFolderName += "dao";
 									  }
 
-									  testDaoPackage = testDaoPackage + "." + testDaoFolderName;
+									  if(!"".equals(testDaoPackage)) testDaoPackage += ".";
+									  testDaoPackage += testDaoFolderName;
+
 									  testDaoFolder = newJavaTestFolder.getFolder(new Path(testDaoFolderName));
 									  if(!testDaoFolder.exists()) testDaoFolder.create(true ,true, new NullProgressMonitor());
 									} else {
@@ -729,8 +736,11 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 									/* E : Dao 폴더를 생성한다. */
 
 									if(isCreateDaoSubFolder) {
-									  testDaoPackage = testDaoPackage + "." + prefix;
-									  testDaoFolder = testDaoFolder.getFolder(new Path(prefix));
+
+										if(!"".equals(testDaoPackage)) testDaoPackage += ".";
+										testDaoPackage += prefix;
+
+										testDaoFolder = testDaoFolder.getFolder(new Path(prefix));
 									  if(!testDaoFolder.exists()) testDaoFolder.create(true ,true, new NullProgressMonitor());
 									}
 
@@ -779,7 +789,9 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 										serviceFolderName += "service";
 									}
 
-									servicePackage = servicePackage + "." + serviceFolderName;
+									if(!"".equals(servicePackage)) servicePackage += ".";
+									servicePackage +=  serviceFolderName;
+
 									serviceFolder = newJavaFolder.getFolder(new Path(serviceFolderName));
 
 									if(!serviceFolder.exists()) serviceFolder.create(true ,true, new NullProgressMonitor());
@@ -789,7 +801,10 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 								/* E : Service 폴더를 생성한다. */
 
 								if(isCreateServiceSubFolder) {
-									servicePackage = servicePackage + "." + prefix;
+
+									if(!"".equals(servicePackage)) servicePackage += ".";
+									servicePackage += prefix;
+
 									serviceFolder = serviceFolder.getFolder(new Path(prefix));
 									if(!serviceFolder.exists()) serviceFolder.create(true ,true, new NullProgressMonitor());
 								}
@@ -803,7 +818,10 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 								if(isCreateServiceImplFolder) {
 
 									serviceImplFolderName += "impl";
-									serviceImplPackage = serviceImplPackage + "." + serviceImplFolderName;
+
+									if(!"".equals(serviceImplPackage)) serviceImplPackage += ".";
+									serviceImplPackage += serviceImplFolderName;
+
 									serviceImplFolder = serviceFolder.getFolder(new Path(serviceImplFolderName));
 
 									if(!serviceImplFolder.exists()) serviceImplFolder.create(true ,true, new NullProgressMonitor());
@@ -952,7 +970,9 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 									    testServiceFolderName += "service";
 									  }
 
-									  testServicePackage = testServicePackage + "." + testServiceFolderName;
+									  if(!"".equals(testServicePackage)) testServicePackage += ".";
+									  testServicePackage += testServiceFolderName;
+
 									  testServiceFolder = newJavaTestFolder.getFolder(new Path(testServiceFolderName));
 
 									  if(!testServiceFolder.exists()) testServiceFolder.create(true ,true, new NullProgressMonitor());
@@ -962,8 +982,12 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 									/* E : Service 폴더를 생성한다. */
 
 									if(isCreateServiceSubFolder) {
-									  testServicePackage = testServicePackage + "." + prefix;
-									  testServiceFolder = testServiceFolder.getFolder(new Path(prefix));
+
+										if(!"".equals(testServicePackage)) testServicePackage += ".";
+										testServicePackage += prefix;
+
+									  	testServiceFolder = testServiceFolder.getFolder(new Path(prefix));
+
 									  if(!testServiceFolder.exists()) testServiceFolder.create(true ,true, new NullProgressMonitor());
 									}
 
@@ -1008,7 +1032,9 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 										controllerFolderName += "controller";
 									}
 
-									controllerPackage = controllerPackage + "." + controllerFolderName;
+									if(!"".equals(controllerPackage)) controllerPackage += ".";
+									controllerPackage += controllerFolderName;
+
 									controllerFolder = newJavaFolder.getFolder(new Path(controllerFolderName));
 									if(!controllerFolder.exists()) controllerFolder.create(true ,true, new NullProgressMonitor());
 								} else {
@@ -1018,7 +1044,10 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 								/* E : Contoller 폴더를 생성한다. */
 
 								if(isCreateControllerSubFolder) {
-									controllerPackage = controllerPackage + "." + prefix;
+
+									if(!"".equals(controllerPackage)) controllerPackage += ".";
+									controllerPackage += prefix;
+
 									controllerFolder = controllerFolder.getFolder(new Path(prefix));
 									if(!controllerFolder.exists()) controllerFolder.create(true ,true, new NullProgressMonitor());
 								}
@@ -1064,7 +1093,9 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 										  testControllerFolderName += "controller";
 									  }
 
-									  testControllerPackage = testControllerPackage + "." + testControllerFolderName;
+									  if(!"".equals(testControllerPackage)) testControllerPackage += ".";
+									  testControllerPackage += testControllerFolderName;
+									  if(!"".equals(testControllerPackage)) testControllerPackage += ".";
 									  testControllerFolder = newJavaTestFolder.getFolder(new Path(testControllerFolderName));
 									  if(!testControllerFolder.exists()) testControllerFolder.create(true ,true, new NullProgressMonitor());
 									} else {
@@ -1074,8 +1105,11 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 									/* E : Contoller 폴더를 생성한다. */
 
 									if(isCreateControllerSubFolder) {
-									  testControllerPackage = testControllerPackage + "." + prefix;
-									  testControllerFolder = testControllerFolder.getFolder(new Path(prefix));
+
+										if(!"".equals(testControllerPackage)) testControllerPackage += ".";
+										testControllerPackage += prefix;
+
+										testControllerFolder = testControllerFolder.getFolder(new Path(prefix));
 									  if(!testControllerFolder.exists()) testControllerFolder.create(true ,true, new NullProgressMonitor());
 									}
 

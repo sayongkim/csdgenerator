@@ -78,6 +78,7 @@ public class PropertiesControllerTemplateDialog extends Dialog {
 
 		templateFileButton = new Button(container, SWT.PUSH);
 		templateFileButton.setText("Browse...");
+		templateFileButton.setLayoutData(new GridData(100, 20));
 		templateFileButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -113,7 +114,7 @@ public class PropertiesControllerTemplateDialog extends Dialog {
 	@Override
 	protected void configureShell(Shell newShell) {
 		super.configureShell(newShell);
-		newShell.setText("Service Template");
+		newShell.setText("Controller Template");
 	}
 
 	@Override

@@ -445,7 +445,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 		Button addGeneralTemplateButton = new Button(generalButtonComposite, SWT.NONE);
 		addGeneralTemplateButton.setText("Add Template...");
-		addGeneralTemplateButton.setLayoutData(new GridData(100, 24));
+		addGeneralTemplateButton.setLayoutData(new GridData(100, 20));
 		addGeneralTemplateButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -597,7 +597,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 		Button editGeneralTemplateButton = new Button(generalButtonComposite, SWT.NONE);
 		editGeneralTemplateButton.setText("Edit...");
-		editGeneralTemplateButton.setLayoutData(new GridData(100, 24));
+		editGeneralTemplateButton.setLayoutData(new GridData(100, 20));
 		editGeneralTemplateButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -661,7 +661,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 		Button removeGeneralTemplateButton = new Button(generalButtonComposite, SWT.NONE);
 		removeGeneralTemplateButton.setText("Remove");
-		removeGeneralTemplateButton.setLayoutData(new GridData(100, 24));
+		removeGeneralTemplateButton.setLayoutData(new GridData(100, 20));
 		removeGeneralTemplateButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -751,7 +751,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 		testPathButton = new Button(testComposite, SWT.PUSH);
 		testPathButton.setText("Browse...");
-		testPathButton.setLayoutData(new GridData(100, 24));
+		testPathButton.setLayoutData(new GridData(100, 20));
 
 		testPathButton.addSelectionListener(new SelectionListener() {
 		    @Override public void widgetSelected(SelectionEvent e) {
@@ -799,7 +799,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 		Button addTestTemplateButton = new Button(testButtonComposite, SWT.NONE);
 		addTestTemplateButton.setText("Add Template...");
-		addTestTemplateButton.setLayoutData(new GridData(100, 24));
+		addTestTemplateButton.setLayoutData(new GridData(100, 20));
 		addTestTemplateButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -901,7 +901,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 		Button editTestTemplateButton = new Button(testButtonComposite, SWT.NONE);
 		editTestTemplateButton.setText("Edit...");
-		editTestTemplateButton.setLayoutData(new GridData(100, 24));
+		editTestTemplateButton.setLayoutData(new GridData(100, 20));
 		editTestTemplateButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -953,7 +953,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 		Button removeTestTemplateButton = new Button(testButtonComposite, SWT.NONE);
 		removeTestTemplateButton.setText("Remove");
-		removeTestTemplateButton.setLayoutData(new GridData(100, 24));
+		removeTestTemplateButton.setLayoutData(new GridData(100, 20));
 		removeTestTemplateButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -1044,7 +1044,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 		Button addControllerTemplateButton = new Button(controllerButtonComposite, SWT.NONE);
 		addControllerTemplateButton.setText("Add Template...");
-		addControllerTemplateButton.setLayoutData(new GridData(100, 24));
+		addControllerTemplateButton.setLayoutData(new GridData(100, 20));
 		addControllerTemplateButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -1067,7 +1067,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 		Button editControllerTemplateButton = new Button(controllerButtonComposite, SWT.NONE);
 		editControllerTemplateButton.setText("Edit...");
-		editControllerTemplateButton.setLayoutData(new GridData(100, 24));
+		editControllerTemplateButton.setLayoutData(new GridData(100, 20));
 		editControllerTemplateButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -1103,7 +1103,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 		Button removeControllerTemplateButton = new Button(controllerButtonComposite, SWT.NONE);
 		removeControllerTemplateButton.setText("Remove");
-		removeControllerTemplateButton.setLayoutData(new GridData(100, 24));
+		removeControllerTemplateButton.setLayoutData(new GridData(100, 20));
 		removeControllerTemplateButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -1229,7 +1229,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 		Button addServiceTemplateButton = new Button(serviceButtonComposite, SWT.NONE);
 		addServiceTemplateButton.setText("Add Template...");
-		addServiceTemplateButton.setLayoutData(new GridData(100, 24));
+		addServiceTemplateButton.setLayoutData(new GridData(100, 20));
 		addServiceTemplateButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -1252,7 +1252,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 		Button editServiceTemplateButton = new Button(serviceButtonComposite, SWT.NONE);
 		editServiceTemplateButton.setText("Edit...");
-		editServiceTemplateButton.setLayoutData(new GridData(100, 24));
+		editServiceTemplateButton.setLayoutData(new GridData(100, 20));
 		editServiceTemplateButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -1288,7 +1288,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 		Button removeServiceTemplateButton = new Button(serviceButtonComposite, SWT.NONE);
 		removeServiceTemplateButton.setText("Remove");
-		removeServiceTemplateButton.setLayoutData(new GridData(100, 24));
+		removeServiceTemplateButton.setLayoutData(new GridData(100, 20));
 		removeServiceTemplateButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -1378,7 +1378,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 		Button addDaoTemplateButton = new Button(daoButtonComposite, SWT.NONE);
 		addDaoTemplateButton.setText("Add Template...");
-		addDaoTemplateButton.setLayoutData(new GridData(100, 24));
+		addDaoTemplateButton.setLayoutData(new GridData(100, 20));
 		addDaoTemplateButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -1401,7 +1401,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 		Button editDaoTemplateButton = new Button(daoButtonComposite, SWT.NONE);
 		editDaoTemplateButton.setText("Edit...");
-		editDaoTemplateButton.setLayoutData(new GridData(100, 24));
+		editDaoTemplateButton.setLayoutData(new GridData(100, 20));
 		editDaoTemplateButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -1437,7 +1437,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 		Button removeDaoTemplateButton = new Button(daoButtonComposite, SWT.NONE);
 		removeDaoTemplateButton.setText("Remove");
-		removeDaoTemplateButton.setLayoutData(new GridData(100, 24));
+		removeDaoTemplateButton.setLayoutData(new GridData(100, 20));
 		removeDaoTemplateButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -1500,7 +1500,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 		mapperPathButton = new Button(mapperComposite, SWT.PUSH);
 		mapperPathButton.setText("Browse...");
-		mapperPathButton.setLayoutData(new GridData(100, 24));
+		mapperPathButton.setLayoutData(new GridData(100, 20));
 		mapperPathButton.addSelectionListener(new SelectionListener() {
 				@Override public void widgetSelected(SelectionEvent e) {
 					ContainerSelectionDialog dialog = new ContainerSelectionDialog(getShell(), project.getParent(), false, "Mapper Path Selection:");
@@ -1541,7 +1541,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 		Button addMapperTemplateButton = new Button(mapperButtonComposite, SWT.NONE);
 		addMapperTemplateButton.setText("Add Template...");
-		addMapperTemplateButton.setLayoutData(new GridData(100, 24));
+		addMapperTemplateButton.setLayoutData(new GridData(100, 20));
 		addMapperTemplateButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -1564,7 +1564,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 		Button editMapperTemplateButton = new Button(mapperButtonComposite, SWT.NONE);
 		editMapperTemplateButton.setText("Edit...");
-		editMapperTemplateButton.setLayoutData(new GridData(100, 24));
+		editMapperTemplateButton.setLayoutData(new GridData(100, 20));
 		editMapperTemplateButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -1600,7 +1600,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 		Button removeMapperTemplateButton = new Button(mapperButtonComposite, SWT.NONE);
 		removeMapperTemplateButton.setText("Remove");
-		removeMapperTemplateButton.setLayoutData(new GridData(100, 24));
+		removeMapperTemplateButton.setLayoutData(new GridData(100, 20));
 		removeMapperTemplateButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -1718,7 +1718,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 		voPathButton = new Button(voComposite, SWT.PUSH);
 		voPathButton.setText("Browse...");
-		voPathButton.setLayoutData(new GridData(100, 24));
+		voPathButton.setLayoutData(new GridData(100, 20));
 
 		voPathButton.addSelectionListener(new SelectionListener() {
 				@Override public void widgetSelected(SelectionEvent e) {
@@ -1747,7 +1747,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 		voSuperclassButton = new Button(voComposite, SWT.PUSH);
 		voSuperclassButton.setText("Browse...");
-		voSuperclassButton.setLayoutData(new GridData(100, 24));
+		voSuperclassButton.setLayoutData(new GridData(100, 20));
 
 		voSuperclassButton.addSelectionListener(new SelectionListener() {
 		    @SuppressWarnings("restriction")
@@ -1786,7 +1786,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 		myBatisSettingsFileButton = new Button(voComposite, SWT.PUSH);
 		myBatisSettingsFileButton.setText("Browse...");
-		myBatisSettingsFileButton.setLayoutData(new GridData(100, 24));
+		myBatisSettingsFileButton.setLayoutData(new GridData(100, 20));
 		myBatisSettingsFileButton.addSelectionListener(new SelectionListener() {
 				@Override public void widgetSelected(SelectionEvent e) {
 					FileDialog dialog = new FileDialog(getShell(), SWT.OPEN);
@@ -1830,7 +1830,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 		Button addDataTypeTemplateButton = new Button(dataTypeButtonComposite, SWT.NONE);
 		addDataTypeTemplateButton.setText("Add...");
-		addDataTypeTemplateButton.setLayoutData(new GridData(100, 24));
+		addDataTypeTemplateButton.setLayoutData(new GridData(100, 20));
 		addDataTypeTemplateButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -1851,7 +1851,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 		Button editDataTypeTemplateButton = new Button(dataTypeButtonComposite, SWT.NONE);
 		editDataTypeTemplateButton.setText("Edit...");
-		editDataTypeTemplateButton.setLayoutData(new GridData(100, 24));
+		editDataTypeTemplateButton.setLayoutData(new GridData(100, 20));
 		editDataTypeTemplateButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -1877,7 +1877,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 		Button removeDataTypeTemplateButton = new Button(dataTypeButtonComposite, SWT.NONE);
 		removeDataTypeTemplateButton.setText("Remove");
-		removeDataTypeTemplateButton.setLayoutData(new GridData(100, 24));
+		removeDataTypeTemplateButton.setLayoutData(new GridData(100, 20));
 		removeDataTypeTemplateButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -1929,14 +1929,14 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 		jspPathLabel.setText("Jsp Path:");
 		jspPathLabel.setLayoutData(new GridData(GridData.END, GridData.CENTER, false, false));
 
-		jspPathName=new Text(jspComposite, SWT.SINGLE | SWT.BORDER);
+		jspPathName=new Text(jspComposite, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY);
 		jspPathName.setLayoutData(defaultLayoutData);
 		if(!isSpecificSettings || !isCreateJsp()) jspPathName.setEnabled(false);
 		jspPathName.setText(getJspPath());
 
 		jspPathButton = new Button(jspComposite, SWT.PUSH);
 		jspPathButton.setText("Browse...");
-		jspPathButton.setLayoutData(new GridData(100, 24));
+		jspPathButton.setLayoutData(new GridData(100, 20));
 		jspPathButton.addSelectionListener(new SelectionListener() {
 				@Override public void widgetSelected(SelectionEvent e) {
 					ContainerSelectionDialog dialog = new ContainerSelectionDialog(getShell(), project.getParent(), false, "Jsp Path Selection:");
@@ -1984,7 +1984,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 		Button addJspTemplateButton = new Button(jspButtonComposite, SWT.NONE);
 		addJspTemplateButton.setText("Add Template...");
-		addJspTemplateButton.setLayoutData(new GridData(100, 24));
+		addJspTemplateButton.setLayoutData(new GridData(100, 20));
 		addJspTemplateButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -2014,7 +2014,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 		Button editJspTemplateButton = new Button(jspButtonComposite, SWT.NONE);
 		editJspTemplateButton.setText("Edit...");
-		editJspTemplateButton.setLayoutData(new GridData(100, 24));
+		editJspTemplateButton.setLayoutData(new GridData(100, 20));
 		editJspTemplateButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -2063,7 +2063,7 @@ public class CSDGeneratorResourcePerpertyPage extends PropertyPage implements
 
 		Button removeJspTemplateButton = new Button(jspButtonComposite, SWT.NONE);
 		removeJspTemplateButton.setText("Remove");
-		removeJspTemplateButton.setLayoutData(new GridData(100, 24));
+		removeJspTemplateButton.setLayoutData(new GridData(100, 20));
 		removeJspTemplateButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {

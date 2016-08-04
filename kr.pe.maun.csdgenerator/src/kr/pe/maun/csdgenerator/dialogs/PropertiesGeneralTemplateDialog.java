@@ -94,6 +94,7 @@ public class PropertiesGeneralTemplateDialog extends Dialog {
 
 			templatePathButton = new Button(container, SWT.PUSH);
 			templatePathButton.setText("Browse...");
+			templatePathButton.setLayoutData(new GridData(100, 20));
 			templatePathButton.addSelectionListener(new SelectionListener() {
 					@Override
 					public void widgetSelected(SelectionEvent e) {

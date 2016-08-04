@@ -676,7 +676,7 @@ public class CSDGeneratorDialog extends Dialog {
 
 		voSuperclassSearchButton = new Button(container, SWT.PUSH);
 		voSuperclassSearchButton.setText("Browse...");
-		voSuperclassSearchButton.setLayoutData(new GridData(100, 24));
+		voSuperclassSearchButton.setLayoutData(new GridData(100, 20));
 
 		voSuperclassSearchButton.addSelectionListener(new SelectionListener() {
 		@SuppressWarnings("restriction")

@@ -23,7 +23,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class PropertiesDataTypeMappingDialog extends Dialog {
 
-	private final String[] javaObjects = {"String", "BigDecimal", "Date", "Timestamp", "boolean", "char", "byte", "short", "int", "float", "double"};
+	private final String[] javaObjects = {"String", "BigDecimal", "Date", "Timestamp", "boolean", "char", "byte", "short", "int", "long", "float", "double"};
 
 	private String[] dataTypes;
 
@@ -103,7 +103,7 @@ public class PropertiesDataTypeMappingDialog extends Dialog {
 	@Override
 	protected void configureShell(Shell newShell) {
 		super.configureShell(newShell);
-		newShell.setText("Mapper Template");
+		newShell.setText("Type Mapping");
 	}
 
 	@Override

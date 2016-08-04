@@ -83,6 +83,7 @@ public class PropertiesJspTemplateDialog extends Dialog {
 
 		templateListFileButton = new Button(container, SWT.PUSH);
 		templateListFileButton.setText("Browse...");
+		templateListFileButton.setLayoutData(new GridData(100, 20));
 		templateListFileButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -112,6 +113,7 @@ public class PropertiesJspTemplateDialog extends Dialog {
 
 		templatePostFileButton = new Button(container, SWT.PUSH);
 		templatePostFileButton.setText("Browse...");
+		templatePostFileButton.setLayoutData(new GridData(100, 20));
 		templatePostFileButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -141,6 +143,7 @@ public class PropertiesJspTemplateDialog extends Dialog {
 
 		templateViewFileButton = new Button(container, SWT.PUSH);
 		templateViewFileButton.setText("Browse...");
+		templateViewFileButton.setLayoutData(new GridData(100, 20));
 		templateViewFileButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -181,7 +184,7 @@ public class PropertiesJspTemplateDialog extends Dialog {
 
 	@Override
 	protected Point getInitialSize() {
-		return new Point(500, 280);
+		return new Point(500, 200);
 	}
 
 	protected void okButtonEnabled() {

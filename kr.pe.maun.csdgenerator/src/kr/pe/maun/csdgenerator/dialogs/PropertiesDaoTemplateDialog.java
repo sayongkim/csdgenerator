@@ -78,6 +78,7 @@ public class PropertiesDaoTemplateDialog extends Dialog {
 
 		templateFileButton = new Button(container, SWT.PUSH);
 		templateFileButton.setText("Browse...");
+		templateFileButton.setLayoutData(new GridData(100, 20));
 		templateFileButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {

@@ -2,7 +2,7 @@
 <feature
       id="kr.pe.maun.csdgenerator.feature"
       label="CSD Generator"
-      version="1.0.341">
+      version="1.0.342">
 
    <description url="maun.tistory.com">
       Controller, Service, Dao Generator

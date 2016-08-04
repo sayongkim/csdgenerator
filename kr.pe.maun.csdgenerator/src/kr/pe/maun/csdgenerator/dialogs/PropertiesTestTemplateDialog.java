@@ -88,6 +88,7 @@ public class PropertiesTestTemplateDialog extends Dialog {
 
 			templatePathButton = new Button(container, SWT.PUSH);
 			templatePathButton.setText("Browse...");
+			templatePathButton.setLayoutData(new GridData(100, 20));
 			templatePathButton.addSelectionListener(new SelectionListener() {
 					@Override
 					public void widgetSelected(SelectionEvent e) {
@@ -187,7 +188,7 @@ public class PropertiesTestTemplateDialog extends Dialog {
 	@Override
 	protected void configureShell(Shell newShell) {
 		super.configureShell(newShell);
-		newShell.setText("General Template");
+		newShell.setText("Test Template");
 	}
 
 	@Override

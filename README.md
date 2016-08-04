@@ -23,6 +23,7 @@ CSD Generator는 Eclipse Plugin 입니다.
 
 <div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_02.png" width="51%" height="51%" ></div>
 
+
   - Template Group Name: 템플릿그룹명을 설정합니다.
   - Template Folder: 템플릿이 포함된 폴더를 지정해서 템플릿을 등록할 수 있습니다.
   - Controller Template: Controller 템플릿을 선택합니다.

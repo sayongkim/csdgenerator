@@ -82,3 +82,30 @@ CSD Generator는 Eclipse Plugin 입니다.
   - Template Name: 템플릿명을 설정합니다.
   - Template File: 템플릿파일을 선택합니다.
   
+# Service Tab
+
+<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_07.png">
+
+기준 Servie 폴더명은 **Service**입니다.
+
+* Create service folder: Service 폴더의 생성여부를 설정합니다.
+* Add prefix service folder name: Prefix를 Service 폴더명에 추가여부를 설정합니다. 
+  - 예) Prefix가 Test인 경우 TestService
+* Create service sub folder: Service폴더 하위에 폴더생성여부를 설정합니다.
+* Create ServiceImpl: Service Impl 소스의 생성여부를 설정합니다.
+* Create ServiceImpl folder: Service Impl 폴더의 생성여부를 설정합니다.
+* Service Template
+  - Add Template... : Service Template 등록창을 호출합니다.
+  - Edit... : Service Template 수정창을 호출합니다.
+  - Remove : 선택된 Service Template을 삭제합니다.
+
+##  Service Template
+
+<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_08.png" width="51%" height="51%" ></div>
+
+  - Template Name: 템플릿명을 설정합니다.
+  - Template File: 템플릿파일을 선택합니다.
+  
+
+
+

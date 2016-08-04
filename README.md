@@ -40,3 +40,45 @@ CSD Generator는 Eclipse Plugin 입니다.
 
 <img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_03.png">
 
+* Create test: 테스트소스의 생성여부를 설정합니다.
+* Create test controller folder: Test Controller 폴더의 생성여부를 설정합니다.
+* Create test service folder: Test Service 폴더 생성여부를 설정합니다.
+* Create test dao folder: Test Dao 폴더 생성여부를 설정합니다.
+* Test Path: 테스트소스가 생성될 위치를 지정합니다.
+* Template Group
+  - Add Template... : Tempalte Group 등록창을 호출합니다.
+  - Edit... : Template Group 수정창을 호출합니다.
+  - Remove : 선택된 Template Group을 삭제합니다.
+
+##  Test Template Group
+
+<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_04.png" width="51%" height="51%" ></div>
+
+  - Template Group Name: 템플릿그룹명을 설정합니다.
+  - Template Folder: 템플릿이 포함된 폴더를 지정해서 템플릿을 등록할 수 있습니다.
+  - Controller Template: Controller 템플릿을 선택합니다.
+  - Service Template: Service 템플릿을 선택합니다.
+  - Dao Template: Dao 템플릿을 선택합니다.
+
+# Controller Tab
+
+<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_05.png">
+
+기준 Controller 폴더명은 **Controller**입니다.
+
+* Create controller folder: Controller 폴더의 생성여부를 설정합니다.
+* Add prefix controller folder name: Prefix를 Controller 폴더명에 추가여부를 설정합니다. 
+  - 예) Prefix가 Test인 경우 TestController
+* Create controller sub folder: Controller폴더 하위에 폴더생성여부를 설정합니다.
+* Controller Template
+  - Add Template... : Controller Template 등록창을 호출합니다.
+  - Edit... : Controller Template 수정창을 호출합니다.
+  - Remove : 선택된 Controller Template을 삭제합니다.
+
+<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_06.png" width="51%" height="51%" ></div>
+
+##  Controller Template
+
+  - Template Name: 템플릿명을 설정합니다.
+  - Template File: 템플릿파일을 선택합니다.
+  

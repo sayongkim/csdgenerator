@@ -106,6 +106,24 @@ CSD Generator는 Eclipse Plugin 입니다.
   - Template Name: 템플릿명을 설정합니다.
   - Template File: 템플릿파일을 선택합니다.
   
+# Dao Tab
 
+<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_09.png">
 
+기준 Dao 폴더명은 **Dao**입니다.
 
+* Create dao folder: Dao 폴더의 생성여부를 설정합니다.
+* Add prefix dao folder name: Prefix를 Dao 폴더명에 추가여부를 설정합니다. 
+  - 예) Prefix가 Test인 경우 TestDao
+* Create dao sub folder: Dao폴더 하위에 폴더생성여부를 설정합니다.
+* Dao Template
+  - Add Template... : Dao Template 등록창을 호출합니다.
+  - Edit... : Dao Template 수정창을 호출합니다.
+  - Remove : 선택된 Dao Template을 삭제합니다.
+
+##  Dao Template
+
+<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_10.png" width="51%" height="51%" ></div>
+
+  - Template Name: 템플릿명을 설정합니다.
+  - Template File: 템플릿파일을 선택합니다.

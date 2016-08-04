@@ -171,8 +171,6 @@ CSD Generator는 Eclipse Plugin 입니다.
 
 지원되는 Java Object는 다음과 같습니다.
 
-<div align="center">
-
 |Java Object|
 |:-----------:|
 |String|
@@ -188,5 +186,22 @@ CSD Generator는 Eclipse Plugin 입니다.
 |float|
 |double|
 
- </div>
-  
+# JSP Tab
+
+<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_15.png">
+
+* Create jsp folder: JSP파일의 생성여부를 설정합니다.
+* JSPPath: JSP파일이 생성될 폴더를 지정합니다.
+* JSPTemplate
+  - Add Template... : JSP Template 등록창을 호출합니다.
+  - Edit... : JSP Template 수정창을 호출합니다.
+  - Remove : 선택된 JSP Template을 삭제합니다.
+
+##  JSP Template
+
+<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_16.png" width="51%" height="51%" ></div>
+
+  - Template Name: 템플릿명을 설정합니다.
+  - List Template File: JSP 목록 템플릿파일을 선택합니다.
+  - Post Template File: JSP 등록 템플릿파일을 선택합니다.
+  - View Template File: JSP 상세 템플릿파일을 선택합니다.

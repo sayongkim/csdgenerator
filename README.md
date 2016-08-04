@@ -75,9 +75,9 @@ CSD Generator는 Eclipse Plugin 입니다.
   - Edit... : Controller Template 수정창을 호출합니다.
   - Remove : 선택된 Controller Template을 삭제합니다.
 
-<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_06.png" width="51%" height="51%" ></div>
-
 ##  Controller Template
+
+<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_06.png" width="51%" height="51%" ></div>
 
   - Template Name: 템플릿명을 설정합니다.
   - Template File: 템플릿파일을 선택합니다.

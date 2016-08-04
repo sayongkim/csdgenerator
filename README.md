@@ -11,7 +11,7 @@ CSD Generator는 Eclipse Plugin 입니다.
 
 ## Project 설정
 
-![Alt text](/screenshot/screenshot_01.png)
+![](/screenshot/screenshot_01.png)
 
 * Company: 회사명을 설정합니다.
 * Author: 작성자를 설정합니다.
@@ -20,3 +20,5 @@ CSD Generator는 Eclipse Plugin 입니다.
   - Add Template... : Tempalte Group 등록창을 호출합니다.
   - Edit... : Template Group 수정창을 호출합니다.
   - Remove : 선택된 Template Group을 삭제합니다.
+
+![](/screenshot/screenshot_02.png =1004x562)

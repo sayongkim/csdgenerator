@@ -38,3 +38,5 @@ CSD Generator는 Eclipse Plugin 입니다.
 
 # Test Tab
 
+<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_03.png">
+

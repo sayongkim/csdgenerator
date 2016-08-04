@@ -10,9 +10,9 @@ CSD Generator는 Eclipse Plugin 입니다.
 - Data Source Explorer에서 Database Connection이 등록 되어 있으면 Database Table을 이용해서 MyBatis Mapper, VO를 생성할 수 있습니다.
 - Project 설정에서 MyBatis 설정파일이 등록되어 있으면 VO 생성 시 자동으로 Alias를 등록합니다.
 
-# Project 설정
+## Project 설정
 
-## General Tab
+### General Tab
 
 <img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_01.png">
 
@@ -24,7 +24,7 @@ CSD Generator는 Eclipse Plugin 입니다.
   - Edit... : Template Group 수정창을 호출합니다.
   - Remove : 선택된 Template Group을 삭제합니다.
 
-##  Template Group
+###  Template Group
 
 <div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_02.png" width="51%" height="51%" ></div>
 
@@ -36,7 +36,7 @@ CSD Generator는 Eclipse Plugin 입니다.
   - Mapper Tempate: MyBatis Mapper 템플릿을 선택합니다.
   - JSP Template: JSP 템플릿을 선택합니다.
 
-# Test Tab
+## Test Tab
 
 <img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_03.png">
 
@@ -50,7 +50,7 @@ CSD Generator는 Eclipse Plugin 입니다.
   - Edit... : Template Group 수정창을 호출합니다.
   - Remove : 선택된 Template Group을 삭제합니다.
 
-##  Test Template Group
+###  Test Template Group
 
 <div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_04.png" width="51%" height="51%" ></div>
 
@@ -60,7 +60,7 @@ CSD Generator는 Eclipse Plugin 입니다.
   - Service Template: Service 템플릿을 선택합니다.
   - Dao Template: Dao 템플릿을 선택합니다.
 
-# Controller Tab
+## Controller Tab
 
 <img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_05.png">
 
@@ -75,14 +75,14 @@ CSD Generator는 Eclipse Plugin 입니다.
   - Edit... : Controller Template 수정창을 호출합니다.
   - Remove : 선택된 Controller Template을 삭제합니다.
 
-##  Controller Template
+###  Controller Template
 
 <div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_06.png" width="51%" height="51%" ></div>
 
   - Template Name: 템플릿명을 설정합니다.
   - Template File: 템플릿파일을 선택합니다.
   
-# Service Tab
+## Service Tab
 
 <img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_07.png">
 
@@ -99,14 +99,14 @@ CSD Generator는 Eclipse Plugin 입니다.
   - Edit... : Service Template 수정창을 호출합니다.
   - Remove : 선택된 Service Template을 삭제합니다.
 
-##  Service Template
+###  Service Template
 
 <div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_08.png" width="51%" height="51%" ></div>
 
   - Template Name: 템플릿명을 설정합니다.
   - Template File: 템플릿파일을 선택합니다.
   
-# Dao Tab
+## Dao Tab
 
 <img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_09.png">
 
@@ -121,14 +121,14 @@ CSD Generator는 Eclipse Plugin 입니다.
   - Edit... : Dao Template 수정창을 호출합니다.
   - Remove : 선택된 Dao Template을 삭제합니다.
 
-##  Dao Template
+###  Dao Template
 
 <div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_10.png" width="51%" height="51%" ></div>
 
   - Template Name: 템플릿명을 설정합니다.
   - Template File: 템플릿파일을 선택합니다.
 
-# Mapper Tab
+## Mapper Tab
 
 <img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_11.png">
 
@@ -139,14 +139,14 @@ CSD Generator는 Eclipse Plugin 입니다.
   - Edit... : Mapper Template 수정창을 호출합니다.
   - Remove : 선택된 Mapper Template을 삭제합니다.
 
-##  Mapper Template
+###  Mapper Template
 
 <div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_12.png" width="51%" height="51%" ></div>
 
   - Template Name: 템플릿명을 설정합니다.
   - Template File: 템플릿파일을 선택합니다.
 
-# VO Tab
+## VO Tab
 
 <img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_13.png">
 
@@ -162,7 +162,7 @@ CSD Generator는 Eclipse Plugin 입니다.
   - Edit... : Type Mapping 수정창을 호출합니다.
   - Remove : 선택된 항목을 삭제합니다.
 
-##  Type Mapping
+###  Type Mapping
 
 <div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_14.png" width="51%" height="51%" ></div>
 
@@ -186,7 +186,7 @@ CSD Generator는 Eclipse Plugin 입니다.
 |float|
 |double|
 
-# JSP Tab
+## JSP Tab
 
 <img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_15.png">
 
@@ -197,7 +197,7 @@ CSD Generator는 Eclipse Plugin 입니다.
   - Edit... : JSP Template 수정창을 호출합니다.
   - Remove : 선택된 JSP Template을 삭제합니다.
 
-##  JSP Template
+###  JSP Template
 
 <div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_16.png" width="51%" height="51%" ></div>
 

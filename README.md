@@ -205,3 +205,9 @@ CSD Generator는 Eclipse Plugin 입니다.
   - List Template File: JSP 목록 템플릿파일을 선택합니다.
   - Post Template File: JSP 등록 템플릿파일을 선택합니다.
   - View Template File: JSP 상세 템플릿파일을 선택합니다.
+
+## CSD Generator 실행
+
+**Package Explorer**에서 Class파일이 생성될 위치를 선택 후 오른쪽 마우스로 팝업메뉴에서 **CSD Generator**를 실행합니다.
+
+<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_17.png">

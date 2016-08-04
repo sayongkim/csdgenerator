@@ -323,7 +323,7 @@ public class CSDGeneratorDialog extends Dialog {
 				widgetSelected(e);
 			}
 		});
-		if(!isCreateVo && !isCreateMapper) connectionProfileCombo.setEnabled(false);
+		//if(!isCreateVo && !isCreateMapper) connectionProfileCombo.setEnabled(false);
 		new Label(container, SWT.NONE);
 
 		new Label(container, SWT.NONE);
@@ -830,27 +830,33 @@ public class CSDGeneratorDialog extends Dialog {
 
 					databaseTables = databaseTableList.toArray(new String[databaseTableList.size()]);
 
-					createMapperButton.setEnabled(true);
-					createVoButton.setEnabled(true);
-					voSuperclassButton.setEnabled(true);
-					if(createVoButton.getSelection()) {
-						voSupperClassBracket1Label.setForeground(new Color(device, 0, 0, 0));
-						voSupperClassBracket2Label.setForeground(new Color(device, 0, 0, 0));
-					} else {
-						voSupperClassBracket1Label.setForeground(new Color(device, 175, 174, 175));
-						voSupperClassBracket2Label.setForeground(new Color(device, 175, 174, 175));
+					if(isCreateMapper) createMapperButton.setEnabled(true);
+					if(isCreateVo) {
+						createVoButton.setEnabled(true);
+						voSuperclassButton.setEnabled(true);
 					}
 					regExButton.setEnabled(true);
-					parameterCombo.setEnabled(!createVoButton.getSelection());
-					returnCombo.setEnabled(!createVoButton.getSelection());
+
 				} else {
+
 					createMapperButton.setEnabled(false);
 					createVoButton.setEnabled(false);
 					voSuperclassButton.setEnabled(false);
 					regExButton.setEnabled(false);
+
+					if(regExButton.getSelection()) prefixField.setText("[A-Za-z0-9]+_([A-Za-z0-9_]+)");
+				}
+
+				if(createVoButton.getEnabled() && createVoButton.getSelection()) {
+					voSupperClassBracket1Label.setForeground(new Color(device, 0, 0, 0));
+					voSupperClassBracket2Label.setForeground(new Color(device, 0, 0, 0));
+					parameterCombo.setEnabled(false);
+					returnCombo.setEnabled(false);
+				} else {
+					voSupperClassBracket1Label.setForeground(new Color(device, 175, 174, 175));
+					voSupperClassBracket2Label.setForeground(new Color(device, 175, 174, 175));
 					parameterCombo.setEnabled(true);
 					returnCombo.setEnabled(true);
-					if(regExButton.getSelection()) prefixField.setText("[A-Za-z0-9]+_([A-Za-z0-9_]+)");
 				}
 
 				databaseTablesTable.deselectAll();

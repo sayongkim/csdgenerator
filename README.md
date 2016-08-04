@@ -9,9 +9,9 @@ CSD Generator는 Eclipse Plugin 입니다.
 - Data Source Explorer에서 Database Connection이 등록 되어 있으면 Database Table을 이용해서 MyBatis Mapper, VO를 생성할 수 있습니다.
 - Project 설정에서 MyBatis 설정파일이 등록되어 있으면 VO 생성 시 자동으로 Alias를 등록합니다.
 
-## Project 설정
+## 1. Project 설정
 
-### General Tab 설정
+### 1.1. General Tab
 
 <img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_01.png">
 
@@ -23,7 +23,7 @@ CSD Generator는 Eclipse Plugin 입니다.
   - Edit... : Template Group 수정창을 호출합니다.
   - Remove : 선택된 Template Group을 삭제합니다.
 
-#### Template Group 등록
+### 1.1.1. Template Group
 
 <div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_02.png" width="51%" height="51%" ></div>
 
@@ -34,4 +34,6 @@ CSD Generator는 Eclipse Plugin 입니다.
   - Dao Template: Dao 템플릿을 선택합니다.
   - Mapper Tempate: MyBatis Mapper 템플릿을 선택합니다.
   - JSP Template: JSP 템플릿을 선택합니다.
-  
+
+### 1.2. Test Tab
+

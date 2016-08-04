@@ -5,8 +5,8 @@ CSD Generator는 Eclipse Plugin 입니다.
 
 # 기능
 
-- 텀플릿을 이용해서 Controller, Service, Dao, JSP (목록, 등록, 상세) 소스를 생성합니다.
-- 템플릿을 이용해서 Test (Controller, Service, Dao) 소스를 생성합니다.
+- 텀플릿을 이용해서 Controller, Service, Dao, JSP (목록, 등록, 상세) 파일을 생성합니다.
+- 템플릿을 이용해서 Test (Controller, Service, Dao) 파일을 생성합니다.
 - Data Source Explorer에서 Database Connection이 등록 되어 있으면 Database Table을 이용해서 MyBatis Mapper, VO를 생성할 수 있습니다.
 - Project 설정에서 MyBatis 설정파일이 등록되어 있으면 VO 생성 시 자동으로 Alias를 등록합니다.
 
@@ -40,11 +40,11 @@ CSD Generator는 Eclipse Plugin 입니다.
 
 <img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_03.png">
 
-* Create test: 테스트소스의 생성여부를 설정합니다.
+* Create test: 테스트파일의 생성여부를 설정합니다.
 * Create test controller folder: Test Controller 폴더의 생성여부를 설정합니다.
 * Create test service folder: Test Service 폴더 생성여부를 설정합니다.
 * Create test dao folder: Test Dao 폴더 생성여부를 설정합니다.
-* Test Path: 테스트소스가 생성될 위치를 지정합니다.
+* Test Path: 테스트파일이 생성될 위치를 지정합니다.
 * Template Group
   - Add Template... : Tempalte Group 등록창을 호출합니다.
   - Edit... : Template Group 수정창을 호출합니다.
@@ -92,7 +92,7 @@ CSD Generator는 Eclipse Plugin 입니다.
 * Add prefix service folder name: Prefix를 Service 폴더명에 추가여부를 설정합니다. 
   - 예) Prefix가 Test인 경우 TestService
 * Create service sub folder: Service폴더 하위에 폴더생성여부를 설정합니다.
-* Create ServiceImpl: Service Impl 소스의 생성여부를 설정합니다.
+* Create ServiceImpl: Service Impl 파일의 생성여부를 설정합니다.
 * Create ServiceImpl folder: Service Impl 폴더의 생성여부를 설정합니다.
 * Service Template
   - Add Template... : Service Template 등록창을 호출합니다.
@@ -132,8 +132,8 @@ CSD Generator는 Eclipse Plugin 입니다.
 
 <img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_11.png">
 
-* Create mapper folder: MyBatis Mapper 소스의 생성여부를 설정합니다.
-* Mapper Path: MyBatis Mapper 소스의 생성위치를 지정합니다.
+* Create mapper folder: MyBatis Mapper 파일의 생성여부를 설정합니다.
+* Mapper Path: MyBatis Mapper 파일이 생성될 폴더를 지정합니다.
 * Mapper Template
   - Add Template... : Mapper Template 등록창을 호출합니다.
   - Edit... : Mapper Template 수정창을 호출합니다.
@@ -145,3 +145,45 @@ CSD Generator는 Eclipse Plugin 입니다.
 
   - Template Name: 템플릿명을 설정합니다.
   - Template File: 템플릿파일을 선택합니다.
+
+# VO Tab
+
+<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_13.png">
+
+* Create Vo: VO의 생성여부를 설정합니다.
+* Create Search Vo: 목록등에 사용될 수 있는 검색용 VO의 생성여부를 설정합니다.
+* Create vo folder: VO 폴더의 생성여부를 설정합니다.
+* Vo Folder Name: VO 폴더명을 설정합니다.
+* Vo Path: VO 파일이 생성될 위치를 지정합니다.
+* Superclass: 상속받을 Super Class를 선택합니다.
+* MyBatis Setting File: MyBatis설정파일을 지정합니다.
+* Type Mapping
+  - Add Template... : Type Mapping 등록창을 호출합니다.
+  - Edit... : Type Mapping 수정창을 호출합니다.
+  - Remove : 선택된 항목을 삭제합니다.
+
+##  Type Mapping
+
+<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_14.png" width="51%" height="51%" ></div>
+
+  - Data Type: Database Type을 입력합니다.
+  - Java Object: Java Object를 선택합니다.
+
+지원되는 Java Object는 다음과 같습니다.
+<div align="center">
+|Java Object|
+|:-----------:|
+|String|
+|BigDecimal|
+|Date|
+|Timestamp|
+|boolean|
+|char|
+|byte|
+|short|
+|int|
+|long|
+|float|
+|double|
+ </div>
+  

@@ -127,3 +127,21 @@ CSD Generator는 Eclipse Plugin 입니다.
 
   - Template Name: 템플릿명을 설정합니다.
   - Template File: 템플릿파일을 선택합니다.
+
+# Mapper Tab
+
+<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_11.png">
+
+* Create mapper folder: MyBatis Mapper 소스의 생성여부를 설정합니다.
+* Mapper Path: MyBatis Mapper 소스의 생성위치를 지정합니다.
+* Mapper Template
+  - Add Template... : Mapper Template 등록창을 호출합니다.
+  - Edit... : Mapper Template 수정창을 호출합니다.
+  - Remove : 선택된 Mapper Template을 삭제합니다.
+
+##  Mapper Template
+
+<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_12.png" width="51%" height="51%" ></div>
+
+  - Template Name: 템플릿명을 설정합니다.
+  - Template File: 템플릿파일을 선택합니다.

@@ -170,7 +170,9 @@ CSD Generator는 Eclipse Plugin 입니다.
   - Java Object: Java Object를 선택합니다.
 
 지원되는 Java Object는 다음과 같습니다.
+
 <div align="center">
+
 |Java Object|
 |:-----------:|
 |String|
@@ -185,5 +187,6 @@ CSD Generator는 Eclipse Plugin 입니다.
 |long|
 |float|
 |double|
+
  </div>
   

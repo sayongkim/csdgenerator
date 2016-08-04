@@ -21,4 +21,4 @@ CSD Generator는 Eclipse Plugin 입니다.
   - Edit... : Template Group 수정창을 호출합니다.
   - Remove : 선택된 Template Group을 삭제합니다.
 
-<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_02.png" style="max-width:1004px;max-height:562px;">
+<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_02.png" width="1004px" height="562px" style="max-width:1004px;max-height:562px;">

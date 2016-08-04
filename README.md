@@ -11,7 +11,7 @@ CSD Generator는 Eclipse Plugin 입니다.
 
 ## Project 설정
 
-<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_01.png" style="max-width:1746px;max-height:1074px;">
+<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_01.png">
 
 * Company: 회사명을 설정합니다.
 * Author: 작성자를 설정합니다.
@@ -21,4 +21,4 @@ CSD Generator는 Eclipse Plugin 입니다.
   - Edit... : Template Group 수정창을 호출합니다.
   - Remove : 선택된 Template Group을 삭제합니다.
 
-<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_02.png">
+<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_02.png" width="50%" height="50%">

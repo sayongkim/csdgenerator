@@ -15,7 +15,7 @@ CSD Generator는 Eclipse Plugin 입니다.
 * [CSD Generator 실행](#user-content-csd-generator-실행)
 * [Project 설정](#user-content-project-설정)
   + [General Tab](#user-content-general-tab)
-    - [Template Group](#user-content-gemplate-group)
+    - [Template Group](#user-content-template-group)
   + [Test Tab](#user-content-test-tab)
     - [Test Template Group](#user-content-test-template-group)
   + [Controller Tab](#user-content-controller-tab)

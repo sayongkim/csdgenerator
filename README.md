@@ -264,21 +264,21 @@ CSD Generator는 Eclipse Plugin 입니다.
 ## Dao Function Templates
 
 CSD Function Generator에서 Dao Template을 설정합니다.
-""Select Count"", ""Select List"", ""Select One"", ""Insert"", ""Update"", ""Delete"" 으로 구성되어 있습니다.
+**Select Count**, **Select List**, **Select One**, **Insert**, **Update**, **Delete** 으로 구성되어 있습니다.
 
 <img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_19.png">
 
 ## Service Function Templates
 
 CSD Function Generator에서 Service Template을 설정합니다.
-""Select Count"", ""Select List"", ""Select One"", ""Insert"", ""Update"", ""Delete"" 으로 구성되어 있습니다.
+**Select Count**, **Select List**, **Select One**, **Insert**, **Update**, **Delete** 으로 구성되어 있습니다.
 
 <img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_20.png">
 
 ## Mapper Function Templates
 
 CSD Function Generator에서 Mapper Template을 설정합니다.
-""Select Count"", ""Select List"", ""Select One"", ""Insert"", ""Update"", ""Delete"" 으로 구성되어 있습니다.
+**Select Count**, **Select List**, **Select One**, **Insert**, **Update**, **Delete** 으로 구성되어 있습니다.
 
 <img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_21.png">
 

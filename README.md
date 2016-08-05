@@ -36,9 +36,9 @@ CSD Generator는 Eclipse Plugin 입니다.
 * [Mapper Function Templates](#user-content-mapper-function-templates)
 * [Template 예제](#user-content-template-예제)
   + [Prefix](#user-content-prefix)
-  + [Company, Author, Date](#user-content-company,-author,-date)
-  + [Parameter, Return](#user-content-parameter,-return)
-  + [Database Table Column, indexColumns, Comment](#user-content-database-table-column,-indexcolumns,-comment)
+  + [Company, Author, Date](#user-content-company-author-date)
+  + [Parameter, Return](#user-content-parameter-return)
+  + [Database Table Column, indexColumns, Comment](#user-content-database-table-column-indexcolumns-comment)
   
 
 

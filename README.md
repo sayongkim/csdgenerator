@@ -56,7 +56,7 @@ CSD Generator는 Eclipse Plugin 입니다.
 ###  Template Group
 
 <div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_02.png" width="51%" height="51%" ></div>
-:
+
   - Template Group Name: 템플릿그룹명을 설정합니다.
   - Template Folder: 템플릿이 포함된 폴더를 지정해서 템플릿을 등록할 수 있습니다.
   - Controller Template: Controller 템플릿을 선택합니다.
@@ -235,3 +235,229 @@ CSD Generator는 Eclipse Plugin 입니다.
   - Post Template File: JSP 등록 템플릿파일을 선택합니다.
   - View Template File: JSP 상세 템플릿파일을 선택합니다.
 
+## Template 예제
+
+### Prefix
+
+CSD Generator 창에서 입력한 Prefix는 소스에서 카멜표기법으로 변환 후 **[prefix]**를 대체합니다. **[capitalizePrefix]**는 Prefix를 파스칼표기법으로 변환 후 대체합니다.
+
+Prefix에 **test**를 입력했을 경우 예제입니다.
+
+```java
+public class [capitalizePrefix]Controller {
+
+	/**
+	 * Desc : 목록 조회
+	 * @Method : select[capitalizePrefix]List
+	 * @return
+	 */
+	@RequestMapping(value="/[prefix]/list", method=RequestMethod.GET)
+	public ModelAndView select[capitalizePrefix]List() {
+
+		ModelAndView modelAndView = new ModelAndView("[prefix]/[prefix]");
+
+		return modelAndView;
+	}
+	
+}
+```
+
+```java
+public class TestController {
+
+	/**
+	 * Desc : 목록 조회
+	 * @Method : selectTestList
+	 * @return
+	 */
+	@RequestMapping(value="/test/list", method=RequestMethod.GET)
+	public ModelAndView selectTestList() {
+
+		ModelAndView modelAndView = new ModelAndView("test/test");
+
+		return modelAndView;
+	}
+	
+}
+```
+
+### Company, Author, Date
+
+Project 설정에서 등록한 Comapny, Author 는 **[company]**, **[author]**를 대체하며 **[date]**는 생성된 날짜를 대체합니다.
+
+```java
+	/**
+	 * Desc : 목록 조회
+	 * @Company : [company]
+	 * @Author : [author]
+	 * @Date : [date]
+	 * @return
+	 */
+```
+
+```java
+	/**
+	 * Desc : 목록 조회
+	 * @Company : 회사명
+	 * @Author : 작성자명
+	 * @Date : 2016. 08. 05
+	 * @return
+	 */
+```
+
+### Parameter, Return
+
+CSD Generator 창에서 선택한 Parameter, Return으로 **[searchParamType]**, **[searchParamName]**, **[paramType]**, **[paramName]**, **[returnType]** 을 대체합니다.
+
+CSD Generator 창에서 Parameter, Return을 **HashMap**으로 선택했을 경우 예제입니다.
+
+```java
+	public [returnType] selectTest([searchParamType] [searchParamName]) {
+		return TestDao.selectTest([searchParamName]);
+	}
+```
+```java
+	public HashMap<String, Object> selectTest(HashMap<String, Object> searchMap) {
+		return TestDao.selectTest(searchMap);
+	}
+```
+
+### Database Table Column, indexColumns, Comment
+
+CSD Generator 창에서 Database Table을 선택 시 MyBatis Mapper 에서 column, indexColumns를 자동으로 생성합니다.
+**[table]**는 선택된 Database Table로 대체하며 **[paramType]**, **[resultType]** 은 CSD Generator 창에서 선택한 Parameter, Return으로 대체합니다.
+
+**NOTICE** 라는 테이블을 선택 시 예제입니다.
+|Column Name|Primary Key|Comment|
+|:---------:|:---------:|:---------:|
+|NO_SEQ|O|번호|
+|TITLE||제목|
+|CONTENTS||내용|
+|REG_NAME||작성자|
+|REG_DATE||작성일|
+
+* MyBatis Mapper - select
+
+```xml
+	<!--
+	Desc : 상세 조회
+	TABLE : [table]
+	-->
+	<select id="selectTestList" parameterType="[paramType]" resultType="[resultType]">
+		SELECT
+			[columns]
+		FROM [table]
+		WHERE 1=1 
+		[indexColumns]
+	</select>
+```
+```xml
+	<!--
+	Desc : 상세 조회
+	TABLE : NOTICE
+	-->
+	<select id="selectTestList" parameterType="hashMap" resultType="hashMap">
+		SELECT
+			NO_SEQ AS noSeq
+			,TITLE AS title
+			,CONTENTS AS contents
+			,REG_NAME AS regName
+			,REG_DATE AS regDate
+		FROM NOTICE
+		WHERE 1=1 
+		AND NO_SEQ = #{noSeq}
+	</select>
+```
+* MyBatis Mapper - insert
+
+```xml
+	<insert id="insertTest" parameterType="[paramType]">
+		INSERT INTO [table] (
+			[columns]
+		) VALUES (
+			[values]
+		)
+	</insert>
+```
+
+```xml
+	<insert id="insertTest" parameterType="hashMap">
+		INSERT INTO NOTICE (
+			NO_SEQ
+			,TITLE
+			,CONTENTS
+			,REG_NAME
+			,REG_DATE
+		) VALUES (
+			#{noSeq}
+			,#{title}
+			,#{contents}
+			,#{regName}
+			,#{regDate}
+		)
+	</insert>
+```
+
+* MyBatis Mapper - update
+
+```xml
+	<update id="updateTest" parameterType="[paramType]">
+		UPDATE [table] SET
+			[columns]
+		WHERE 1=1
+			[indexColumns]
+	</update>
+```
+
+```xml
+	<update id="updateTest" parameterType="hashMap">
+		UPDATE NOTICE SET
+			NO_SEQ = #{noSeq}
+			,TITLE = #{title}
+			,CONTENTS = #{contents}
+			,REG_NAME = #{regName}
+			,REG_DATE = #{regDate}
+		WHERE 1=1
+			AND NO_SEQ = #{noSeq}
+	</update>
+```
+
+* JAVA - 반복
+
+JAVA에서 반복은 **/*r:s*/**다음줄부터 /*r:e*/이전줄까지의 내용이 반복됩니다. 내용에는 **[column]**, **[comment]**가 지원됩니다.
+
+```
+		/*r:s*/
+		resultMap.get('[column]'); // [comment]
+		/*r:e*/
+```
+
+```
+		/*r:s*/
+		resultMap.get('regSeq'); // 번호
+		resultMap.get('title'); // 제목
+		resultMap.get('contents'); // 내용
+		resultMap.get('regName'); // 작성자
+		resultMap.get('regDate'); // 작성일
+		/*r:e*/
+```
+
+* JSP - 반복
+
+JSP에서 반복은 **<!--r:s-->**다음줄부터 <!--r:e-->이전줄까지의 내용이 반복됩니다. 내용에는 **[column]**, **[comment]**가 지원됩니다.
+
+```
+    <!--r:s-->
+    <input type="text" name="[column]" placeholder="[comment]">
+    <!--r:e-->
+```
+
+```
+    <!--r:s-->
+    <input type="text" name="noSeq" placeholder="번호">
+    <input type="text" name="title" placeholder="제목">
+    <input type="text" name="contnets" placeholder="내용">
+    <input type="text" name="regName" placeholder="작성자">
+    <input type="text" name="regDate" placeholder="작성일">
+    <!--r:e-->
+```

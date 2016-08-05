@@ -1,5 +1,6 @@
 package kr.pe.maun.csdgenerator.utils;
 
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -13,19 +14,36 @@ public class StringUtils {
 
 	public static String toCamelCase(String source) {
 	    StringBuffer result = new StringBuffer();
-	    String[] sourceArray = source.toLowerCase().split("_");
-	    if(sourceArray.length > 1) {
-		    result.append(sourceArray[0].toLowerCase());
-		    for (int i = 1; i < sourceArray.length; i++) {
-		    	String s = sourceArray[i];
-		        result.append(Character.toUpperCase(s.charAt(0)));
-		        if (s.length() > 1) {
-		            result.append(s.substring(1, s.length()).toLowerCase());
-		        }
-		    }
-	    } else {
-	    	result.append(source.toLowerCase());
+		try {
+		    if(source.indexOf("_") != -1) {
+		    	String[] sourceArray = source.toLowerCase().split("_");
+			    result.append(sourceArray[0]);
+			    for (int i = 1; i < sourceArray.length; i++) {
+			    	String s = sourceArray[i];
+			        result.append(Character.toUpperCase(s.charAt(0)));
+			        if (s.length() > 1) {
+			            result.append(s.substring(1, s.length()));
+			        }
+			    }
+		    } else {
+		    	int upperCaseCount = 0;
+		    	byte[] sourceBytes = source.getBytes("UTF-8");
+		    	for(Byte sourceByte : sourceBytes) {
+		    		if(0x40 < sourceByte && sourceByte < 0x5B) {
+		    			upperCaseCount++;
+		    		}
+		    	}
+		    	if(source.length() == upperCaseCount) {
+		    		result.append(source.toLowerCase());
+		    	} else {
+		    		result.append(source);
+		    	}
+			}
+
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
 		}
+
 	    return result.toString();
 	}
 

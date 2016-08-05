@@ -30,6 +30,14 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import kr.pe.maun.csdgenerator.CSDGeneratorPlugin;
+import kr.pe.maun.csdgenerator.db.DatabaseResource;
+import kr.pe.maun.csdgenerator.dialogs.CSDFunctionGeneratorDialog;
+import kr.pe.maun.csdgenerator.model.CSDGeneratorPropertiesItem;
+import kr.pe.maun.csdgenerator.model.ColumnItem;
+import kr.pe.maun.csdgenerator.properties.CSDGeneratorPropertiesHelper;
+import kr.pe.maun.csdgenerator.utils.StringUtils;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -98,14 +106,6 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-
-import kr.pe.maun.csdgenerator.CSDGeneratorPlugin;
-import kr.pe.maun.csdgenerator.db.DatabaseResource;
-import kr.pe.maun.csdgenerator.dialogs.CSDFunctionGeneratorDialog;
-import kr.pe.maun.csdgenerator.model.CSDGeneratorPropertiesItem;
-import kr.pe.maun.csdgenerator.model.ColumnItem;
-import kr.pe.maun.csdgenerator.properties.CSDGeneratorPropertiesHelper;
-import kr.pe.maun.csdgenerator.utils.StringUtils;
 
 public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 
@@ -224,6 +224,8 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 				IJavaProject javaProject = serviceCompilationUnit == null ? serviceImplCompilationUnit.getJavaProject() : serviceCompilationUnit.getJavaProject();
 				IProject project = javaProject.getProject();
 
+				CodeFormatter codeFormatter = ToolFactory.createCodeFormatter(null);
+
 				if(prefix != null) {
 
 					prefix = StringUtils.toCamelCase(prefix);
@@ -254,7 +256,9 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 
 					boolean isCreateVo = dialog.isCreateVo();
 					boolean isCreateSearchVo = propertiesItem.getCreateSearchVo();
+					boolean isExtendVoSuperclass = dialog.isExtendVoSuperclass();
 					String voPath = propertiesItem.getVoPath();
+					String voSuperclass = dialog.getVoSuperclass();
 
 					String[] dataTypes = propertiesHelper.getDataTypes();
 /*
@@ -451,12 +455,52 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 									compilationUnit.createImport(importDeclaration.get(key), null, new NullProgressMonitor());
 								}
 
+								if(isExtendVoSuperclass) {
+									compilationUnit.createImport(voSuperclass, null, new NullProgressMonitor());
+
+									ASTParser voParser = ASTParser.newParser(AST.JLS8);
+									voParser.setSource(compilationUnit);
+								    voParser.setResolveBindings(true);
+
+								    CompilationUnit voParserCompilationUnit = (CompilationUnit) voParser.createAST(null);
+
+									AST voAst = voParserCompilationUnit.getAST();
+									TypeDeclaration voTypeDeclaration = (TypeDeclaration) voParserCompilationUnit.types().get(0);
+									voTypeDeclaration.setSuperclassType(voAst.newSimpleType(voAst.newSimpleName(voSuperclass.substring(voSuperclass.lastIndexOf(".") + 1))));
+
+									TextEdit voTextEdit = codeFormatter.format(CodeFormatter.K_COMPILATION_UNIT, voParserCompilationUnit.toString(), 0, voParserCompilationUnit.toString().length(), 0, null);
+									Document voDocument = new Document(voParserCompilationUnit.toString());
+
+									voTextEdit.apply(voDocument);
+
+									compilationUnit.getBuffer().setContents(voDocument.get());
+								}
+
 								compilationUnit.save(null, true);
 
 								if(isCreateSearchVo && searchVoFile != null) {
 									ICompilationUnit compilationSearchUnit = JavaCore.createCompilationUnitFrom(searchVoFile);
 									for(String key : keySet) {
 										compilationSearchUnit.createImport(importDeclaration.get(key), null, new NullProgressMonitor());
+									}
+
+									if(isExtendVoSuperclass) {
+										ASTParser searchVoParser = ASTParser.newParser(AST.JLS8);
+										searchVoParser.setSource(compilationSearchUnit);
+										searchVoParser.setResolveBindings(true);
+
+										CompilationUnit searchVoParserCompilationUnit = (CompilationUnit) searchVoParser.createAST(null);
+
+										AST searchVoAst = searchVoParserCompilationUnit.getAST();
+										TypeDeclaration searchVoTypeDeclaration = (TypeDeclaration) searchVoParserCompilationUnit.types().get(0);
+										searchVoTypeDeclaration.setSuperclassType(searchVoAst.newSimpleType(searchVoAst.newSimpleName(voSuperclass.substring(voSuperclass.lastIndexOf(".") + 1))));
+
+										TextEdit searchVoTextEdit = codeFormatter.format(CodeFormatter.K_COMPILATION_UNIT, searchVoParserCompilationUnit.toString(), 0, searchVoParserCompilationUnit.toString().length(), 0, null);
+										Document searchVoDocument = new Document(searchVoParserCompilationUnit.toString());
+
+										searchVoTextEdit.apply(searchVoDocument);
+
+										compilationSearchUnit.getBuffer().setContents(searchVoDocument.get());
 									}
 
 									compilationSearchUnit.save(null, true);
@@ -729,7 +773,6 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 									if(methodDeclaration.getBody() != null) methodDeclaration.getBody().delete();
 								}
 
-								CodeFormatter codeFormatter = ToolFactory.createCodeFormatter(null);
 								TextEdit serviceTextEdit = codeFormatter.format(CodeFormatter.K_COMPILATION_UNIT, serviceParserCompilationUnit.toString(), 0, serviceParserCompilationUnit.toString().length(), 0, null);
 								Document serviceDocument = new Document(serviceParserCompilationUnit.toString());
 
@@ -777,7 +820,7 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 							daoTemplate = daoTemplate.replaceAll("\\[namespace\\]", prefixDao.substring(0, 1).toLowerCase() + prefixDao.substring(1) + "Mapper");
 
 							SearchEngine searchEngine = new SearchEngine();
-							searchEngine.search(SearchPattern.createPattern(selectImportDao, IJavaSearchConstants.TYPE, IJavaSearchConstants.CONSTRUCTOR, SearchPattern.R_FULL_MATCH), new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()}, SearchEngine.createWorkspaceScope(), new SearchRequestor() {
+							searchEngine.search(SearchPattern.createPattern(selectImportDao, IJavaSearchConstants.TYPE, IJavaSearchConstants.TYPE, SearchPattern.R_FULL_MATCH), new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()}, SearchEngine.createWorkspaceScope(), new SearchRequestor() {
 								@SuppressWarnings("restriction")
 								@Override
 								public void acceptSearchMatch(SearchMatch searchMatch) throws CoreException {
@@ -839,7 +882,7 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 								mapperTemplate += StringUtils.replaceReservedWord(propertiesItem, prefix, StringUtils.appedFirstAndEndNewLine(mapperDeleteTemplate));
 							}
 
-							mapperTemplate = mapperTemplate.replaceAll("\\[table\\]", databaseTableName);
+							mapperTemplate = mapperTemplate.replaceAll("\\[table\\]", databaseTableName.toUpperCase());
 							mapperTemplate = mapperTemplate.replaceAll("\\[indexColumns\\]", StringUtils.replaceMapperIndexColumn(indexColumns));
 
 							if(parameterType.toLowerCase().indexOf("hashmap") == -1) {

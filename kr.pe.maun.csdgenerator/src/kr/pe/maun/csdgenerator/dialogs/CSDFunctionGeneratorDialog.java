@@ -19,9 +19,13 @@ import org.eclipse.datatools.connectivity.ProfileManager;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.core.SourceType;
+import org.eclipse.jdt.ui.IJavaElementSearchConstants;
 import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.TreePath;
@@ -31,6 +35,8 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -38,11 +44,13 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.dialogs.SelectionDialog;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 public class CSDFunctionGeneratorDialog extends Dialog {
@@ -52,6 +60,7 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 
 	private String prefix = "";
 	private Text prefixField;
+	private Text voSuperclassField;
 /*
 	private String regExGroup = "";
 	private Text regExGroupField;
@@ -90,6 +99,8 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 	private Button createDaoButton;
 	private Button createMapperButton;
 	private Button createVoButton;
+	private Button voSuperclassButton;
+	private Button voSuperclassSearchButton;
 
 	private Button createSelectCountButton;
 	private Button createSelectListButton;
@@ -116,6 +127,11 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 	String selectImportServiceInterface;
 	String selectImportDao;
 
+	private Label voSupperClassBracket1Label;
+	private Label voSupperClassBracket2Label;
+
+	Device device;
+
 	public CSDFunctionGeneratorDialog(Shell parentShell) {
 		super(parentShell);
 	}
@@ -127,6 +143,8 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 
 	@Override
 	protected Control createDialogArea(Composite parent) {
+
+		device = Display.getCurrent();
 
 		Composite container = (Composite) super.createDialogArea(parent);
 
@@ -146,7 +164,7 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 			if(javaElement instanceof ICompilationUnit) compilationUnit = (ICompilationUnit) javaElement;
 		}
 
-		IProject project = compilationUnit.getJavaProject().getProject();
+		final IProject project = compilationUnit.getJavaProject().getProject();
 
 		propertiesItem = new CSDGeneratorPropertiesItem((IResource) project.getAdapter(IResource.class));
 		propertiesHelper = new CSDGeneratorPropertiesHelper(new ProjectScope(project).getNode(CSDGeneratorPlugin.PLUGIN_ID));
@@ -183,6 +201,7 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 				databaseTablesCombo.removeAll();
 				databaseTablesCombo.setEnabled(false);
 				connectionProfile = null;
+
 				for (IConnectionProfile profile : connectionProfiles) {
 					if (profile.getName().equals(connectionProfileCombo.getText())) {
 						connectionProfile = profile;
@@ -190,6 +209,14 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 					}
 				}
 				if (connectionProfile != null) {
+					createVoButton.setEnabled(false);
+					voSuperclassButton.setEnabled(false);
+					voSupperClassBracket1Label.setForeground(new Color(device, 175, 174, 175));
+					voSupperClassBracket2Label.setForeground(new Color(device, 175, 174, 175));
+					createMapperButton.setEnabled(false);
+					parameterCombo.setEnabled(true);
+					returnCombo.setEnabled(true);
+
 					List<String> tables = databaseResource.getDatabaseTables(connectionProfile);
 					if (tables != null) {
 						for (String table : tables) {
@@ -198,11 +225,6 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 						databaseTablesCombo.setEnabled(true);
 					}
 				}
-
-				createVoButton.setEnabled(false);
-				createMapperButton.setEnabled(false);
-				parameterCombo.setEnabled(true);
-				returnCombo.setEnabled(true);
 			}
 
 			@Override
@@ -223,11 +245,18 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 			public void widgetSelected(SelectionEvent e) {
 				databaseTableName = databaseTablesCombo.getText();
 				createVoButton.setEnabled(isCreateVo);
+				voSuperclassButton.setEnabled(isCreateVo);
 				createMapperButton.setEnabled(isCreateMapper);
-				if(isCreateVo) {
+
+				if(createVoButton.getEnabled() && createVoButton.getSelection()) {
+					voSupperClassBracket1Label.setForeground(new Color(device, 0, 0, 0));
+					voSupperClassBracket2Label.setForeground(new Color(device, 0, 0, 0));
 					parameterCombo.setEnabled(false);
 					returnCombo.setEnabled(false);
+					prefixField.setText(databaseTableName);
 				} else {
+					voSupperClassBracket1Label.setForeground(new Color(device, 175, 174, 175));
+					voSupperClassBracket2Label.setForeground(new Color(device, 175, 174, 175));
 					parameterCombo.setEnabled(true);
 					returnCombo.setEnabled(true);
 				}
@@ -240,7 +269,7 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 		});
 		databaseTablesCombo.setEnabled(false);
 
-		GridLayout updateObjectButtonCompositeLayout = new GridLayout(4, false);
+		GridLayout updateObjectButtonCompositeLayout = new GridLayout(7, false);
 		updateObjectButtonCompositeLayout.marginWidth = 0;
 		updateObjectButtonCompositeLayout.marginHeight = 0;
 
@@ -310,9 +339,17 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 				setCreateVo(button.getSelection());
 
 				if(button.getSelection()) {
+					voSuperclassButton.setEnabled(true);
+					voSupperClassBracket1Label.setForeground(new Color(device, 0, 0, 0));
+					voSupperClassBracket2Label.setForeground(new Color(device, 0, 0, 0));
+
 					parameterCombo.setEnabled(false);
 					returnCombo.setEnabled(false);
 				} else {
+					voSuperclassButton.setEnabled(false);
+					voSupperClassBracket1Label.setForeground(new Color(device, 175, 174, 175));
+					voSupperClassBracket2Label.setForeground(new Color(device, 175, 174, 175));
+
 					parameterCombo.setEnabled(true);
 					returnCombo.setEnabled(true);
 				}
@@ -325,6 +362,37 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 		});
 		createVoButton.setSelection(isCreateVo);
 		createVoButton.setEnabled(false);
+
+		voSupperClassBracket1Label = new Label(updateObjectButtonComposite, SWT.NONE);
+		voSupperClassBracket1Label.setText("(");
+		voSupperClassBracket1Label.setForeground(new Color(device, 175, 174, 175));
+
+		voSuperclassButton = new Button(updateObjectButtonComposite, SWT.CHECK);
+		voSuperclassButton.setText("Superclass");
+		voSuperclassButton.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				Button button = (Button) e.widget;
+				setExtendVoSuperclass(button.getSelection());
+				if(button.getSelection()) {
+					voSuperclassField.setEnabled(true);
+					voSuperclassSearchButton.setEnabled(true);
+				} else {
+					voSuperclassField.setEnabled(false);
+					voSuperclassSearchButton.setEnabled(false);
+				}
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			widgetSelected(e);
+			}
+		});
+		voSuperclassButton.setEnabled(false);
+
+		voSupperClassBracket2Label = new Label(updateObjectButtonComposite, SWT.NONE);
+		voSupperClassBracket2Label.setText(")");
+		voSupperClassBracket2Label.setForeground(new Color(device, 175, 174, 175));
 
 		GridLayout createFunctionButtonCompositeLayout = new GridLayout(6, false);
 		createFunctionButtonCompositeLayout.marginWidth = 0;
@@ -467,6 +535,49 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 		GridData layoutData = new GridData(SWT.BEGINNING, SWT.FILL, false, false, 3, 0);
 		layoutData.widthHint = 400;
 
+		Label voSuperclassLabel = new Label(container, SWT.NONE);
+		voSuperclassLabel.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
+		voSuperclassLabel.setText("Vo Superclass: ");
+
+		voSuperclassField = new Text(container, SWT.BORDER | SWT.READ_ONLY);
+		voSuperclassField.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 2, 0));
+		voSuperclassField.addModifyListener(new ModifyListener() {
+			@Override
+			public void modifyText(ModifyEvent e) {
+				voSuperclass = voSuperclassField.getText().trim();
+			}
+		});
+		if(voSuperclass != null) voSuperclassField.setText(voSuperclass);
+		voSuperclassField.setEnabled(false);
+		voSuperclassField.setBackground(new Color(device, 255, 255, 255));
+
+		voSuperclassSearchButton = new Button(container, SWT.PUSH);
+		voSuperclassSearchButton.setText("Browse...");
+		voSuperclassSearchButton.setLayoutData(new GridData(100, 20));
+
+		voSuperclassSearchButton.addSelectionListener(new SelectionListener() {
+		@SuppressWarnings("restriction")
+			@Override public void widgetSelected(SelectionEvent e) {
+				try {
+					SelectionDialog dialog = JavaUI.createTypeDialog(getShell(),
+						new ProgressMonitorDialog(getShell()),
+						project,
+						IJavaElementSearchConstants.CONSIDER_CLASSES,
+						false);
+					dialog.setTitle("Superclass Selection");
+				dialog.open();
+				Object[] result = dialog.getResult();
+				if(result != null && result.length == 1) voSuperclassField.setText(((SourceType) result[0]).getFullyQualifiedName());
+				} catch (JavaModelException e1) {
+					e1.printStackTrace();
+				}
+			}
+			@Override public void widgetDefaultSelected(SelectionEvent e) {
+				widgetSelected(e);
+			}
+		});
+		voSuperclassSearchButton.setEnabled(false);
+
 		Label parameterLabel = new Label(container, SWT.NONE);
 		parameterLabel.setLayoutData(new GridData(SWT.END, SWT.CENTER, false, false));
 		parameterLabel.setText("    Parameter: ");
@@ -545,7 +656,7 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 
 	@Override
 	protected Point getInitialSize() {
-		return new Point(600, 300);
+		return new Point(600, 340);
 	}
 
 	@Override
@@ -612,6 +723,14 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 
 	public void setExtendVoSuperclass(boolean isExtendVoSuperclass) {
 		this.isExtendVoSuperclass = isExtendVoSuperclass;
+	}
+
+	public String getVoSuperclass() {
+		return voSuperclass;
+	}
+
+	public void setVoSuperclass(String voSuperclass) {
+		this.voSuperclass = voSuperclass;
 	}
 
 	public IConnectionProfile getConnectionProfile() {
@@ -732,6 +851,8 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 		isCreateService = isCreateService && createServiceButton.isEnabled();
 		isCreateDao = isCreateDao && createDaoButton.isEnabled();
 		isCreateMapper = isCreateMapper && createMapperButton.isEnabled();
+		isCreateVo = isCreateVo && createVoButton.isEnabled();
+		isExtendVoSuperclass = isExtendVoSuperclass && voSuperclassButton.isEnabled();
 
 		isCreateSelectCount = isCreateSelectCount && createSelectCountButton.isEnabled();
 		isCreateSelectList = isCreateSelectList && createSelectListButton.isEnabled();
@@ -745,6 +866,8 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 
 		selectImportServiceInterface = importServiceInterfaceCombo.getText();
 		selectImportDao = importDaoCombo.getText();
+
+		voSuperclass = voSuperclassField.getText();
 
 		super.okPressed();
 	}

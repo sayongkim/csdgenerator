@@ -486,23 +486,23 @@ public class CSDGeneratorDialog extends Dialog {
 		voSuperclassButton = new Button(craeteButtonComposite, SWT.CHECK);
 		voSuperclassButton.setText("Superclass");
 		voSuperclassButton.addSelectionListener(new SelectionListener() {
-		@Override
-		public void widgetSelected(SelectionEvent e) {
-			Button button = (Button) e.widget;
-			setExtendVoSuperclass(button.getSelection());
-			if(button.getSelection()) {
-				voSuperclassField.setEnabled(true);
-				voSuperclassSearchButton.setEnabled(true);
-			} else {
-				voSuperclassField.setEnabled(false);
-				voSuperclassSearchButton.setEnabled(false);
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				Button button = (Button) e.widget;
+				setExtendVoSuperclass(button.getSelection());
+				if(button.getSelection()) {
+					voSuperclassField.setEnabled(true);
+					voSuperclassSearchButton.setEnabled(true);
+				} else {
+					voSuperclassField.setEnabled(false);
+					voSuperclassSearchButton.setEnabled(false);
+				}
 			}
-		}
 
-		@Override
-		public void widgetDefaultSelected(SelectionEvent e) {
-		widgetSelected(e);
-		}
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			widgetSelected(e);
+			}
 		});
 		voSuperclassButton.setEnabled(false);
 
@@ -1798,6 +1798,8 @@ public class CSDGeneratorDialog extends Dialog {
 
 		parameterType = parameterCombo.getText();
 		returnType = returnCombo.getText();
+
+		voSuperclass = voSuperclassField.getText();
 
 		super.okPressed();
 	}

@@ -410,6 +410,7 @@ CSD Generator 창에서 Database Table을 선택 시 MyBatis Mapper 에서 colum
 **[table]**는 선택된 Database Table로 대체하며 **[paramType]**, **[resultType]** 은 CSD Generator 창에서 선택한 Parameter, Return으로 대체합니다.
 
 **NOTICE** 라는 테이블을 선택 시 예제입니다.
+
 |Column Name|Primary Key|Comment|
 |:---------:|:---------:|:---------:|
 |NO_SEQ|O|번호|

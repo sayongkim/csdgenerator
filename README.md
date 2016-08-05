@@ -7,7 +7,7 @@ CSD Generator는 Eclipse Plugin 입니다.
 
 - 텀플릿을 이용해서 Controller, Service, Dao, JSP (목록, 등록, 상세) 파일을 생성합니다.
 - 템플릿을 이용해서 Test (Controller, Service, Dao) 파일을 생성합니다.
-- Data Source Explorer에서 Database Connection이 등록 되어 있으면 Database Table을 이용해서 MyBatis Mapper, VO를 생성할 수 있습니다.
+- Data Source Explorer에서 Database Connection이 등록 되어 있으면 Database Table을 이용해서 MyBatis Mapper, VO를 생성할 수 있습니다. (Oracle, MySQL, PostgreSQL 지원)
 - Project 설정에서 MyBatis 설정파일이 등록되어 있으면 VO 생성 시 자동으로 Alias를 등록합니다.
 
 ## CSD Generator 실행

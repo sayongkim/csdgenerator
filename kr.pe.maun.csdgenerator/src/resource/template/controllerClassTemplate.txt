@@ -24,7 +24,7 @@ public class [capitalizePrefix]Controller {
 
 	/**
 	 * Desc : 목록 조회
-	 * @Method : select[prefix]List
+	 * @Method : select[capitalizePrefix]List
 	 * @Company : [company]
 	 * @Author : [author]
 	 * @Date : [date]
@@ -40,7 +40,7 @@ public class [capitalizePrefix]Controller {
 
 	/**
 	 * Desc : 목록 (Ajax)
-	 * @Method : select[prefix]ListData
+	 * @Method : select[capitalizePrefix]ListData
 	 * @Company : [company]
 	 * @Author : [author]
 	 * @Date : [date]
@@ -64,7 +64,7 @@ public class [capitalizePrefix]Controller {
 
 	/**
 	 * Desc : 상세
-	 * @Method : select[prefix]
+	 * @Method : select[capitalizePrefix]
 	 * @Company : [company]
 	 * @Author : [author]
 	 * @Date : [date]
@@ -83,7 +83,7 @@ public class [capitalizePrefix]Controller {
 
 	/**
 	 * Desc : 등록
-	 * @Method : insert[prefix]
+	 * @Method : insert[capitalizePrefix]
 	 * @Company : [company]
 	 * @Author : [author]
 	 * @Date : [date]
@@ -99,7 +99,7 @@ public class [capitalizePrefix]Controller {
 
 	/**
 	 * Desc : 등록 처리
-	 * @Method : insert[prefix]
+	 * @Method : insert[capitalizePrefix]
 	 * @Company : [company]
 	 * @Author : [author]
 	 * @Date : [date]
@@ -121,7 +121,7 @@ public class [capitalizePrefix]Controller {
 
 	/**
 	 * Desc : 수정
-	 * @Method : update[prefix]
+	 * @Method : update[capitalizePrefix]
 	 * @Company : [company]
 	 * @Author : [author]
 	 * @Date : [date]
@@ -140,7 +140,7 @@ public class [capitalizePrefix]Controller {
 
 	/**
 	 * Desc : 수정 처리
-	 * @Method : [prefix]Post
+	 * @Method : update[capitalizePrefix]
 	 * @Company : [company]
 	 * @Author : [author]
 	 * @Date : [date]
@@ -166,7 +166,7 @@ public class [capitalizePrefix]Controller {
 
 	/**
 	 * Desc : 삭제 처리
-	 * @Method : delete[prefix]
+	 * @Method : delete[capitalizePrefix]
 	 * @Company : [company]
 	 * @Author : [author]
 	 * @Date : [date]

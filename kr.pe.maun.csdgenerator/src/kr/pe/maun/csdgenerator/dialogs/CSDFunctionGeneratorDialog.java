@@ -60,7 +60,8 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 	private boolean isCreateDao = true;
 	private boolean isCreateMapper = true;
 	private boolean isCreateVo = true;
-	private boolean isCreateSearchVo = true;
+	private boolean isExtendVoSuperclass = false;
+	private boolean isCreateVoFolder = false;
 
 	private boolean isCreateSelectCount = true;
 	private boolean isCreateSelectList = true;
@@ -70,7 +71,9 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 	private boolean isCreateDelete = true;
 
 	String mapperPath;
+	String voFolder;
 	String voPath;
+	String voSuperclass;
 
 	private IConnectionProfile connectionProfile;
 
@@ -149,11 +152,11 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 		propertiesHelper = new CSDGeneratorPropertiesHelper(new ProjectScope(project).getNode(CSDGeneratorPlugin.PLUGIN_ID));
 
 		mapperPath = propertiesItem.getMapperPath();
+		voFolder = propertiesItem.getVoFolder();
 		voPath = propertiesItem.getVoPath();
 
 		isCreateMapper = propertiesItem.getCreateMapper() && mapperPath != null && !"".equals(mapperPath);
-		isCreateVo = propertiesItem.getCreateVo() && voPath != null && !"".equals(voPath);
-		isCreateSearchVo = propertiesItem.getCreateSearchVo();
+		isCreateVo = propertiesItem.getCreateVo() && (isCreateVoFolder ? (voFolder != null && !"".equals(voFolder)) : (voPath != null && !"".equals(voPath)));
 
 		container.setLayout(new GridLayout(4, false));
 
@@ -601,6 +604,14 @@ public class CSDFunctionGeneratorDialog extends Dialog {
 
 	public void setCreateVo(boolean isCreateVo) {
 		this.isCreateVo = isCreateVo;
+	}
+
+	public boolean isExtendVoSuperclass() {
+		return isExtendVoSuperclass;
+	}
+
+	public void setExtendVoSuperclass(boolean isExtendVoSuperclass) {
+		this.isExtendVoSuperclass = isExtendVoSuperclass;
 	}
 
 	public IConnectionProfile getConnectionProfile() {

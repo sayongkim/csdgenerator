@@ -1,4 +1,4 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!--r:s-->
-<input type="text" name="[column]" value="[comment]">
+<input type="text" name="[column]" placeholder="[comment]">
 <!--r:e-->

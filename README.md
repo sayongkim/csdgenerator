@@ -37,7 +37,7 @@ CSD Generator는 Eclipse Plugin 입니다.
 * Prefix: 폴더 및 파일명의 기준이 됩니다.
 * Regular expressions: Tables을 여러개 선택 시 정규식으로 Prefix를 변경할 수 있습니다.
 * Preview: 생성될 폴더 및 파일을 미리 볼 수 있습니다.
-* Tables: Database Connection에서 선택된 Database Table이 표시됩니다.
+* Tables: Database Connection에서 선택된 Database Table이 표시됩니다. 생성할 Table을 선택합니다.
 
 ## Project 설정
 
@@ -234,6 +234,53 @@ CSD Generator는 Eclipse Plugin 입니다.
   - List Template File: JSP 목록 템플릿파일을 선택합니다.
   - Post Template File: JSP 등록 템플릿파일을 선택합니다.
   - View Template File: JSP 상세 템플릿파일을 선택합니다.
+
+## CSD Function Generator 실행
+
+**Package Explorer**에서 **Service*.java* 파일이나 **ServiceImpl.java**파일을 선택 후 오른쪽 마우스로 팝업메뉴에서 **CSD Function Generator**를 실행합니다.
+
+<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_18.png" width="80%" height="80%" ></div>
+
+* Database Connectoin: Data Source Explorer에 등록된 Database Connection이 표시됩니다. Database Connection을 선택하면 Tables:에 Database Table이 출력됩니다.
+* Tables: Database Connection에서 선택된 Database Table이 표시됩니다. 생성할 Table을 선택합니다.
+* Service: Function을 Service에 추가할 것인지 선택합니다.
+* Dao: Function을 Dao 추가할 것인지 선택합니다.
+* Mapper: Mapper에 추가할 것인지 선택합니다.
+* VO: VO 파일을 생성할 것인지 선택합니다. Project설정에서 VO 생성에 체크가 되어 있어야 하며 Database Table을 선택해야 활성화 됩니다.
+* Superclass: VO 파일을 생성 시 부모클래스를 상속할 것인지 선택합니다.
+* Select Count: 템플릿에 등록된 Select Count를 추가할 것인지 선택합니다.
+* Select List: 템플릿에 등록된 Select List를 추가할 것인지 선택합니다.
+* Select One: 템플릿에 등록된 Select One를 추가할 것인지 선택합니다.
+* Insert: 템플릿에 등록된 Insert를 추가할 것인지 선택합니다.
+* Update: 템플릿에 등록된 Update를 추가할 것인지 선택합니다.
+* Delete: 템플릿에 등록된 Delete를 추가할 것인지 선택합니다.
+* Vo Superclass: VO 생성 시 상속받을 부모클랙스를 선택합니다.
+* Parameter: Hashmap 및 VO Tab에서 VO Path를 지정했을 경우 VO Path하위에 VO가 출력됩니다. Parameter Type을 선택합니다.
+* Return: Hashmap 및 VO Tab에서 VO Path를 지정했을 경우 VO Path하위에 VO가 출력됩니다. Return Type을 선택합니다.
+* Prefix: 폴더 및 파일명의 기준이 됩니다.
+* Service Interface: Function을 추가할 Service를 선택합니다.
+* Dao: Function을 추가할 Dao를 선택합니다.
+
+## Dao Function Templates
+
+CSD Function Generator에서 Dao Template을 설정합니다.
+""Select Count"", ""Select List"", ""Select One"", ""Insert"", ""Update"", ""Delete"" 으로 구성되어 있습니다.
+
+<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_19.png">
+
+## Service Function Templates
+
+CSD Function Generator에서 Service Template을 설정합니다.
+""Select Count"", ""Select List"", ""Select One"", ""Insert"", ""Update"", ""Delete"" 으로 구성되어 있습니다.
+
+<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_20.png">
+
+## Mapper Function Templates
+
+CSD Function Generator에서 Mapper Template을 설정합니다.
+""Select Count"", ""Select List"", ""Select One"", ""Insert"", ""Update"", ""Delete"" 으로 구성되어 있습니다.
+
+<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_21.png">
 
 ## Template 예제
 

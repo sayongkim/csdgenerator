@@ -46,7 +46,7 @@ CSD Generator는 Eclipse Plugin 입니다.
 
 **Package Explorer**에서 Class파일이 생성될 위치를 선택 후 오른쪽 마우스로 팝업메뉴에서 **CSD Generator**를 실행합니다.
 
-<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_17.png">
+<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/redme-edits/screenshot/screenshot_17.png">
 
 * Template: General Tab에 등록된 Template Group이 표시됩니다. 템플릿을 선택합니다.
 * Database Connectoin: Data Source Explorer에 등록된 Database Connection이 표시됩니다. Database Connection을 선택하면 Tables:에 Database Table이 출력됩니다.
@@ -75,7 +75,7 @@ CSD Generator는 Eclipse Plugin 입니다.
 
 ### General Tab
 
-<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_01.png">
+<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/redme-edits/screenshot/screenshot_01.png">
 
 * Company: 회사명을 설정합니다.
 * Author: 작성자를 설정합니다.
@@ -87,7 +87,7 @@ CSD Generator는 Eclipse Plugin 입니다.
 
 ###  Template Group
 
-<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_02.png" width="51%" height="51%" ></div>
+<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/redme-edits/screenshot/screenshot_02.png" width="51%" height="51%" ></div>
 
   - Template Group Name: 템플릿그룹명을 설정합니다.
   - Template Folder: 템플릿이 포함된 폴더를 지정해서 템플릿을 등록할 수 있습니다.
@@ -99,7 +99,7 @@ CSD Generator는 Eclipse Plugin 입니다.
 
 ## Test Tab
 
-<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_03.png">
+<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/redme-edits/screenshot/screenshot_03.png">
 
 * Create test: 테스트파일의 생성여부를 설정합니다.
 * Create test controller folder: Test Controller 폴더의 생성여부를 설정합니다.
@@ -113,7 +113,7 @@ CSD Generator는 Eclipse Plugin 입니다.
 
 ###  Test Template Group
 
-<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_04.png" width="51%" height="51%" ></div>
+<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/redme-edits/screenshot/screenshot_04.png" width="51%" height="51%" ></div>
 
   - Template Group Name: 템플릿그룹명을 설정합니다.
   - Template Folder: 템플릿이 포함된 폴더를 지정해서 템플릿을 등록할 수 있습니다.
@@ -123,7 +123,7 @@ CSD Generator는 Eclipse Plugin 입니다.
 
 ## Controller Tab
 
-<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_05.png">
+<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/redme-edits/screenshot/screenshot_05.png">
 
 기준 Controller 폴더명은 **Controller**입니다.
 
@@ -138,14 +138,14 @@ CSD Generator는 Eclipse Plugin 입니다.
 
 ###  Controller Template
 
-<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_06.png" width="51%" height="51%" ></div>
+<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/redme-edits/screenshot/screenshot_06.png" width="51%" height="51%" ></div>
 
   - Template Name: 템플릿명을 설정합니다.
   - Template File: 템플릿파일을 선택합니다.
   
 ## Service Tab
 
-<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_07.png">
+<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/redme-edits/screenshot/screenshot_07.png">
 
 기준 Servie 폴더명은 **Service**입니다.
 
@@ -162,14 +162,14 @@ CSD Generator는 Eclipse Plugin 입니다.
 
 ###  Service Template
 
-<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_08.png" width="51%" height="51%" ></div>
+<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/redme-edits/screenshot/screenshot_08.png" width="51%" height="51%" ></div>
 
   - Template Name: 템플릿명을 설정합니다.
   - Template File: 템플릿파일을 선택합니다.
   
 ## Dao Tab
 
-<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_09.png">
+<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/redme-edits/screenshot/screenshot_09.png">
 
 기준 Dao 폴더명은 **Dao**입니다.
 
@@ -184,14 +184,14 @@ CSD Generator는 Eclipse Plugin 입니다.
 
 ###  Dao Template
 
-<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_10.png" width="51%" height="51%" ></div>
+<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/redme-edits/screenshot/screenshot_10.png" width="51%" height="51%" ></div>
 
   - Template Name: 템플릿명을 설정합니다.
   - Template File: 템플릿파일을 선택합니다.
 
 ## Mapper Tab
 
-<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_11.png">
+<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/redme-edits/screenshot/screenshot_11.png">
 
 * Create mapper folder: MyBatis Mapper 파일의 생성여부를 설정합니다.
 * Mapper Path: MyBatis Mapper 파일이 생성될 폴더를 지정합니다.
@@ -202,14 +202,14 @@ CSD Generator는 Eclipse Plugin 입니다.
 
 ###  Mapper Template
 
-<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_12.png" width="51%" height="51%" ></div>
+<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/redme-edits/screenshot/screenshot_12.png" width="51%" height="51%" ></div>
 
   - Template Name: 템플릿명을 설정합니다.
   - Template File: 템플릿파일을 선택합니다.
 
 ## VO Tab
 
-<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_13.png">
+<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/redme-edits/screenshot/screenshot_13.png">
 
 * Create Vo: VO의 생성여부를 설정합니다.
 * Create Search Vo: 목록등에 사용될 수 있는 검색용 VO의 생성여부를 설정합니다.
@@ -225,7 +225,7 @@ CSD Generator는 Eclipse Plugin 입니다.
 
 ###  Type Mapping
 
-<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_14.png" width="51%" height="51%" ></div>
+<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/redme-edits/screenshot/screenshot_14.png" width="51%" height="51%" ></div>
 
   - Data Type: Database Type을 입력합니다.
   - Java Object: Java Object를 선택합니다.
@@ -249,7 +249,7 @@ CSD Generator는 Eclipse Plugin 입니다.
 
 ## JSP Tab
 
-<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_15.png">
+<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/redme-edits/screenshot/screenshot_15.png">
 
 * Create jsp folder: JSP파일의 생성여부를 설정합니다.
 * JSPPath: JSP파일이 생성될 폴더를 지정합니다.
@@ -260,7 +260,7 @@ CSD Generator는 Eclipse Plugin 입니다.
 
 ###  JSP Template
 
-<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_16.png" width="51%" height="51%" ></div>
+<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/redme-edits/screenshot/screenshot_16.png" width="51%" height="51%" ></div>
 
   - Template Name: 템플릿명을 설정합니다.
   - List Template File: JSP 목록 템플릿파일을 선택합니다.
@@ -271,7 +271,7 @@ CSD Generator는 Eclipse Plugin 입니다.
 
 **Package Explorer**에서 **Service*.java* 파일이나 **ServiceImpl.java**파일을 선택 후 오른쪽 마우스로 팝업메뉴에서 **CSD Function Generator**를 실행합니다.
 
-<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_18.png" width="80%" height="80%" ></div>
+<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/redme-edits/screenshot/screenshot_18.png" width="80%" height="80%" ></div>
 
 * Database Connectoin: Data Source Explorer에 등록된 Database Connection이 표시됩니다. Database Connection을 선택하면 Tables:에 Database Table이 출력됩니다.
 * Tables: Database Connection에서 선택된 Database Table이 표시됩니다. 생성할 Table을 선택합니다.
@@ -299,7 +299,7 @@ CSD Function Generator에서 Dao Template을 설정합니다.
 
 **Select Count**, **Select List**, **Select One**, **Insert**, **Update**, **Delete** 으로 구성되어 있습니다.
 
-<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_19.png">
+<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/redme-edits/screenshot/screenshot_19.png">
 
 ## Service Function Templates
 
@@ -307,7 +307,7 @@ CSD Function Generator에서 Service Template을 설정합니다.
 
 **Select Count**, **Select List**, **Select One**, **Insert**, **Update**, **Delete** 으로 구성되어 있습니다.
 
-<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_20.png">
+<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/redme-edits/screenshot/screenshot_20.png">
 
 ## Mapper Function Templates
 
@@ -315,7 +315,7 @@ CSD Function Generator에서 Mapper Template을 설정합니다.
 
 **Select Count**, **Select List**, **Select One**, **Insert**, **Update**, **Delete** 으로 구성되어 있습니다.
 
-<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_21.png">
+<img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/redme-edits/screenshot/screenshot_21.png">
 
 ## Template 예제
 

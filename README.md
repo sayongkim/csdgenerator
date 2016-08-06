@@ -87,7 +87,7 @@ CSD Generator는 Eclipse Plugin 입니다.
 
 ###  Template Group
 
-<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_02.png" width="51%" height="51%" ></div>
+<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_02.png" width="60%" height="60%" ></div>
 
   - Template Group Name: 템플릿그룹명을 설정합니다.
   - Template Folder: 템플릿이 포함된 폴더를 지정해서 템플릿을 등록할 수 있습니다.
@@ -113,7 +113,7 @@ CSD Generator는 Eclipse Plugin 입니다.
 
 ###  Test Template Group
 
-<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_04.png" width="51%" height="51%" ></div>
+<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_04.png" width="60%" height="60%" ></div>
 
   - Template Group Name: 템플릿그룹명을 설정합니다.
   - Template Folder: 템플릿이 포함된 폴더를 지정해서 템플릿을 등록할 수 있습니다.
@@ -138,7 +138,7 @@ CSD Generator는 Eclipse Plugin 입니다.
 
 ###  Controller Template
 
-<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_06.png" width="51%" height="51%" ></div>
+<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_06.png" width="60%" height="60%" ></div>
 
   - Template Name: 템플릿명을 설정합니다.
   - Template File: 템플릿파일을 선택합니다.
@@ -162,7 +162,7 @@ CSD Generator는 Eclipse Plugin 입니다.
 
 ###  Service Template
 
-<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_08.png" width="51%" height="51%" ></div>
+<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_08.png" width="60%" height="60%" ></div>
 
   - Template Name: 템플릿명을 설정합니다.
   - Template File: 템플릿파일을 선택합니다.
@@ -184,7 +184,7 @@ CSD Generator는 Eclipse Plugin 입니다.
 
 ###  Dao Template
 
-<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_10.png" width="51%" height="51%" ></div>
+<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_10.png" width="60%" height="60%" ></div>
 
   - Template Name: 템플릿명을 설정합니다.
   - Template File: 템플릿파일을 선택합니다.
@@ -202,7 +202,7 @@ CSD Generator는 Eclipse Plugin 입니다.
 
 ###  Mapper Template
 
-<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_12.png" width="51%" height="51%" ></div>
+<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_12.png" width="60%" height="60%" ></div>
 
   - Template Name: 템플릿명을 설정합니다.
   - Template File: 템플릿파일을 선택합니다.
@@ -225,7 +225,7 @@ CSD Generator는 Eclipse Plugin 입니다.
 
 ###  Type Mapping
 
-<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_14.png" width="51%" height="51%" ></div>
+<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_14.png" width="60%" height="60%" ></div>
 
   - Data Type: Database Type을 입력합니다.
   - Java Object: Java Object를 선택합니다.
@@ -260,7 +260,7 @@ CSD Generator는 Eclipse Plugin 입니다.
 
 ###  JSP Template
 
-<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_16.png" width="51%" height="51%" ></div>
+<div align="center"><img src="https://raw.githubusercontent.com/sayongkim/csdgenerator/master/screenshot/screenshot_16.png" width="60%" height="60%" ></div>
 
   - Template Name: 템플릿명을 설정합니다.
   - List Template File: JSP 목록 템플릿파일을 선택합니다.

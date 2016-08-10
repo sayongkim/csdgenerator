@@ -544,7 +544,7 @@ JSP에서 반복은 **<!--r:s-->**다음줄부터 **<!--r:e-->**이전줄까지�
     <input type="text" name="regDate" placeholder="작성일">
     <!--r:e-->
 ```
-* Array [2016년 08월 10일 추가]
+* Array [2016. 08. 10. 추가]
 
 ```
     [columnArray]

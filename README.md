@@ -547,13 +547,11 @@ JSP에서 반복은 **<!--r:s-->**다음줄부터 **<!--r:e-->**이전줄까지�
 * Array [2016. 08. 10. 추가]
 
 ```
-    [columnArray]
-    
-    [commentArray]
+    String[] columns = [[columnArray]];
+    String[] comments = [[commentArray]];
 ```
 
 ```
-    "noSeq", "title", "contnets", "regName", "regDate"
-
-    "번호", "제목", "내용", "작성자", "작성일"
+    String[] columns = ["noSeq", "title", "contnets", "regName", "regDate"];
+    String[] comments = ["번호", "제목", "내용", "작성자", "작성일"];
 ```

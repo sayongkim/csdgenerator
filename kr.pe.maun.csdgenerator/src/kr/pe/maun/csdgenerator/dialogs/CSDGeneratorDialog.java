@@ -765,7 +765,7 @@ public class CSDGeneratorDialog extends Dialog {
 			public void widgetSelected(SelectionEvent e) {
 				Button button = (Button) e.widget;
 				if(button.getSelection()) {
-					prefixField.setText("[A-Za-z0-9]+_([A-Za-z0-9_]+)");
+					prefixField.setText("|[A-Za-z0-9]+_([A-Za-z0-9_]+)|");
 				} else {
 					prefixField.setText("");
 				}
@@ -1050,11 +1050,28 @@ public class CSDGeneratorDialog extends Dialog {
 		TreeItem testDaoFolderTreeItem = null;
 		TreeItem testDaoSubFolderTreeItem = null;
 
+		String addFirstPrefix = "";
+		String addLastPrefix = "";
+
 		Pattern pattern = null;
 
 		try {
-			if(!"".equals(prefix)) {
-				pattern =Pattern.compile(prefix);
+
+			String regex = "";
+
+			int prefixFirstIndex = prefix.indexOf("|");
+			int prefixLastIndex = prefix.lastIndexOf("|");
+			if(prefixFirstIndex != -1
+					&& prefixFirstIndex != prefixLastIndex) {
+				if(prefixFirstIndex > 0) addFirstPrefix = prefix.substring(0, prefixFirstIndex) + "_";
+				if(prefixLastIndex < prefix.length() - 1) addLastPrefix = "_" + prefix.substring(prefixLastIndex + 1);
+				regex = prefix.substring(prefixFirstIndex + 1, prefixLastIndex);
+			} else {
+				regex = prefix;
+			}
+
+			if(!"".equals(regex)) {
+				pattern = Pattern.compile(regex);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1069,6 +1086,7 @@ public class CSDGeneratorDialog extends Dialog {
 				}
 			}
 
+			name = addFirstPrefix + name + addLastPrefix;
 			name = StringUtils.toCamelCase(name);
 
 			String capitalizePrefix = "";
@@ -1482,6 +1500,7 @@ public class CSDGeneratorDialog extends Dialog {
 					}
 				}
 
+				name = addFirstPrefix + name + addLastPrefix;
 				name = StringUtils.toCamelCase(name);
 
 				if(!"".equals(name)) {
@@ -1523,6 +1542,7 @@ public class CSDGeneratorDialog extends Dialog {
 					}
 				}
 
+				name = addFirstPrefix + name + addLastPrefix;
 				name = StringUtils.toCamelCase(name);
 
 				TreeItem jspFolderTreeItem = null;

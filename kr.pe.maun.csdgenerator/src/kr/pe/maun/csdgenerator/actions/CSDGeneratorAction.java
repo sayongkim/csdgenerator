@@ -307,9 +307,22 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 					if(databaseTables == null || databaseTables.length == 0) databaseTables = new String[]{prefix};
 
+					String addFirstPrefix = "";
+					String addLastPrefix = "";
+
 					Pattern pattern = null;
 
 					try {
+
+						int prefixFirstIndex = prefix.indexOf("|");
+						int prefixLastIndex = prefix.lastIndexOf("|");
+						if(prefixFirstIndex != -1
+								&& prefixFirstIndex != prefixLastIndex) {
+							if(prefixFirstIndex > 0) addFirstPrefix = prefix.substring(0, prefixFirstIndex) + "_";
+							if(prefixLastIndex < prefix.length() - 1) addLastPrefix = "_" + prefix.substring(prefixLastIndex + 1);
+							prefix = prefix.substring(prefixFirstIndex + 1, prefixLastIndex);
+						}
+
 						if(!"".equals(prefix)) {
 							pattern =Pattern.compile(prefix);
 						}
@@ -345,6 +358,7 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 							}
 						}
 
+						prefix = addFirstPrefix + prefix + addLastPrefix;
 						prefix = StringUtils.toCamelCase(prefix);
 
 						IFolder newJavaFolder = javaFolder.getFolder(new Path(prefix));
@@ -356,10 +370,24 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 							List<ColumnItem> columns = null;
 							List<String> indexColumns = null;
+							String columnArrayString = "";
+							String commentArrayString = "";
 
 							if(connectionProfile != null) {
 								columns = databaseResource.getColumns(databaseTableName);
 								indexColumns = databaseResource.getIndexColumns(databaseTableName);
+								for(ColumnItem column : columns) {
+									if(!"".equals(columnArrayString)) {
+										columnArrayString += ", ";
+										commentArrayString += ", ";
+									}
+									columnArrayString += "\"";
+									columnArrayString += StringUtils.toCamelCase(column.getColumnName());
+									columnArrayString += "\"";
+									commentArrayString += "\"";
+									commentArrayString += column.getComments();
+									commentArrayString += "\"";
+								}
 							}
 
 							/* 폴더를 생성한다. */
@@ -492,6 +520,8 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 
 									voContent = voContent.replaceAll("\\[value\\]", valueBuffer.toString());
 									voContent = voContent.replaceAll("\\[GettersAndSetters\\]", gettersAndSetters.toString());
+									voContent = voContent.replaceAll("\\[columnArray\\]", columnArrayString);
+									voContent = voContent.replaceAll("\\[commentArray\\]", commentArrayString);
 
 									ByteArrayInputStream voFileStream = new ByteArrayInputStream(voContent.getBytes("UTF-8"));
 
@@ -507,6 +537,8 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 										searchVoContent = searchVoContent.replaceAll("\\[capitalizePrefix\\]", "Search" + capitalizePrefix);
 										searchVoContent = searchVoContent.replaceAll("\\[value\\]", valueBuffer.toString());
 										searchVoContent = searchVoContent.replaceAll("\\[GettersAndSetters\\]", "");
+										searchVoContent = searchVoContent.replaceAll("\\[columnArray\\]", columnArrayString);
+										searchVoContent = searchVoContent.replaceAll("\\[commentArray\\]", commentArrayString);
 
 										ByteArrayInputStream searchVoFileStream = new ByteArrayInputStream(searchVoContent.getBytes("UTF-8"));
 
@@ -700,6 +732,8 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 								daoContent = StringUtils.replaceParameter(parameterType, daoContent);
 								daoContent = StringUtils.replaceReturn(returnType, daoContent);
 								if(connectionProfile != null) daoContent = StringUtils.replaceRepeatWord(daoContent, columns);
+								daoContent = daoContent.replaceAll("\\[columnArray\\]", columnArrayString);
+								daoContent = daoContent.replaceAll("\\[commentArray\\]", commentArrayString);
 								/* S: Dao 파일을 생성한다. */
 								ByteArrayInputStream daoFileStream = new ByteArrayInputStream(daoContent.getBytes("UTF-8"));
 
@@ -754,6 +788,9 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 									testDaoContent = StringUtils.replaceReservedWord(propertiesItem, prefix, testDaoContent);
 									testDaoContent = StringUtils.replaceParameter(parameterType, testDaoContent);
 									testDaoContent = StringUtils.replaceReturn(returnType, testDaoContent);
+									if(connectionProfile != null) testDaoContent = StringUtils.replaceRepeatWord(testDaoContent, columns);
+									testDaoContent = testDaoContent.replaceAll("\\[columnArray\\]", columnArrayString);
+									testDaoContent = testDaoContent.replaceAll("\\[commentArray\\]", commentArrayString);
 									/* S: Dao 파일을 생성한다. */
 									ByteArrayInputStream testDaoFileStream = new ByteArrayInputStream(testDaoContent.getBytes("UTF-8"));
 
@@ -842,6 +879,8 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 								serviceContent = StringUtils.replaceParameter(parameterType, serviceContent);
 								serviceContent = StringUtils.replaceReturn(returnType, serviceContent);
 								if(connectionProfile != null) serviceContent = StringUtils.replaceRepeatWord(serviceContent, columns);
+								serviceContent = serviceContent.replaceAll("\\[columnArray\\]", columnArrayString);
+								serviceContent = serviceContent.replaceAll("\\[commentArray\\]", commentArrayString);
 								/* S: Service 파일을 생성한다. */
 								ByteArrayInputStream serviceFileStream = new ByteArrayInputStream(serviceContent.getBytes("UTF-8"));
 
@@ -1002,6 +1041,8 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 									testServiceContent = StringUtils.replaceParameter(parameterType, testServiceContent);
 									testServiceContent = StringUtils.replaceReturn(returnType, testServiceContent);
 									if(connectionProfile != null) testServiceContent = StringUtils.replaceRepeatWord(testServiceContent, columns);
+									testServiceContent = testServiceContent.replaceAll("\\[columnArray\\]", columnArrayString);
+									testServiceContent = testServiceContent.replaceAll("\\[commentArray\\]", commentArrayString);
 									/* S: Service 파일을 생성한다. */
 									ByteArrayInputStream testServiceFileStream = new ByteArrayInputStream(testServiceContent.getBytes("UTF-8"));
 
@@ -1063,6 +1104,8 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 								controllerContent = StringUtils.replaceParameter(parameterType, controllerContent);
 								controllerContent = StringUtils.replaceReturn(returnType, controllerContent);
 								if(connectionProfile != null) controllerContent = StringUtils.replaceRepeatWord(controllerContent, columns);
+								controllerContent = controllerContent.replaceAll("\\[columnArray\\]", columnArrayString);
+								controllerContent = controllerContent.replaceAll("\\[commentArray\\]", commentArrayString);
 								/* S: Contoller 파일을 생성한다. */
 								ByteArrayInputStream controllerFileStream = new ByteArrayInputStream(controllerContent.getBytes("UTF-8"));
 
@@ -1124,6 +1167,8 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 									testControllerContent = StringUtils.replaceParameter(parameterType, testControllerContent);
 									testControllerContent = StringUtils.replaceReturn(returnType, testControllerContent);
 									if(connectionProfile != null) testControllerContent = StringUtils.replaceRepeatWord(testControllerContent, columns);
+									testControllerContent = testControllerContent.replaceAll("\\[columnArray\\]", columnArrayString);
+									testControllerContent = testControllerContent.replaceAll("\\[commentArray\\]", commentArrayString);
 									/* S: Contoller 파일을 생성한다. */
 									ByteArrayInputStream testControllerFileStream = new ByteArrayInputStream(testControllerContent.getBytes("UTF-8"));
 
@@ -1256,6 +1301,8 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 								String jspListContent = getSource(jspTemplateListFile);
 
 								if(connectionProfile != null) jspListContent = StringUtils.replaceRepeatWord(jspListContent, columns);
+								jspListContent = jspListContent.replaceAll("\\[columnArray\\]", columnArrayString);
+								jspListContent = jspListContent.replaceAll("\\[commentArray\\]", commentArrayString);
 
 								ByteArrayInputStream jspListFileStream = new ByteArrayInputStream(jspListContent.getBytes("UTF-8"));
 
@@ -1271,6 +1318,8 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 								String jspPostContent = getSource(jspTemplatePostFile);
 
 								if(connectionProfile != null) jspPostContent = StringUtils.replaceRepeatWord(jspPostContent, columns);
+								jspPostContent = jspPostContent.replaceAll("\\[columnArray\\]", columnArrayString);
+								jspPostContent = jspPostContent.replaceAll("\\[commentArray\\]", commentArrayString);
 
 								ByteArrayInputStream jspPostFileStream = new ByteArrayInputStream(jspPostContent.getBytes("UTF-8"));
 
@@ -1286,6 +1335,8 @@ public class CSDGeneratorAction implements IObjectActionDelegate {
 								String jspViewContent = getSource(jspTemplateViewFile);
 
 								if(connectionProfile != null) jspViewContent = StringUtils.replaceRepeatWord(jspViewContent, columns);
+								jspViewContent = jspViewContent.replaceAll("\\[columnArray\\]", columnArrayString);
+								jspViewContent = jspViewContent.replaceAll("\\[commentArray\\]", commentArrayString);
 
 								ByteArrayInputStream jspViewFileStream = new ByteArrayInputStream(jspViewContent.getBytes("UTF-8"));
 

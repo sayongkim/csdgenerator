@@ -246,6 +246,10 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 					DatabaseResource databaseResource = connectionProfile == null ? null : new DatabaseResource(connectionProfile);
 					String databaseTableName = dialog.getDatabaseTableName();
 
+					boolean isCreateServiceFolder = propertiesItem.getCreateServiceFolder();
+					boolean isCreateServiceSubFolder = propertiesItem.getCreateServiceSubFolder();
+					boolean isCreateServiceImplFolder = propertiesItem.getCreateServiceImplFolder();
+
 					boolean isCreateService = dialog.isCreateService();
 
 					boolean isCreateDao = dialog.isCreateDao();
@@ -257,7 +261,9 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 					boolean isCreateVo = dialog.isCreateVo();
 					boolean isCreateSearchVo = propertiesItem.getCreateSearchVo();
 					boolean isExtendVoSuperclass = dialog.isExtendVoSuperclass();
+					boolean isCreateVoFolder = propertiesItem.getCreateVoFolder();
 					String voPath = propertiesItem.getVoPath();
+					String voFolderName = propertiesItem.getVoFolder();
 					String voSuperclass = dialog.getVoSuperclass();
 
 					String[] dataTypes = propertiesHelper.getDataTypes();
@@ -319,10 +325,24 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 
 					List<ColumnItem> columns = null;
 					List<String> indexColumns = null;
+					String columnArrayString = "";
+					String commentArrayString = "";
 
 					if(connectionProfile != null) {
 						columns = databaseResource.getColumns(databaseTableName);
 						indexColumns = databaseResource.getIndexColumns(databaseTableName);
+						for(ColumnItem column : columns) {
+							if(!"".equals(columnArrayString)) {
+								columnArrayString += ", ";
+								commentArrayString += ", ";
+							}
+							columnArrayString += "\"";
+							columnArrayString += StringUtils.toCamelCase(column.getColumnName());
+							columnArrayString += "\"";
+							commentArrayString += "\"";
+							commentArrayString += column.getComments();
+							commentArrayString += "\"";
+						}
 					}
 
 
@@ -340,12 +360,51 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 					if(isCreateVo && databaseTableName != null && connectionProfile != null) {
 						try {
 
+							IFolder voFolder = null;
+
+							if(isCreateVoFolder) {
+
+								IFolder findVoFolder = null;
+
+								if(serviceImplCompilationUnit != null) {
+									voPackage = serviceImplCompilationUnit.getPackageDeclarations()[0].getElementName();
+									if(isCreateServiceImplFolder) {
+										findVoFolder = (IFolder) serviceImplCompilationUnit.getParent().getResource().getAdapter(IFolder.class).getParent();
+										voPackage = voPackage.substring(0, voPackage.lastIndexOf("."));
+									} else {
+										findVoFolder = serviceImplCompilationUnit.getParent().getResource().getAdapter(IFolder.class);
+									}
+
+								} else {
+									findVoFolder = serviceCompilationUnit.getParent().getResource().getAdapter(IFolder.class);
+								}
+
+								findVoFolder = (IFolder) findVoFolder.getParent();
+								voPackage = voPackage.substring(0, voPackage.lastIndexOf("."));
+
+								if(isCreateServiceSubFolder) {
+									findVoFolder = (IFolder) findVoFolder.getParent();
+									voPackage = voPackage.substring(0, voPackage.lastIndexOf("."));
+								}
+
+								if(isCreateServiceFolder) {
+									findVoFolder = (IFolder) findVoFolder.getParent();
+									voPackage = voPackage.substring(0, voPackage.lastIndexOf("."));
+								}
+
+								voPackage += ".";
+								voPackage += voFolderName;
+								voFolder = findVoFolder.getFolder(new Path(voFolderName));
+
+							} else {
+								voFolder = project.getWorkspace().getRoot().getFolder(new Path(voPath + "/"));
+							}
+
 							parameterType = capitalizePrefix + "Vo";
 							returnType = capitalizePrefix + "Vo";
 							importParameterVo = voPackage + "." + capitalizePrefix + "Vo";
 							importReturnVo = voPackage + "." + capitalizePrefix + "Vo";
 
-							IFolder voFolder = project.getWorkspace().getRoot().getFolder(new Path(voPath + "/"));
 							if(!voFolder.exists()) voFolder.create(true ,true, new NullProgressMonitor());
 
 							String voContent = getSource("platform:/plugin/kr.pe.maun.csdgenerator/resource/template/voTemplate.txt");
@@ -424,6 +483,8 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 
 							voContent = voContent.replaceAll("\\[value\\]", valueBuffer.toString());
 							voContent = voContent.replaceAll("\\[GettersAndSetters\\]", gettersAndSetters.toString());
+							voContent = voContent.replaceAll("\\[columnAttray\\]", columnArrayString);
+							voContent = voContent.replaceAll("\\[commentAttray\\]", commentArrayString);
 
 							ByteArrayInputStream voFileStream = new ByteArrayInputStream(voContent.getBytes("UTF-8"));
 
@@ -439,6 +500,9 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 								searchVoContent = searchVoContent.replaceAll("\\[capitalizePrefix\\]", "Search" + capitalizePrefix);
 								searchVoContent = searchVoContent.replaceAll("\\[value\\]", valueBuffer.toString());
 								searchVoContent = searchVoContent.replaceAll("\\[GettersAndSetters\\]", "");
+								searchVoContent = searchVoContent.replaceAll("\\[columnAttray\\]", columnArrayString);
+								searchVoContent = searchVoContent.replaceAll("\\[commentAttray\\]", commentArrayString);
+
 
 								ByteArrayInputStream searchVoFileStream = new ByteArrayInputStream(searchVoContent.getBytes("UTF-8"));
 
@@ -660,6 +724,8 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 							serviceTemplate = StringUtils.replaceParameter(parameterType, serviceTemplate);
 							serviceTemplate = StringUtils.replaceReturn(returnType, serviceTemplate);
 							if(connectionProfile != null) serviceTemplate = StringUtils.replaceRepeatWord(serviceTemplate, columns);
+							serviceTemplate = serviceTemplate.replaceAll("\\[columnAttray\\]", columnArrayString);
+							serviceTemplate = serviceTemplate.replaceAll("\\[commentAttray\\]", commentArrayString);
 							serviceTemplate = serviceTemplate.replaceAll(prefix + "Dao", prefixDao.substring(0, 1).toLowerCase() + prefixDao.substring(1) + "Dao");
 
 							if(importParameterVo != null) serviceCompilationUnit.createImport(importParameterVo, null, new NullProgressMonitor());
@@ -818,6 +884,8 @@ public class CSDFunctionGeneratorAction implements IObjectActionDelegate {
 							daoTemplate = StringUtils.replaceParameter(parameterType, daoTemplate);
 							daoTemplate = StringUtils.replaceReturn(returnType, daoTemplate);
 							daoTemplate = daoTemplate.replaceAll("\\[namespace\\]", prefixDao.substring(0, 1).toLowerCase() + prefixDao.substring(1) + "Mapper");
+							daoTemplate = daoTemplate.replaceAll("\\[columnAttray\\]", columnArrayString);
+							daoTemplate = daoTemplate.replaceAll("\\[commentAttray\\]", commentArrayString);
 
 							SearchEngine searchEngine = new SearchEngine();
 							searchEngine.search(SearchPattern.createPattern(selectImportDao, IJavaSearchConstants.TYPE, IJavaSearchConstants.TYPE, SearchPattern.R_FULL_MATCH), new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()}, SearchEngine.createWorkspaceScope(), new SearchRequestor() {
